@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+ <KinBody name="holodeck">
+    <Body type="static">
+      <!--Geom type="box">
+        <extents>2.5 3.5 0.005</extents>
+        <diffuseColor>.8 1 .8</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom-->
+      <Geom type="box">
+        <extents>0.1 3.6 0.3</extents>
+        <translation>2.5 0.0 0.15</translation>
+        <diffuseColor>.8 1 .8</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>0.1 3.6 0.3</extents>
+        <translation>-2.5 0.0 0.15</translation>
+        <diffuseColor>.8 1 .8</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>2.6 0.1 0.3</extents>
+        <translation>0.0 3.5 0.15</translation>
+        <diffuseColor>.8 1 .8</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+      <Geom type="box">
+        <extents>2.6 0.1 0.3</extents>
+        <translation>0.0 -3.5 0.15</translation>
+        <diffuseColor>.8 1 .8</diffuseColor>
+        <ambientColor>0.6 0.6 0.6</ambientColor>
+      </Geom>
+    </Body>
+    <Translation>0.0 0.0 -0.01</Translation>
+  </KinBody>
+
+

@@ -1,0 +1,17 @@
+<package>
+  <description brief="youbotpy">
+
+     youbotpy
+
+  </description>
+  <author>dalitso</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/youbotpy</url>
+  <depend package="openrave"/>
+  <depend package="youbotcontroller"/>
+  <depend package="tfplugin"/>
+
+</package>
+
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<KinBody name="Rack">
+    <!-- Possible attributes are: name, type (static, dynamic(def)) -->
+    <Body name="rack1" type="dynamic">
+        <Geom type="cylinder">
+            <height>0.602</height>
+            <radius>0.025</radius>
+            <diffusecolor>0.737 0.776 0.8</diffusecolor>
+            <translation>-0.10 0.0 -0.10</translation>
+        </Geom>
+        <Geom type="cylinder">
+            <height>0.602</height>
+            <radius>0.025</radius>
+            <diffusecolor>0.737 0.776 0.8</diffusecolor>
+            <translation>0.10 0.0 -0.10</translation>
+        </Geom>
+        <Geom type="cylinder">
+            <height>0.602</height>
+            <radius>0.025</radius>
+            <diffusecolor>0.737 0.776 0.8</diffusecolor>
+            <translation>-0.10 0.0 0.10</translation>
+        </Geom>
+        <Geom type="cylinder">
+            <height>0.602</height>
+            <radius>0.025</radius>
+            <diffusecolor>0.737 0.776 0.8</diffusecolor>
+            <translation>0.10 0.0 0.10</translation>
+        </Geom>
+
+        <Geom type="box">
+            <extents>0.075 0.28 0.01</extents>
+            <diffusecolor>0.737 0.776 0.8</diffusecolor>
+            <translation>0.0 0.0 0.10</translation>
+        </Geom>
+        <Geom type="box">
+            <extents>0.075 0.28 0.01</extents>
+            <diffusecolor>0.737 0.776 0.8</diffusecolor>
+            <translation>0.0 0.0 -0.10</translation>
+        </Geom>
+        <Geom type="box">
+            <extents>0.01 0.28 0.075</extents>
+            <diffusecolor>0.737 0.776 0.8</diffusecolor>
+            <translation>0.10 0.0 0.0</translation>
+        </Geom>
+        <Geom type="box">
+            <extents>0.01 0.28 0.075</extents>
+            <diffusecolor>0.737 0.776 0.8</diffusecolor>
+            <translation>-0.10 0.0 0.0</translation>
+        </Geom>
+    </Body>
+</KinBody>
+
+

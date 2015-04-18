@@ -1,0 +1,295 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import numpy as np
+import time
+import sys
+import pickle
+import random
+import copy
+import IPython
+from itertools import izip,product,combinations,chain
+
+import openravepy as orpy
+import youbotpy
+from youbotpy import youbotik as yik
+
+simulation = False
+robotnames = ['drc1', 'drc3']
+youbotenv = youbotpy.YoubotEnv(sim=simulation,viewer=True,env_xml='environments/espresso.env.xml', \
+                               youbot_names=robotnames)
+env = youbotenv.env
+youbots = youbotenv.youbots
+
+
+yik.init(youbots[youbots.keys()[0]]) #   does not matter which robot
+                                     # we use to initialize since 
+                                     # all youbots have same kinematics.
+
+if simulation:
+    drc1_pose = np.eye(4)
+    drc1_pose[:2,3] = drc1_pose[:2,3] + np.array([-1.0,1.0])
+    drc3_pose = np.eye(4)
+    drc3_pose[:2,3] = drc3_pose[:2,3] + np.array([-1.0,-1.0])
+    youbots['drc1'].SetTransform(drc1_pose)
+    youbots['drc3'].SetTransform(drc3_pose)
+
+basemanips = {}
+for name in robotnames:
+    basemanips[name] = orpy.interfaces.BaseManipulation(youbots[name],plannername='BiRRT')
+
+
+def MoveArmTo(robot,goal,planner):
+    with env:
+        robot.SetActiveDOFs(range(5))
+        traj = planner.MoveActiveJoints(goal=goal,maxiter=5000,steplength=0.15,maxtries=2,outputtrajobj=True)
+        #print traj.serialize().replace("\\n","\n")
+    while not robot.GetController().IsDone():
+        time.sleep(0.01)
+    return traj
+
+def MoveBaseTo(robot,goal,planner):
+    xyyaw = np.array([goal[0,3],goal[1,3],np.arctan2(goal[1,0],goal[0,0])])
+    return MoveBaseToXYYaw(robot,xyyaw,planner)
+
+def MoveBaseToXYYaw(robot,xyyaw,planner):
+    while xyyaw[2] > np.pi:
+        xyyaw[2] -= 2.0*np.pi
+    while xyyaw[2] < -np.pi:
+        xyyaw[2] += 2.0*np.pi
+    current = robot.GetTransform()
+    currentxyyaw = np.array([current[0,3],current[1,3],np.arctan2(current[1,0],current[0,0])])
+    if np.linalg.norm(currentxyyaw-xyyaw) < 0.001:
+        print robot.GetName(),' already at goal. Not moving.'
+        return 
+    with env:
+        robot.SetActiveDOFs([],orpy.DOFAffine.X|orpy.DOFAffine.Y|orpy.DOFAffine.RotationAxis,[0,0,1])
+        traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.15,maxtries=2,execute=False,outputtrajobj=True)
+        robot.GetController().SetPath(traj)
+    while not robot.GetController().IsDone():
+        time.sleep(0.01)
+    return traj
+
+if not simulation:
+    # detect table pose
+    youbotenv.tfplugin.RegisterBody(env.GetKinBody('table'),'espresso_table')
+    time.sleep(2.0)
+    youbotenv.tfplugin.UnregisterBody(env.GetKinBody('table'))
+
+# open hands
+youbotenv.MoveGripper('drc1', 0.01, 0.01)
+youbotenv.MoveGripper('drc3', 0.01, 0.01)
+
+IPython.embed()
+
+cup = env.GetKinBody('cup')
+pot = env.GetKinBody('pot')
+
+table_pose = env.GetKinBody('table').GetTransform()
+cup_pose = table_pose.copy()
+cup_pose[:3,3] = cup_pose[:3,3] + np.array([-0.25, 0.27, 0.057])
+pot_pose = table_pose.copy()
+pot_pose[:3,3] = pot_pose[:3,3] + np.array([-0.25, -0.23, 0.057])
+cup.SetTransform(cup_pose)
+pot.SetTransform(pot_pose)
+box = env.GetKinBody('box')
+box_pose = table_pose.copy()
+box_pose[2,3] -= 0.24
+box.SetTransform(box_pose)
+
+raw_input('hit enter to continue.')
+
+time.sleep(1.0)
+
+start_config = np.array([  1.29999313e-01,   1.35569384e-01,   1.95582129e+00, -5.16898338e-01,   2.61466986e-01])
+traj = MoveArmTo(youbots['drc3'],start_config,basemanips['drc3'])
+traj = MoveArmTo(youbots['drc1'],start_config,basemanips['drc1'])
+
+drc3_start_config = np.array([  3.19995184e-01,   8.37886518e-01,   8.36770278e-01, -9.71859844e-02,   1.57188723e+00])
+traj = MoveArmTo(youbots['drc3'],drc3_start_config,basemanips['drc3'])
+drc3_start_base_in_table = np.array([[ 0.96598726, -0.25855981, -0.00392857, -1.06385665],
+                                     [ 0.25757702,  0.96343662, -0.07378312, -0.23599303],
+                                     [ 0.02286228,  0.07026164,  0.99726657, -0.23542467],
+                                     [ 0.        ,  0.        ,  0.        ,  1.        ]])
+drc3_start_base = np.dot(table_pose,drc3_start_base_in_table)
+
+
+cup_pose = cup.GetTransform()
+pot_pose = pot.GetTransform()
+
+backup_dist = 0.1
+cup_backed_up = cup_pose
+pot_backed_up = pot_pose
+
+desired_ee_in_cup = np.array([[  0.0,   0.0,   1.0, -0.05],
+                              [  0.0,   1.0,   0.0, 0.0],
+                              [ -1.0,   0.0,   0.0, 0.08],
+                              [  0.0,   0.0,   0.0, 1.0]])
+
+desired_ee_in_pot = np.array([[  0.0,   0.0,   1.0, -0.08],
+                              [  1.0,   0.0,   0.0,  0.0],
+                              [  0.0,   1.0,   0.0,  0.085],
+                              [  0.0,   0.0,   0.0,  1.0]])
+
+cup_backed_up[0,3] = cup_backed_up[0,3] - backup_dist
+pot_backed_up[0,3] = pot_backed_up[0,3] - backup_dist
+
+ee_for_cup = np.dot(cup_backed_up,desired_ee_in_cup)
+ee_for_pot = np.dot(pot_backed_up,desired_ee_in_pot)
+
+# find ik soln for cup and pot
+drc1_base_poses,drc1_arm_configs = yik.FindIKAndBaseSolutions(youbots['drc1'],ee_for_cup,
+                                                              returnfirst=True,checkenvcollision=True,
+                                                              randomize=True,
+                                                              rotationresolution=0.01,
+                                                              translationresolution=0.05)
+
+# find ik soln for cup and pot
+drc3_base_poses,drc3_arm_configs = yik.FindIKAndBaseSolutions(youbots['drc3'],ee_for_pot,
+                                                              returnfirst=True,checkenvcollision=True,
+                                                              randomize=True,
+                                                              rotationresolution=0.01,
+                                                              translationresolution=0.05)
+
+
+# drc3
+#traj = MoveArmTo(youbots['drc3'],drc3_arm_configs[0],basemanips['drc3'])
+#traj = MoveBaseTo(youbots['drc3'],drc3_base_poses[0],basemanips['drc3'])
+#pot.Enable(False)
+#base_goal = drc3_base_poses[0].copy()
+#base_goal[0,3] = base_goal[0,3] + backup_dist
+#traj = MoveBaseTo(youbots['drc3'],base_goal,basemanips['drc3'])
+#pot.Enable(True)
+#youbotenv.Grab('drc3',pot)
+#raw_input('drc3 at postgrasp. hit enter to continue.')
+
+traj = MoveArmTo(youbots['drc3'],drc3_start_config,basemanips['drc3'])
+traj = MoveBaseTo(youbots['drc3'],drc3_start_base,basemanips['drc3'])
+
+#raw_input('drc3 at pregrasp. hit enter to continue.')
+
+# Move forward backup_dist
+pot.Enable(False)
+base_goal = drc3_start_base.copy()
+base_goal[0,3] = base_goal[0,3] + 0.105
+traj = MoveBaseTo(youbots['drc3'],base_goal,basemanips['drc3'])
+pot.Enable(True)
+youbotenv.Grab('drc3',pot)
+time.sleep(4.0)
+#raw_input('drc3 at postgrasp. hit enter to continue.')
+# move away
+base_goal[:2,3] = base_goal[:2,3] + np.array([-5.0*backup_dist,-5.0*backup_dist])
+traj = MoveBaseTo(youbots['drc3'],base_goal,basemanips['drc3'])
+#raw_input('drc3 done. hit enter to continue.')
+
+drc1_start_config = np.array([  0.,   0.637886518,   1.5, -0.6,   0.])
+drc1_start_base_in_table = np.array([[ 0.99668371, -0.01410326,  0.08014163, -0.9327922 ],
+                                     [ 0.02201131,  0.99487708, -0.09866657,  0.2671443 ],
+                                     [-0.07833955,  0.10010338,  0.99188821, -0.18585228],
+                                     [ 0.        ,  0.        ,  0.        ,  1.        ]])
+drc1_start_base = np.dot(table_pose,drc1_start_base_in_table)
+
+traj = MoveArmTo(youbots['drc1'],drc1_start_config,basemanips['drc1'])
+traj = MoveBaseTo(youbots['drc1'],drc1_start_base,basemanips['drc1'])
+
+## plan with drc1 to cup and grab and move out of the way
+#traj = MoveArmTo(youbots['drc1'],drc1_arm_configs[0],basemanips['drc1'])
+#traj = MoveBaseTo(youbots['drc1'],drc1_base_poses[0],basemanips['drc1'])
+
+#raw_input('drc1 at pregrasp. hit enter to continue.')
+
+# Move forward backup_dist
+#cup.Enable(False)
+#base_goal = drc1_base_poses[0].copy()
+#base_goal[0,3] = base_goal[0,3] + backup_dist
+#traj = MoveBaseTo(youbots['drc1'],base_goal,basemanips['drc1'])
+#cup.Enable(True)
+#youbotenv.Grab('drc1',cup)
+#raw_input('drc1 at postgrasp. hit enter to continue.')
+cup.Enable(False)
+base_goal = drc1_start_base.copy()
+base_goal[0,3] = base_goal[0,3] + 0.07
+traj = MoveBaseTo(youbots['drc1'],base_goal,basemanips['drc1'])
+cup.Enable(True)
+youbotenv.MoveGripper('drc1', 0.004, 0.004)
+youbots['drc1'].Grab(cup)
+time.sleep(3.0)
+#raw_input('drc1 at postgrasp. hit enter to continue.')
+
+# move away
+base_goal[:2,3] = base_goal[:2,3] + np.array([-5.0*backup_dist,5.0*backup_dist])
+traj = MoveBaseTo(youbots['drc1'],base_goal,basemanips['drc1'])
+#raw_input('drc1 done. hit enter to continue.')
+
+# rotate bases 90 deg in opp directions.
+current = youbots['drc1'].GetTransform()
+xyyawgoal = np.array([current[0,3],current[1,3],np.arctan2(current[1,0],current[0,0])-(np.pi/2.0)])
+traj = MoveBaseToXYYaw(youbots['drc1'],xyyawgoal,basemanips['drc1'])
+
+current = youbots['drc3'].GetTransform()
+xyyawgoal = np.array([current[0,3],current[1,3],np.arctan2(current[1,0],current[0,0])+(np.pi/2.0)])
+traj = MoveBaseToXYYaw(youbots['drc3'],xyyawgoal,basemanips['drc3'])
+
+#raw_input('facing each other done. hit enter to continue.')
+
+drc1_catch_coffee_arm = np.array([0.,  1.20773857,  2.20413277, -1.75729646,  0.12328116])
+drc1_in_drc3_catch_coffee_base = np.array([[-0.94716363, -0.29104258, -0.13481567,  1.20],
+                                           [ 0.26140715, -0.94399179,  0.20135988, -0.38],
+                                           [-0.18586918,  0.15547898,  0.97019531,  0.10283061],
+                                           [ 0.        ,  0.        ,  0.        ,  1.        ]])
+
+## lower cup 10cm 
+#lower_cup_dist = 0.08
+#ee = youbots['drc1'].GetManipulators()[0].GetEndEffectorTransform()
+#ee[2,3] = ee[2,3] - lower_cup_dist
+## Harcoding rotation matrix
+##ee[:3,0] = np.array([0.,0.,-1.])
+##ee[:3,1] = np.array([1.,0.,0.])
+##ee[:3,2] = np.array([0.,-1.,0.])
+#drc1_base_poses,drc1_arm_configs = yik.FindIKAndBaseSolutions(youbots['drc1'],ee,
+#                                                              returnfirst=True,checkenvcollision=True,
+#                                                              randomize=True,
+#                                                              rotationresolution=0.01,
+#                                                              translationresolution=0.05)
+#traj = MoveArmTo(youbots['drc1'],drc1_arm_configs[0],basemanips['drc1'])
+#traj = MoveBaseTo(youbots['drc1'],drc1_base_poses[0],basemanips['drc1'])
+
+traj = MoveArmTo(youbots['drc1'],drc1_catch_coffee_arm,basemanips['drc1'])
+traj = MoveBaseTo(youbots['drc1'],np.dot(youbots['drc3'].GetTransform(),drc1_in_drc3_catch_coffee_base),basemanips['drc1'])
+
+#raw_input('drc1 lowered cup. hit enter to continue.')
+#
+## move cup under thru base movement.
+#cup_xy = cup.GetTransform()[:2,3]
+#pot_xy = pot.GetTransform()[:2,3]
+#diff = pot_xy - cup_xy
+#current = youbots['drc1'].GetTransform()
+#xyyawgoal = np.array([current[0,3]+diff[0]+0.02,current[1,3]+diff[1]+0.06,np.arctan2(current[1,0],current[0,0])])
+#traj = MoveBaseToXYYaw(youbots['drc1'],xyyawgoal,basemanips['drc1'])
+#raw_input('cup under pot. hit enter to continue.')
+
+# rotate pot to pour coffee
+dofvalues = youbots['drc3'].GetDOFValues()[:5]
+#dofvalues[4] = dofvalues[4] - (np.pi/2.0) # rotate 90 degrees
+#dofvalues[4] = dofvalues[4] - 1.31 # rotate 75 degrees
+dofvalues[4] = dofvalues[4] - 1.25 # rotate 70 degrees
+traj = MoveArmTo(youbots['drc3'],dofvalues,basemanips['drc3'])
+time.sleep(1.0)
+dofvalues[4] = dofvalues[4] + 1.25 # rotate 70 degrees
+traj = MoveArmTo(youbots['drc3'],dofvalues,basemanips['drc3'])
+#raw_input('pouring done. hit enter to continue.')
+
+# backup robot with cup, rotate 180 degrees
+current = youbots['drc1'].GetTransform()
+xyyawgoal = np.array([current[0,3]-5.0*backup_dist,current[1,3]+5.0*backup_dist,np.arctan2(current[1,0],current[0,0])])
+traj = MoveBaseToXYYaw(youbots['drc1'],xyyawgoal,basemanips['drc1'])
+current = youbots['drc1'].GetTransform()
+xyyawgoal = np.array([current[0,3],current[1,3]-0.5,np.arctan2(current[1,0],current[0,0])+np.pi])
+traj = MoveBaseToXYYaw(youbots['drc1'],xyyawgoal,basemanips['drc1'])
+
+#raw_input('Hit Enter to open grippers.')
+time.sleep(3.0)
+youbotenv.MoveGripper('drc1', 0.01, 0.01)
+IPython.embed()
+
+

@@ -1,0 +1,19 @@
+<Robot>
+    <KinBody name="wing_transport_block">
+        <!-- <RotationAxis>1 0 0 90</RotationAxis> -->
+        <Body name="base" type="dynamic">
+            <Geom type="box" modifiable="true">
+                <extents>0.290 0.190 0.070</extents>
+                <Translation>-0.540 0.0 0.070</Translation>
+            </Geom>
+            <Geom type="box" modifiable="true">
+                <extents>0.25 0.125 0.01</extents>
+                <Translation>0.0 0.0 0.3</Translation>
+            </Geom>
+            <Geom type="box" modifiable="true">
+                <extents>0.290 0.190 0.070</extents>
+                <Translation>0.540 0.0 0.070</Translation>
+            </Geom>
+        </Body>
+    </KinBody>
+</Robot>

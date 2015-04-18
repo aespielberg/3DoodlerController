@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<KinBody name="SundvikChairLeftSide">
+    <!-- Possible attributes are: name, type (static, dynamic(def)) -->
+    <Body name="box1" type="dynamic">
+        <Geom type="box">
+            <extents>0.266 0.015 0.015</extents>
+            <translation>0.266 0.015 0.015</translation>
+            <diffusecolor>0.8 0.4 0.0</diffusecolor>
+            <!--<transparency>0.8</transparency>-->
+        </Geom>
+        <Geom type="box">
+            <extents>0.0125 0.114 0.015</extents>
+            <translation>0.06 0.144 0.015</translation>
+            <diffusecolor>0.8 0.4 0.0</diffusecolor>
+            <!--<transparency>0.8</transparency>-->
+        </Geom>
+        <Geom type="box">
+            <extents>0.0225 0.114 0.015</extents>
+            <translation>0.255 0.144 0.015</translation>
+            <diffusecolor>0.8 0.4 0.0</diffusecolor>
+            <!--<transparency>0.8</transparency>-->
+        </Geom>
+        <Geom type="box">
+            <extents>0.1375 0.015 0.015</extents>
+            <translation>0.1375 0.2725 0.015</translation>
+            <diffusecolor>0.8 0.4 0.0</diffusecolor>
+            <!--<transparency>0.8</transparency>-->
+        </Geom>
+    </Body>
+</KinBody>
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<KinBody name="WingSkin">
+    <!-- Possible attributes are: name, type (static, dynamic(def)) -->
+    <!--Body name="box1" type="dynamic">
+        <Geom type="box">
+            <extents>0.40 0.15 0.01</extents>
+            <diffusecolor>0.8 0.2 0.2</diffusecolor>
+        </Geom>
+    </Body-->
+    <Body name="wingskinbody" type="dynamic">
+        <Geom type="trimesh">
+            <Data>wing/wing_skin_upper_old.stl</Data>
+            <Render>wing/wing_skin_upper_old.stl</Render>
+        </Geom>
+    </Body>
+</KinBody>
+
+

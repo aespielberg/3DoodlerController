@@ -1,0 +1,10 @@
+<Robot>
+    <KinBody name="twoblocks">
+        <Body name="base" type="dynamic">
+            <Geom type="box" modifiable="true">
+                <extents>0.250 0.250 0.250</extents>
+                <Translation>0.0 0.0 0.251</Translation>
+            </Geom>
+        </Body>
+    </KinBody>
+</Robot>

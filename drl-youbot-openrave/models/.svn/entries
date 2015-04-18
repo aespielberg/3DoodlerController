@@ -1,0 +1,37 @@
+10
+
+dir
+1639
+svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models
+svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+
+
+
+2015-03-24T03:24:03.691400Z
+1639
+spbaker
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+c4b41905-7492-43aa-9acf-8b5ffadedbda
+
+environments
+dir
+
+robots
+dir
+
+objects
+dir
+

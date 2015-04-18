@@ -1,0 +1,231 @@
+<Robot>
+    <KinBody name="youBot">
+        <Body name="base" type="dynamic">
+            <!-- This first geom is the valid realistic base stl -->
+            <!--Geom type="trimesh" modifiable="true">
+                <Translation>0 0 0.12</Translation>  Vicon ball center height from ground.
+                <Translation>0 0 -0.008</Translation>  Vicon ball center height 
+                <Translation>0.040 -0.160 -0.089</Translation>
+                <data>base.stl 0.001</data>
+                <render>base.stl 0.001</render>
+            </Geom-->
+            <!--Geom type="trimesh" modifiable="true">
+                <data>fixed_models/plate_convex.stl 1.0</data>
+                <render>fixed_models/plate_convex.stl 1.0</render>
+            </Geom-->
+            <Geom type="trimesh" modifiable="true">
+                <Translation>0 0 0.12</Translation> <!-- Vicon ball center height from ground. -->
+                <Translation>0 0 -0.008</Translation> <!-- Vicon ball center height from base top surface. -->
+                <Translation>0.373 0 0.0325</Translation>
+                <data>fixed_models/arm_base_frame_convex.stl 1.0</data>
+                <Render>fixed_models/arm_base_frame_convex.stl 1.0</Render>
+            </Geom>
+            <Geom type="box" modifiable="true">
+                <Extents>0.290 0.190 0.067</Extents>
+                <Translation>0 0 0.12</Translation> <!-- Vicon ball center height from ground. -->
+                <Translation>0 0 -0.008</Translation> <!-- Vicon ball center height -->
+                <Translation>0.237 0.003 -0.046</Translation>
+            </Geom>
+            <!--Geom type="cylinder" modifiable="true" render="true">
+                <Radius>0.05</Radius>
+                <Height>0.05</Height>
+            </Geom>
+            <Geom type="box" modifiable="true" render="false">
+                <Extents>0.05 0.05 0.05</Extents>
+            </Geom>
+            <Geom type="cylinder" modifiable="true" render="true">
+                <Radius>0.05</Radius>
+                <Height>0.05</Height>
+            </Geom>
+            <Geom type="box" modifiable="true" render="false">
+                <Extents>0.05 0.05 0.05</Extents>
+            </Geom>
+            <Geom type="cylinder" modifiable="true" render="true">
+                <Radius>0.05</Radius>
+                <Height>0.05</Height>
+            </Geom>
+            <Geom type="box" modifiable="true" render="false">
+                <Extents>0.05 0.05 0.05</Extents>
+            </Geom>
+            <Geom type="cylinder" modifiable="true" render="true">
+                <Radius>0.05</Radius>
+                <Height>0.05</Height>
+            </Geom>
+            <Geom type="box" modifiable="true" render="false">
+                <Extents>0.05 0.05 0.05</Extents>
+            </Geom-->
+        </Body>
+        <Body name="link1" type="dynamic">
+            <offsetfrom>base</offsetfrom>
+            <Translation>0 0 0.12</Translation> <!-- Vicon ball center height from ground. -->
+            <Translation>0 0 -0.008</Translation> <!-- Vicon ball center height -->
+            <rotationaxis>1 0 0 180</rotationaxis>
+            <Translation>0.387 0 0.14693</Translation>
+            <Geom type="trimesh" modifiable="true">
+                <data>fixed_models/arm_joint_1_convex.stl 1.0</data>
+                <Render>fixed_models/arm_joint_1_convex.stl 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="link2" type="dynamic">
+            <offsetfrom>base</offsetfrom>
+            <Translation>0 0 0.12</Translation> <!-- Vicon ball center height from ground. -->
+            <Translation>0 0 -0.008</Translation> <!-- Vicon ball center height -->
+            <rotationaxis>1 0 0 -90</rotationaxis>
+            <rotationaxis>0 1 0 -90</rotationaxis>
+            <Translation>0.420 0.0 0.147</Translation>
+            <Geom type="trimesh" modifiable="true">
+                <data>fixed_models/arm_joint_2_convex.stl 1.0</data>
+                <Render>fixed_models/arm_joint_2_convex.stl 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="link3" type="dynamic">
+            <offsetfrom>base</offsetfrom>
+            <Translation>0 0 0.12</Translation> <!-- Vicon ball center height from ground. -->
+            <Translation>0 0 -0.008</Translation> <!-- Vicon ball center height -->
+            <rotationaxis>1 0 0 90</rotationaxis>
+            <rotationaxis>0 0 1 180</rotationaxis>
+            <Translation>0.420 0.0 0.302</Translation>
+            <Geom type="trimesh" modifiable="true">
+                <data>fixed_models/arm_joint_3_convex.stl 1.0</data>
+                <Render>fixed_models/arm_joint_3_convex.stl 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="link4" type="dynamic">
+            <offsetfrom>base</offsetfrom>
+            <Translation>0 0 0.12</Translation> <!-- Vicon ball center height from ground. -->
+            <Translation>0 0 -0.008</Translation> <!-- Vicon ball center height -->
+            <Translation>0.420 0.0 0.437</Translation>
+            <rotationaxis>1 0 0 90</rotationaxis>
+            <rotationaxis>0 0 1 180</rotationaxis>
+            <Geom type="trimesh" modifiable="true">
+                <data>fixed_models/arm_joint_4_convex.stl 1.0</data>
+                <Render>fixed_models/arm_joint_4_convex.stl 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="link5" type="dynamic">
+            <offsetfrom>base</offsetfrom>
+            <Translation>0 0 0.12</Translation> <!-- Vicon ball center height from ground. -->
+            <Translation>0 0 -0.008</Translation> <!-- Vicon ball center height -->
+            <Translation>0.420 0.0 0.5610</Translation>
+            <rotationaxis>0 0 1 180</rotationaxis>
+            <Geom type="trimesh" modifiable="true">
+                <data>fixed_models/arm_joint_5_convex.stl 1.0</data>
+                <Render>fixed_models/arm_joint_5_convex.stl 1.0</Render>
+            </Geom>
+            <Geom type="trimesh" modifiable="true">
+                <Translation>0.0 0.0 0.05716</Translation>
+                <rotationaxis>0 0 1 180</rotationaxis>
+                <data>fixed_models/gripper_base_frame_convex.stl 1.0</data>
+                <Render>fixed_models/gripper_base_frame_convex.stl 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="leftgripper" type="dynamic">
+            <offsetfrom>link5</offsetfrom>
+            <Translation>0.0 0.0 0.05716</Translation>
+            <rotationaxis>0 0 1 180</rotationaxis>
+            <Translation>0.0 -0.0082 0.0</Translation>
+            <Geom type="trimesh" modifiable="true">
+                <data>fixed_models/gripper_left_finger_convex.stl 1.0</data>
+                <Render>fixed_models/gripper_left_finger_convex.stl 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="rightgripper" type="dynamic">
+            <offsetfrom>link5</offsetfrom>
+            <Translation>0.0 0.0 0.05716</Translation>
+            <rotationaxis>0 0 1 180</rotationaxis>
+            <Translation>0.0 0.0082 0.0</Translation>
+            <Geom type="trimesh" modifiable="true">
+                <data>fixed_models/gripper_right_finger_convex.stl 1.0</data>
+                <Render>fixed_models/gripper_right_finger_convex.stl 1.0</Render>
+            </Geom>
+        </Body>
+
+        <Joint name="j0" type="hinge">
+            <Body>base</Body>
+            <Body>link1</Body>
+            <offsetfrom>link1</offsetfrom>
+            <anchor>0 0 0</anchor>
+            <axis>0 0 1</axis>
+            <limitsrad>-2.929 2.880</limitsrad> <!-- These are the soft limits of the youbot driver. Hard limits are -2.949606435870417 to +2.949606435870417 (-169 degrees to +169 degrees). -->
+            <maxvel>3</maxvel>
+            <resolution>1</resolution>
+        </Joint>
+        <Joint name="j1" type="hinge">
+            <Body>link1</Body>
+            <Body>link2</Body>
+            <offsetfrom>link2</offsetfrom>
+            <Anchor>0 0 0</Anchor>
+            <axis>0 0 1</axis>
+            <limitsrad> -1.12439471 1.48351599 </limitsrad> <!-- These are the soft limits of the youbot driver. Hard limits are -1.1344640137963142 to +1.5707963267948966 (-65 degrees to +90 degrees). -->
+            <maxvel>3</maxvel>
+            <resolution>1</resolution>
+        </Joint>
+        <Joint name="j2" type="hinge">
+            <Body>link2</Body>
+            <Body>link3</Body>
+            <offsetfrom>link3</offsetfrom>
+            <Anchor>0 0 0</Anchor>
+            <axis>0 0 1</axis>
+            <limitsrad> -2.47835929 2.53247271 </limitsrad>  <!-- These are the soft limits of the youbot driver. Hard limits are -2.6354471705114375 to +2.548180707911721 (-151 degrees to +146 degrees). -->
+            <maxvel>3</maxvel>
+            <resolution>1</resolution>
+        </Joint>
+        <Joint name="j3" type="hinge">
+            <Body>link3</Body>
+            <Body>link4</Body>
+            <offsetfrom>link4</offsetfrom>
+            <axis>0 0 1</axis>
+            <limitsrad> -1.76683848 1.64013752 </limitsrad>  <!-- These are the soft limits of the youbot driver. Hard limits are -1.7889624832941877 to +1.7889624832941877 (-102.5 degrees to +102.5 degrees). -->
+            <maxvel>3</maxvel>
+            <resolution>1</resolution>
+        </Joint>
+         <Joint name="j4" type="hinge">
+            <Body>link4</Body>
+            <Body>link5</Body>
+            <offsetfrom>link5</offsetfrom>
+            <axis>0 0 -1</axis>
+            <limitsrad> -2.8128065 2.7181535 </limitsrad>  <!-- These are the soft limits of the youbot driver. Hard limits are -2.923426497090502 to +2.923426497090502 (-167.5 degrees to +167.5 degrees). -->
+            <maxvel>3</maxvel>
+            <resolution>1</resolution>
+        </Joint>
+        <Joint name="jg1" type="slider">
+            <Body>link5</Body>
+            <Body>leftgripper</Body>
+            <offsetfrom>leftgripper</offsetfrom>
+            <limits>0 .01</limits>
+            <axis>0 1 0</axis>
+            <maxvel>1</maxvel>
+            <resolution>0.005</resolution>
+        </Joint>
+        <Joint name="jg2" type="slider">
+            <Body>link5</Body>
+            <Body>rightgripper</Body>
+            <offsetfrom>rightgripper</offsetfrom>
+            <limits>0 .01</limits>
+            <axis>0 -1 0</axis>
+            <maxvel>1</maxvel>
+            <resolution>0.005</resolution>
+        </Joint>
+
+        <adjacent>base link1</adjacent>
+        <adjacent>link1 link2</adjacent>
+        <adjacent>link2 link3</adjacent>
+        <adjacent>link3 link4</adjacent>
+        <adjacent>link4 link5</adjacent>
+        <adjacent>link5 leftgripper</adjacent>
+        <adjacent>link5 rightgripper</adjacent>
+        <adjacent>leftgripper rightgripper</adjacent>
+    </KinBody>
+
+    <Manipulator name="endeffector">
+        <Translation>0 0 0.07</Translation>
+        <joints>jg1 jg2</joints>
+        <closingdirection>-1 -1</closingdirection><!--??-->
+        <direction>1 0 0</direction>
+        <effector>link5</effector>
+        <base>base</base>
+    </Manipulator>
+
+
+</Robot>
+

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+
+    <node pkg="tf" type="static_transform_publisher" name="rightside_tf" args="0 0 0 0 1.57 0 /map /rightside 100"/>
+
+</launch

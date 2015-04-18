@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import optparse
+import IPython
+
+import youbotpy
+import openravepy as orpy
+#import tfplugin
+
+
+parser = optparse.OptionParser()
+parser.add_option('-s', '--sim', help='Run in simulation mode.',\
+        dest='sim', default=False, action='store_true')
+parser.add_option('-v', '--viewer', help='Show openrave viewer.',\
+        dest='viewer', default=False, action='store_true')
+parser.add_option('-e', '--env', help='environment file to be loaded', \
+        dest='env', default=None, action='store', metavar='<ENV-XML-FILE-PATH>', type='string')
+parser.add_option('-y', '--youbot', help='youbot name', \
+        dest='youbot_names', default=[], action='append', type='string')
+
+(opts, args) = parser.parse_args()
+
+youbotenv = youbotpy.YoubotEnv(opts.sim,opts.viewer,env_xml=opts.env,youbot_names=opts.youbot_names)
+env = youbotenv.env
+youbots = youbotenv.youbots
+
+IPython.embed()
+
+

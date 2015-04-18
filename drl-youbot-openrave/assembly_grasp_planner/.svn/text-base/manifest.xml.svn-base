@@ -1,0 +1,15 @@
+<package>
+  <description brief="assembly_grasp_planner">
+
+     assembly_grasp_planner
+
+  </description>
+  <author>drl-mocap</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/assembly_execution</url>
+  <depend package="tf"/>
+
+</package>
+
+

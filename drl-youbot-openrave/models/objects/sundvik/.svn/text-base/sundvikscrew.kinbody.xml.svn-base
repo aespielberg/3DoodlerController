@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<KinBody name="SundvikChairScrew">
+    <!-- Possible attributes are: name, type (static, dynamic(def)) -->
+    <Body name="box1" type="dynamic">
+        <Geom type="cylinder">
+            <height>0.05</height>
+            <radius>0.005</radius>
+            <diffusecolor>0.8 0.4 0.0</diffusecolor>
+            <translation>0.0 0.025 0.0</translation>
+            <!--<transparency>0.8</transparency>-->
+        </Geom>
+    </Body>
+</KinBody>
+
+

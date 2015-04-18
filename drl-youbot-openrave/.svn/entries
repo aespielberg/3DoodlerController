@@ -1,0 +1,49 @@
+10
+
+dir
+1561
+svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave
+svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+
+
+
+2014-09-30T16:29:46.116230Z
+1561
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+c4b41905-7492-43aa-9acf-8b5ffadedbda
+
+scripts
+dir
+
+tfplugin
+dir
+
+youbotpy
+dir
+
+assembly_grasp_planner
+dir
+
+dummy_openrave_ros_pkg
+dir
+
+models
+dir
+
+youbotcontroller
+dir
+

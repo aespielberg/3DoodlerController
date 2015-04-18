@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<KinBody name="WingBox">
+    <!-- Possible attributes are: name, type (static, dynamic(def)) -->
+    <Body name="wingboxbody" type="dynamic">
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh.stl 0.002</Data>
+            <Render>wing/box/Mesh.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh001.stl 0.002</Data>
+            <Render>wing/box/Mesh001.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh002.stl 0.002</Data>
+            <Render>wing/box/Mesh002.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh003.stl 0.002</Data>
+            <Render>wing/box/Mesh003.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh004.stl 0.002</Data>
+            <Render>wing/box/Mesh004.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh005.stl 0.002</Data>
+            <Render>wing/box/Mesh005.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh006.stl 0.002</Data>
+            <Render>wing/box/Mesh006.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh007.stl 0.002</Data>
+            <Render>wing/box/Mesh007.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh008.stl 0.002</Data>
+            <Render>wing/box/Mesh008.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh009.stl 0.002</Data>
+            <Render>wing/box/Mesh009.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh010.stl 0.002</Data>
+            <Render>wing/box/Mesh010.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh011.stl 0.002</Data>
+            <Render>wing/box/Mesh011.stl 0.002</Render>
+        </Geom>
+        <Geom type="trimesh">
+            <Data>wing/box/Mesh012.stl 0.002</Data>
+            <Render>wing/box/Mesh012.stl 0.002</Render>
+        </Geom>
+    </Body>
+</KinBody>
+
+

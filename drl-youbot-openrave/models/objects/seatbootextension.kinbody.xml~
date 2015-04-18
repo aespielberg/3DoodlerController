@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<KinBody name="SeatBoot">
+    <!-- Possible attributes are: name, type (static, dynamic(def)) -->
+    <Body name="box1" type="dynamic">
+        <Geom type="box">
+            <extents>0.0925 0.05 0.045</extents>
+            <diffusecolor>0.8 0.4 0.0</diffusecolor>
+            <translation>0.0 0.0 0.0</translation>
+            <rotationaxis>0.0 0.0 1 90</rotationaxis>
+            <!--<transparency>0.8</transparency>-->
+        </Geom>
+    </Body>
+</KinBody>
+
+

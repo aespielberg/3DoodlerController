@@ -1,0 +1,239 @@
+<Robot>
+    <KinBody name="youBot">
+        <Body name="base" type="dynamic">
+            <!--rotationaxis>0 0 1 -90</rotationaxis-->
+            <Geom type="trimesh" modifiable="true">
+                <Translation>0.0 0 0.084</Translation>
+                <data>models/youbot/base_convex.dae 1.0</data>
+                <Render>models/youbot/base_convex.dae 1.0</Render>
+            </Geom>
+            <Geom type="trimesh" modifiable="true">
+                <Translation>0.143 0 0.046</Translation>
+                <Translation>0.0 0 0.084</Translation>
+                <data>models/youbot/arm0_convex.dae 1.0</data>
+                <Render>models/youbot/arm0_convex.dae 1.0</Render>
+            </Geom>
+            <Geom type="cylinder" modifiable="true" render="true">
+                <Radius>0.05</Radius>
+                <Height>0.05</Height>
+                <Translation>0.228 0.158 -0.034</Translation>
+                <Translation>0.0 0 0.084</Translation>
+            </Geom>
+            <Geom type="box" modifiable="true" render="false">
+                <Extents>0.05 0.05 0.05</Extents>
+                <Translation>0.228 0.158 -0.034</Translation>
+                <Translation>0.0 0 0.084</Translation>
+            </Geom>
+            <Geom type="cylinder" modifiable="true" render="true">
+                <Radius>0.05</Radius>
+                <Height>0.05</Height>
+                <Translation>-0.228 0.158 -0.034</Translation>
+                <Translation>0.0 0 0.084</Translation>
+            </Geom>
+            <Geom type="box" modifiable="true" render="false">
+                <Extents>0.05 0.05 0.05</Extents>
+                <Translation>-0.228 0.158 -0.034</Translation>
+                <Translation>0.0 0 0.084</Translation>
+            </Geom>
+            <Geom type="cylinder" modifiable="true" render="true">
+                <Radius>0.05</Radius>
+                <Height>0.05</Height>
+                <Translation>0.228 -0.158 -0.034</Translation>
+                <Translation>0.0 0 0.084</Translation>
+            </Geom>
+            <Geom type="box" modifiable="true" render="false">
+                <Extents>0.05 0.05 0.05</Extents>
+                <Translation>0.228 -0.158 -0.034</Translation>
+                <Translation>0.0 0 0.084</Translation>
+            </Geom>
+            <Geom type="cylinder" modifiable="true" render="true">
+                <Radius>0.05</Radius>
+                <Height>0.05</Height>
+                <Translation>-0.228 -0.158 -0.034</Translation>
+                <Translation>0.0 0 0.084</Translation>
+            </Geom>
+            <Geom type="box" modifiable="true" render="false">
+                <Extents>0.05 0.05 0.05</Extents>
+                <Translation>-0.228 -0.158 -0.034</Translation>
+                <Translation>0.0 0 0.084</Translation>
+            </Geom>
+            <Geom type="box" modifiable="true" render="false">
+                <Extents>0.29 0.20 0.065</Extents>
+                <Translation>0.0 0.0 0.065</Translation>
+            </Geom>
+        </Body>
+        <Body name="link1" type="dynamic">
+            <Translation>0.143 0 0.046</Translation>
+            <Translation>0.024 0.0 0.096</Translation>
+            <Translation>0.0 0 0.084</Translation>
+            <!--rotationaxis>1 0 0 90</rotationaxis-->
+            <Geom type="trimesh" modifiable="true">
+                <data>models/youbot/arm1_convex.dae 1.0</data>
+                <Render>models/youbot/arm1_convex.dae 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="link2" type="dynamic">
+            <Translation>0.143 0 0.046</Translation>
+            <Translation>0.06 -0.033 0.1945</Translation>
+            <Translation>0.0 0 0.084</Translation>
+            <!--rotationaxis>1 0 0 90</rotationaxis-->
+            <Geom type="trimesh" modifiable="true">
+                <data>models/youbot/arm2_convex.dae 1.0</data>
+                <Render>models/youbot/arm2_convex.dae 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="link3" type="dynamic">
+            <Translation>0.143 0 0.046</Translation>
+            <Translation>0.06 0.0275 0.35</Translation>
+            <Translation>0.0 0 0.084</Translation>
+            <!--rotationaxis>1 0 0 90</rotationaxis-->
+            <Geom type="trimesh" modifiable="true">
+                <data>models/youbot/arm3_convex.dae 1.0</data>
+                <Render>models/youbot/arm3_convex.dae 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="link4" type="dynamic">
+            <Translation>0.143 0 0.046</Translation>
+            <Translation>0.06 -0.01 0.44</Translation>
+            <Translation>0.0 0 0.084</Translation>
+            <!--rotationaxis>1 0 0 90</rotationaxis-->
+            <Geom type="trimesh" modifiable="true">
+                <data>models/youbot/arm4_convex.dae 1.0</data>
+                <Render>models/youbot/arm4_convex.dae 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="link5" type="dynamic">
+            <Translation>0.143 0 0.046</Translation>
+            <Translation>0.06 0 0.505</Translation>
+            <Translation>0.0 0 0.084</Translation>
+            <!--rotationaxis>1 0 0 90</rotationaxis-->
+            <Geom type="trimesh" modifiable="true" render="true">
+                <data>models/youbot/arm5_convex.dae 1.0</data>
+                <Render>models/youbot/arm5_convex.dae 1.0</Render>
+            </Geom>
+            <Geom type="trimesh" modifiable="true" render="true">
+                <!--Translation>0.14 0 0.046</Translation>
+                <Translation>0.06 0 0.535</Translation-->
+                <Translation>-0.003 0 0.03</Translation>
+                <data>models/youbot/palm.dae 1.0</data>
+                <Render>models/youbot/palm.dae 1.0</Render>
+            </Geom>
+
+            <Geom type="box" modifiable="true" render="false">
+                <Extents>0.03 0.05 0.0325</Extents>
+                <Translation>0.0 0.0 0.0425</Translation>
+            </Geom>
+
+        </Body>
+
+        <Body name="leftgripper" type="dynamic">
+            <offsetfrom>link5</offsetfrom>
+            <Geom type="trimesh" modifiable="false">
+                <Translation>0 -0.007 0.075</Translation>
+                <data>models/youbot/finger.dae 1.0</data>
+                <Render>models/youbot/finger.dae 1.0</Render>
+            </Geom>
+        </Body>
+        <Body name="rightgripper" type="dynamic">
+            <offsetfrom>link5</offsetfrom>	
+            <Geom type="trimesh" modifiable="false">
+                <Translation>0 0.007 0.075</Translation>
+                <rotationaxis>0 0 1 180</rotationaxis>
+                <data>models/youbot/finger.dae 1.0</data>
+                <Render>models/youbot/finger.dae 1.0</Render>
+            </Geom>
+        </Body>
+
+        <Joint name="j0" type="hinge">
+            <Body>base</Body>
+            <Body>link1</Body>
+            <offsetfrom>link1</offsetfrom>
+            <anchor>0 0 0</anchor>
+            <axis>0 0 -1</axis>
+            <limitsrad>-2.929 2.880</limitsrad> <!-- These are the soft limits of the youbot driver. Hard limits are -2.949606435870417 to +2.949606435870417 (-169 degrees to +169 degrees). -->
+            <!--limitsrad>-1.57 1.57</limitsrad--> <!-- These are limits artificially enforced. -->
+            <maxvel>3</maxvel>
+            <resolution>1</resolution>
+        </Joint>
+        <Joint name="j1" type="hinge">
+            <Body>link2</Body>
+            <Body>link1</Body>
+            <offsetfrom>link1</offsetfrom>
+            <Anchor>0.04  0 0.02</Anchor>
+            <axis>0 -1 0</axis>
+            <limitsrad> -1.12439471 1.48351599 </limitsrad> <!-- These are the soft limits of the youbot driver. Hard limits are -1.1344640137963142 to +1.5707963267948966 (-65 degrees to +90 degrees). -->
+            <!--limitsrad> -0.1 1.48351599 </limitsrad--> <!--Artificially enforced. -->
+            <maxvel>3</maxvel>
+            <resolution>1</resolution>
+        </Joint>
+        <Joint name="j2" type="hinge">
+            <Body>link3</Body>
+            <Body>link2</Body>
+            <offsetfrom>link2</offsetfrom>
+            <Anchor>0  0.033 0.08</Anchor>
+            <axis>0 -1 0</axis>
+            <limitsrad> -2.47835929 2.53247271 </limitsrad>  <!-- These are the soft limits of the youbot driver. Hard limits are -2.6354471705114375 to +2.548180707911721 (-151 degrees to +146 degrees). -->
+            <maxvel>3</maxvel>
+            <resolution>1</resolution>
+        </Joint>
+        <Joint name="j3" type="hinge">
+            <Body>link4</Body>
+            <Body>link3</Body>
+            <offsetfrom>link3</offsetfrom>
+            <Anchor>0 -0.0275 0.06</Anchor>
+            <axis>0 -1 0</axis>
+            <limitsrad> -1.76683848 1.64013752 </limitsrad>  <!-- These are the soft limits of the youbot driver. Hard limits are -1.7889624832941877 to +1.7889624832941877 (-102.5 degrees to +102.5 degrees). -->
+            <maxvel>3</maxvel>
+            <resolution>1</resolution>
+        </Joint>
+        <Joint name="j4" type="hinge">
+            <Body>link5</Body>
+            <Body>link4</Body>
+            <offsetfrom>link4</offsetfrom>
+            <Anchor>0 0.01 0</Anchor>
+            <axis>0 0 1</axis>
+            <limitsrad> -2.8128065 2.7181535 </limitsrad>  <!-- These are the soft limits of the youbot driver. Hard limits are -2.923426497090502 to +2.923426497090502 (-167.5 degrees to +167.5 degrees). -->
+            <maxvel>3</maxvel>
+            <resolution>1</resolution>
+        </Joint>
+
+        <Joint name="jg1" type="slider">
+            <Body>link5</Body>
+            <Body>leftgripper</Body>
+            <offsetfrom>leftgripper</offsetfrom>
+            <limits>0 .01</limits>
+            <axis>0 -1 0</axis>
+            <maxvel>1</maxvel>
+            <resolution>0.005</resolution>
+        </Joint>
+        <Joint name="jg2" type="slider">
+            <Body>link5</Body>
+            <Body>rightgripper</Body>
+            <offsetfrom>rightgripper</offsetfrom>
+            <limits>0 .01</limits>
+            <axis>0 1 0</axis>
+            <maxvel>1</maxvel>
+            <resolution>0.005</resolution>
+        </Joint>
+
+        <adjacent>base link1</adjacent>
+        <adjacent>link1 link2</adjacent>
+        <adjacent>link2 link3</adjacent> 
+        <adjacent>link3 link4</adjacent> 
+        <adjacent>link4 link5</adjacent>
+        <adjacent>link5 leftgripper</adjacent>
+        <adjacent>link5 rightgripper</adjacent>
+        <adjacent>leftgripper rightgripper</adjacent>
+
+    </KinBody>
+
+    <Manipulator name="endeffector">
+        <Translation>0 0 0.08</Translation>
+        <joints>jg1 jg2</joints>
+        <closingdirection>-1 -1</closingdirection><!--??-->
+        <direction>1 0 0</direction>
+        <effector>link5</effector>
+        <base>base</base>
+    </Manipulator>
+
+</Robot>
