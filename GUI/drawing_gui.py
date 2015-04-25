@@ -45,7 +45,7 @@ from OCC.BRepBuilderAPI import (BRepBuilderAPI_MakeEdge,
                                 BRepBuilderAPI_MakeWire)
 from OCC.BRepFill import BRepFill_Filling
 from OCC.GeomAbs import GeomAbs_C0
-from OCC.GeomAPI import GeomAPI_PointsToBSpline
+from OCC.GeomAPI import GeomAPI_PointsToBSpline, GeomAPI_ProjectPointOnCurve
 from OCC.TColgp import TColgp_Array1OfPnt
 
 
@@ -82,6 +82,7 @@ class GLWidget(qtViewer3d):
         self.current_point = None
         self.pts = []
         self.shiftHeld = True
+        self.shapesToCurves = {}
 
         self.trolltechGreen = QtGui.QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
         self.trolltechPurple = QtGui.QColor.fromCmykF(0.39, 0.39, 0.0, 0.0)
@@ -126,12 +127,30 @@ class GLWidget(qtViewer3d):
         worldCoords = super(GLWidget, self).mapToGlobal( self.lastPos )
         print self.lastPos
         """
+        currentSpline =  self._display.GetSelectedShape()
+        print currentSpline
+        if currentSpline is not None:
+            currentSpline = self.shapesToCurves[currentSpline] #take the shape and get the real curve from it
         
+        if event.buttons() & QtCore.Qt.LeftButton:
+            #self.currentSpline = self._display.GetSelectedShape()
+            #print self.currentSpline
+            pass
+            
         
-        if event.buttons() & QtCore.Qt.RightButton and not (event.modifiers() & QtCore.Qt.ShiftModifier):
+        elif event.buttons() & QtCore.Qt.RightButton and not (event.modifiers() & QtCore.Qt.ShiftModifier):
             print 'first'
             (x, y, z, vx, vy, vz) = self._display.View.ConvertWithProj(self.lastPos.x(), self.lastPos.y())
-            self.pts.append(gp_Pnt(x, y, z))
+            point = gp_Pnt(x, y, z)
+            if currentSpline is not None: #something is selected
+                print 'not none'
+                #get project onto it
+                projection = GeomAPI_ProjectPointOnCurve(point, currentSpline)
+                point = projection.NearestPoint()
+
+                
+            self.pts.append(point)
+            
         elif event.buttons() & QtCore.Qt.RightButton and (event.modifiers() & QtCore.Qt.ShiftModifier):
             print 'second'
             curve = self.points_to_bspline(self.pts)
@@ -141,6 +160,19 @@ class GLWidget(qtViewer3d):
 
             self.pts = [] #clear it
             #self._display.View.SetZSize(1.0)
+            
+            self._display.SelectArea(0, 0, 2000, 2000) #select everything and iterate through it
+
+            
+            shapes = self._display.GetSelectedShapes()
+            
+            for shape in shapes:
+                for knownShape in self.shapesToCurves:
+                    if shape.IsEqual(knownShape):
+                        continue
+                #Did not see it
+                self.shapesToCurves[shape] = curve
+            print self.shapesToCurves
             
             
         
