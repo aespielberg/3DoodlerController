@@ -22,33 +22,19 @@ import copy
 import tfplugin
 from brics_actuator.msg import JointVelocities, JointValue
 
-#from randomarrayenv import *
-#from randomarrayenv import *
-#from simpleenv import *
 
-#from chairenv3 import *
-
-#from pictureenv import *
-#from wingdemoenv import *
 
 BACKUP_AMT = 0.05
 LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
-THRESH = 0.003
-drop_height = 0.15
+THRESH = 0.005
 
-start_var_name = None
-#start_var_name = 'seat__seat__0'
 
-use_pickled_plan = True
-#pickled_plan_file_name = 'fullchair_mod.p'
-#pickled_plan_file_name = 'corrected.p'
-pickled_plan_file_name = 'corrected_velcro.p'
-#pickled_plan_file_name = 'chair_env3.p'
-sim = True
+
+
+sim = False
 use_vicon_for_start_poses = True
-use_boots = False
 
 arm_names = []
 for i in range(5):
@@ -56,7 +42,7 @@ for i in range(5):
     
 unit = 's^-1 rad'
 
-all_robot_names = ['drc3']
+all_robot_names = ['drc1']
 r = all_robot_names[0]
 envfile = 'environments/floor.env.xml'
 
@@ -67,7 +53,6 @@ env = youbotenv.env
 youbots = youbotenv.youbots
 if sim:
     for name in youbots:
-        youbots[name].SetTransform(robot_start_poses[name])
         youbotenv.MoveGripper(name,0.01,0.01) # open grippers
 
 yik.init(youbots[youbots.keys()[0]]) #   does not matter which robot
@@ -93,7 +78,7 @@ for r in all_robot_names:
 op_pose = np.eye(4)
 
 rospy.init_node('velocity_controller')
-pub = rospy.Publisher('/drc3/arm_1/arm_controller/velocity_command', JointVelocities, queue_size=1)
+pub = rospy.Publisher('/' + all_robot_names[0] + '/arm_1/arm_controller/velocity_command', JointVelocities, queue_size=1)
 
 def GetClosestArm(cur_arm, sol):
     best_dist = sys.maxint
@@ -103,7 +88,6 @@ def GetClosestArm(cur_arm, sol):
         if dist < best_dist:
             best_dist = dist
             ret_i = i
-    print 'getting closest arm'
     #IPython.embed()
     return sol[ret_i]
 
@@ -143,7 +127,8 @@ def stop():
     v = createVelocity([0, 0, 0, 0, 0])
     pub.publish(v)
 
-start_config = np.array([2.9499957785497077, 1.334502240891718, -1.2181996753192461, 1.789004272867827, 2.9234068314087893]) - offset
+#start_config = np.array([2.9499957785497077, 1.334502240891718, -1.2181996753192461, 1.789004272867827, 2.9234068314087893]) - offset
+start_config = np.array([2.9499957785497077, 1.44502240891718, -1.2181996753192461, 2.6, 2.9234068314087893]) - offset
 print start_config
 time.sleep(3.0)
 robot = youbots[r]
@@ -152,28 +137,85 @@ print 'init done'
 time.sleep(2.0)
 
 
-n = 100
-transform = getEndEffector()
-target_height = transform[2, 3] - drop_height
-target = copy.deepcopy(transform)
-target[2, 3] -= drop_height
-while abs(getEndEffector()[2, 3] - target[2, 3]) > THRESH:
-    
-    current_arm = robot.GetDOFValues()[0:5]
-    sol = yik.FindIKSolutions(robot, target)
-    closest_arm = GetClosestArm(current_arm, sol)
-    
-    diff = closest_arm - current_arm
-    
-    v = createVelocity(diff)
-    pub.publish(v)
-    rospy.sleep(0.1)
+def MoveStraight(velocity_factor, rel_diff):
+    """
+    Moves the end effector in a straight line.
+    Velocity_factor - how fast to move the joints
+    rel_diff - how far to move the end effector relative to its current location
+    """
 
-    #MoveArmTo(robot, closest_arm, planners[r])
+    transform = getEndEffector()
+    target_x = transform[0, 3] + rel_diff[0]
+    target_y = transform[1, 3] + rel_diff[1]
+    target_z = transform[2, 3] + rel_diff[2]
+    target = copy.deepcopy(transform)
+    target[0, 3] = target_x
+    target[1, 3] = target_y
+    target[2, 3] = target_z
+    while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
+    
+        print np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) 
+        """
+        print 'end effector:'
+        print getEndEffector()
+        print 'target:'
+        print target
+        """
+        print getEndEffector() - target
+        
+        current_arm = robot.GetDOFValues()[0:5]
+        sub_target = copy.deepcopy(getEndEffector())
+        sub_target[0, 3] += (target[0, 3] - sub_target[0, 3])
+        sub_target[1, 3] += (target[1, 3] - sub_target[1, 3])
+        sub_target[2, 3] += (target[2, 3] - sub_target[2, 3])
+ 
+        
+        
 
-stop()
-print 'loop'
-IPython.embed()
+        sol = yik.FindIKSolutions(robot, sub_target)
+        closest_arm = GetClosestArm(current_arm, sol)
+        
+        diff = closest_arm - current_arm
+        
+        v = createVelocity(diff*velocity_factor)
+        pub.publish(v)
+        rospy.sleep(0.1)
+
+        #MoveArmTo(robot, closest_arm, planners[r])
+
+    stop()
+    print 'loop'
+    
+MoveStraight(0.05, np.array([-0.1, -0.1, 0]))
+
+
+"""
+def MoveEEStraight(velocity_factor,target,step):
+    #vel_factor = 1.5
+    while np.linalg.norm([target[2, 3] - getEndEffector()[2, 3]], 2) > THRESH:
+        print np.linalg.norm([target[2, 3] - getEndEffector()[2, 3]], 2)
+        current_arm = robot.GetDOFValues()[0:5]
+        sub_target_z = getEndEffector()[2, 3] + step
+        sub_target = copy.deepcopy(target)
+        sub_target[2, 3] = sub_target_z
+        sol = yik.FindIKSolutions(robot, sub_target)
+        closest_arm = GetClosestArm(current_arm, sol)
+        diff = closest_arm - current_arm
+        v = createVelocity(velocity_factor*diff)
+        v.velocities[0].value = 0.0
+        pub.publish(v)
+        rospy.sleep(0.1)
+    stop()
+    
+def MoveClecoDownVel(velocity_factor,length=0.08):
+    transform = getEndEffector()
+    target = copy.deepcopy(transform)
+    target[2, 3] -= length
+    MoveEEStraight(velocity_factor,target,-0.005)
+    
+MoveClecoDownVel(6.0,0.04)
+"""
+
 
 while True:
     time.sleep(0.1)
