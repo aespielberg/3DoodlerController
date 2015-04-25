@@ -32,7 +32,8 @@ MOVE_AMT = 0.1
 MAX_VEL = 0.1
 THRESH = 0.002
 BIG_THRESH = 0.01
-BAD_ITERS = 6
+BAD_ITERS = 10
+SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
 
 kd = 0.
 ki = 0.
@@ -155,7 +156,7 @@ def MoveStraight(velocity_factor, rel_diff):
     Velocity_factor - how fast to move the joints
     rel_diff - how far to move the end effector relative to its current location
     """
-    
+    velocity_factor *= SPEED_FACTOR
     
     transform = getEndEffector()
     #For debugging with rqt_plot:
@@ -183,7 +184,7 @@ def MoveStraight(velocity_factor, rel_diff):
     while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
         
         timestamp = time.time()
-        print np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) 
+        
         
         cart_dist = np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
         if cart_dist < best_distance:
@@ -198,8 +199,8 @@ def MoveStraight(velocity_factor, rel_diff):
         print 'target:'
         print target
         """
-        
-        print getEndEffector() - target
+        print 'dist is: '
+        print np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
         
         
         current_arm = robot.GetDOFValues()[0:5]
@@ -237,6 +238,8 @@ def MoveStraight(velocity_factor, rel_diff):
         
         #D-Term in PID controller
         
+        
+        
         deriv = (diff - old_error) / dt
 
         vel = kp * diff + ki * integ + kd * deriv
@@ -249,6 +252,8 @@ def MoveStraight(velocity_factor, rel_diff):
         v = createVelocity(vel*velocity_factor)
         pub.publish(v)
         rospy.sleep(0.1)
+        print 'speed is'
+        print (np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) - cart_dist)/dt
 
         #MoveArmTo(robot, closest_arm, planners[r])
 
