@@ -21,6 +21,8 @@ import CollisionConstraints
 import copy
 import tfplugin
 from brics_actuator.msg import JointVelocities, JointValue
+from geometry_msgs.msg import Vector3
+import sys
 
 
 
@@ -28,7 +30,16 @@ BACKUP_AMT = 0.05
 LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
-THRESH = 0.005
+THRESH = 0.002
+BIG_THRESH = 0.01
+BAD_ITERS = 6
+
+kd = 0.
+ki = 0.
+kp = 1.
+ki = 1.6
+kd = 0.0002 #Been finding this really bad, maybe get rid of it
+
 
 
 
@@ -79,6 +90,7 @@ op_pose = np.eye(4)
 
 rospy.init_node('velocity_controller')
 pub = rospy.Publisher('/' + all_robot_names[0] + '/arm_1/arm_controller/velocity_command', JointVelocities, queue_size=1)
+pos_pub = rospy.Publisher('/end_effector_pose', Vector3, queue_size=1)
 
 def GetClosestArm(cur_arm, sol):
     best_dist = sys.maxint
@@ -143,8 +155,13 @@ def MoveStraight(velocity_factor, rel_diff):
     Velocity_factor - how fast to move the joints
     rel_diff - how far to move the end effector relative to its current location
     """
-
+    
+    
     transform = getEndEffector()
+    #For debugging with rqt_plot:
+    
+    
+    
     target_x = transform[0, 3] + rel_diff[0]
     target_y = transform[1, 3] + rel_diff[1]
     target_z = transform[2, 3] + rel_diff[2]
@@ -152,19 +169,43 @@ def MoveStraight(velocity_factor, rel_diff):
     target[0, 3] = target_x
     target[1, 3] = target_y
     target[2, 3] = target_z
-    while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
     
+    #initialize:
+    diff = np.array([0., 0., 0., 0., 0.])
+    integ = np.array([0., 0., 0., 0., 0.])
+    itera = 0
+    
+    best_distance = sys.maxint
+    
+    
+    
+    
+    while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
+        
+        timestamp = time.time()
         print np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) 
+        
+        cart_dist = np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
+        if cart_dist < best_distance:
+            best_distance = cart_dist
+        else:
+            itera += 1
+        
+        
         """
         print 'end effector:'
         print getEndEffector()
         print 'target:'
         print target
         """
+        
         print getEndEffector() - target
         
+        
         current_arm = robot.GetDOFValues()[0:5]
+        
         sub_target = copy.deepcopy(getEndEffector())
+        pos_pub.publish(Vector3(x=sub_target[0, 3], y=sub_target[1, 3], z=sub_target[2, 3]))
         sub_target[0, 3] += (target[0, 3] - sub_target[0, 3])
         sub_target[1, 3] += (target[1, 3] - sub_target[1, 3])
         sub_target[2, 3] += (target[2, 3] - sub_target[2, 3])
@@ -174,10 +215,38 @@ def MoveStraight(velocity_factor, rel_diff):
 
         sol = yik.FindIKSolutions(robot, sub_target)
         closest_arm = GetClosestArm(current_arm, sol)
+        old_error = diff
+        
+        
+        
+        
+        #P-Term in PID controller
         
         diff = closest_arm - current_arm
         
-        v = createVelocity(diff*velocity_factor)
+        if itera > BAD_ITERS and cart_dist < BIG_THRESH: #if we're getting worse than the best for BAD_ITERS consecutive cycles and not a million miles away
+            break
+        
+        
+        dt = time.time() - timestamp
+        print 'dt'
+        print dt
+        
+        #I-Term in PID controller
+        integ += diff * dt
+        
+        #D-Term in PID controller
+        
+        deriv = (diff - old_error) / dt
+
+        vel = kp * diff + ki * integ + kd * deriv
+        
+        
+        norm=np.linalg.norm(vel)
+        if norm != 0:
+            vel /= norm
+        
+        v = createVelocity(vel*velocity_factor)
         pub.publish(v)
         rospy.sleep(0.1)
 
@@ -186,7 +255,7 @@ def MoveStraight(velocity_factor, rel_diff):
     stop()
     print 'loop'
     
-MoveStraight(0.01, np.array([-0.1, -0.1, 0]))
+MoveStraight(0.1, np.array([-0.02, -0.02, 0]))
 
 
 """
