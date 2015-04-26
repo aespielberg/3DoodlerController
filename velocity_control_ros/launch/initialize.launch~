@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+    <machine name="drc1" address="drc1" user="youbot" env-loader="/home/youbot/rosenv.sh" timeout="30"/>
+
+    <node machine="drc1" name="screw_driver" pkg="rosserial_python" type="serial_node.py"
+		          args="/dev/ttyUSB0" respawn="true"/>
+		      
+		      
+		      
+</launch>
