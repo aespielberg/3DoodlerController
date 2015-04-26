@@ -83,6 +83,8 @@ class GLWidget(qtViewer3d):
         self.pts = []
         self.shiftHeld = True
         self.shapesToCurves = {}
+        self.workingWithProjection = False
+
 
         self.trolltechGreen = QtGui.QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
         self.trolltechPurple = QtGui.QColor.fromCmykF(0.39, 0.39, 0.0, 0.0)
@@ -120,17 +122,7 @@ class GLWidget(qtViewer3d):
         self._display.Viewer.Grid().GetObject().Display()
                 
 
-    def setXRotation(self, angle):
-        if angle != self.xRot:
-            self.xRot = angle
-
-    def setYRotation(self, angle):
-        if angle != self.yRot:
-            self.yRot = angle
-
-    def setZRotation(self, angle):
-        if angle != self.zRot:
-            self.zRot = angle
+    
             
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
@@ -163,7 +155,20 @@ class GLWidget(qtViewer3d):
         
         elif event.buttons() & QtCore.Qt.RightButton and not (event.modifiers() & QtCore.Qt.ShiftModifier):
             print 'first'
+            
+            
             (x, y, z, vx, vy, vz) = self._display.View.ConvertWithProj(self.lastPos.x(), self.lastPos.y())
+            
+
+            
+            
+            if not self.shapesToCurves:
+                #z' = vz*t + z, solve for where z' = 0
+                t = -z/vz
+                x = x + vx*t
+                y = y + vy*t
+                z = 0
+                
             point = gp_Pnt(x, y, z)
             
             if currentSpline is not None: #something is selected
@@ -171,6 +176,17 @@ class GLWidget(qtViewer3d):
                 #get project onto it
                 projection = GeomAPI_ProjectPointOnCurve(point, currentSpline)
                 point = projection.NearestPoint()
+                self.workingWithProjection = True #Future things should work in this point's plane intersection
+                self.workingPoint = point #TODO: should I just make this none-able?
+                
+            elif self.workingWithProjection:
+                view_dir = self._display.View.ViewOrientation().ViewReferencePlane().Coord() #Note that this is backwards!
+                t = -z/vz
+                x = x + vx*t
+                y = y + vy*t
+                z = 0
+                #TODO: WIP
+                #point = gp_Pnt(x, y, z)
             
             self._display.DisplayShape(point, update=False)
 
@@ -199,6 +215,8 @@ class GLWidget(qtViewer3d):
                 #Did not see it
                 self.shapesToCurves[shape] = curve
             print self.shapesToCurves
+            
+            self.workingWithProjection = False #reset this value
             
             
         
