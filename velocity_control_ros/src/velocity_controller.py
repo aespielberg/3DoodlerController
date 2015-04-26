@@ -22,6 +22,7 @@ import copy
 import tfplugin
 from brics_actuator.msg import JointVelocities, JointValue
 from geometry_msgs.msg import Vector3
+from std_msgs.msg import Bool
 import sys
 
 
@@ -92,6 +93,8 @@ op_pose = np.eye(4)
 rospy.init_node('velocity_controller')
 pub = rospy.Publisher('/' + all_robot_names[0] + '/arm_1/arm_controller/velocity_command', JointVelocities, queue_size=1)
 pos_pub = rospy.Publisher('/end_effector_pose', Vector3, queue_size=1)
+extrude_pub_fast = rospy.Publisher('fast', Bool, queue_size=1)
+extrude_pub_slow = rospy.Publisher('slow', Bool, queue_size=1)
 
 def GetClosestArm(cur_arm, sol):
     best_dist = sys.maxint
@@ -150,6 +153,18 @@ print 'init done'
 time.sleep(2.0)
 
 
+def startExtruding(fast)
+    stopExtruding() #first, stop both fast and slow commands
+    if fast: #then start the appropriate command
+        extrude_pub_fast.pub(Bool(data=True))
+    else:
+        extrude_pub_slow.pub(Bool(data=False))
+    
+def stopExtruding()
+    extrude_pub_fast.pub(Bool(data=False))
+    extrude_pub_slow.pub(Bool(data=False))
+
+
 def MoveStraight(velocity_factor, rel_diff):
     """
     Moves the end effector in a straight line.
@@ -184,6 +199,7 @@ def MoveStraight(velocity_factor, rel_diff):
     while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
         
         timestamp = time.time()
+        startExtruding(fast=True)
         
         
         cart_dist = np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
@@ -258,6 +274,7 @@ def MoveStraight(velocity_factor, rel_diff):
         #MoveArmTo(robot, closest_arm, planners[r])
 
     stop()
+    stopExtruding()
     print 'loop'
     
 MoveStraight(0.1, np.array([-0.02, -0.02, 0]))

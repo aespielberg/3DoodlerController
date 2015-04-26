@@ -3,11 +3,12 @@
 
     <machine name="drc1" address="drc1" user="youbot" env-loader="/home/youbot/rosenv.sh" timeout="30"/>
 
-    <node machine="drc1" name="screw_driver" pkg="rosserial_python" type="serial_node.py"
+    <node machine="drc1" name="doodler_driver" pkg="rosserial_python" type="serial_node.py"
 		          args="/dev/ttyUSB0" respawn="true"/>
 		          
-    <node machine="$(arg r2)" name="arm_feedback" pkg="robot"  type="arm_feedback.py" output="log" />
-		      
+    <node machine="drc1" name="velocity_controller" pkg="velocity_control_ros"  type="velocity_controller.py" output="log" />
+    <node machine="drc1" name="record_points_to_text" pkg="velocity_control_ros"  type="record_points_to_text.py" output="log" />
+    
 		      
 		      
 </launch>
