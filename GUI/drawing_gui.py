@@ -100,6 +100,25 @@ class GLWidget(qtViewer3d):
         # parameters for overpainting
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground, 0)
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
+        
+        
+        
+    def delete(self, shape):
+        rerender = {}
+        for shape1 in self.shapesToCurves:
+            if shape1.IsEqual(shape):
+                no_rerender = self.shapesToCurves[shape]
+        for shape1 in self.shapesToCurves:
+            if self.shapesToCurves[shape1] != no_rerender:
+                rerender[shape1] = self.shapesToCurves[shape1]
+        self._display.EraseAll()
+        print self.shapesToCurves
+        for shape1 in rerender:
+            self._display.DisplayShape(shape1)
+            
+        self.shapesToCurves = rerender
+        self._display.Viewer.Grid().GetObject().Display()
+                
 
     def setXRotation(self, angle):
         if angle != self.xRot:
@@ -113,7 +132,11 @@ class GLWidget(qtViewer3d):
         if angle != self.zRot:
             self.zRot = angle
             
-
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Delete:
+            currentSpline = self._display.GetSelectedShape()
+            if currentSpline is not None:
+                self.delete(currentSpline)
 
     def mousePressEvent(self, event):
         #IPython.embed()
@@ -142,11 +165,14 @@ class GLWidget(qtViewer3d):
             print 'first'
             (x, y, z, vx, vy, vz) = self._display.View.ConvertWithProj(self.lastPos.x(), self.lastPos.y())
             point = gp_Pnt(x, y, z)
+            
             if currentSpline is not None: #something is selected
                 print 'not none'
                 #get project onto it
                 projection = GeomAPI_ProjectPointOnCurve(point, currentSpline)
                 point = projection.NearestPoint()
+            
+            self._display.DisplayShape(point, update=False)
 
                 
             self.pts.append(point)
@@ -278,6 +304,7 @@ if __name__ == '__main__':
                 mainLayout.setContentsMargins(0, 0, 0, 0)
                 self.setLayout(mainLayout)
                 
+                
 
             def runTests(self):
                 self.canva._display.Test()
@@ -286,6 +313,7 @@ if __name__ == '__main__':
         frame = AppFrame()
         frame.show()
         frame.canva.InitDriver()
+        frame.canva._display.Viewer.Grid().GetObject().Display() #turn on the grid
         #frame.runTests()
         app.exec_()
 
