@@ -32,8 +32,8 @@ LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
 THRESH = 0.002
-BIG_THRESH = 0.01
-BAD_ITERS = 10
+BIG_THRESH = 0.006
+BAD_ITERS = 15
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
 
 kd = 0.
@@ -143,8 +143,9 @@ def stop():
     v = createVelocity([0, 0, 0, 0, 0])
     pub.publish(v)
 
-#start_config = np.array([2.9499957785497077, 1.334502240891718, -1.2181996753192461, 1.789004272867827, 2.9234068314087893]) - offset
-start_config = np.array([2.9499957785497077, 1.44502240891718, -1.2181996753192461, 2.6, 2.9234068314087893]) - offset
+#start_config = np.array([2.9499957785497077, 1.334502240891718, -1.2181996753192461, 1.789004272867827, 2.9234068314087893]) - offset #outright
+start_config = np.array([2.9499957785497077, 1.44502240891718, -1.2181996753192461, 2.6, 2.9234068314087893]) - offset #angled
+#start_config = np.array([2.9499957785497077, 1.24502240891718, -1.2181996753192461, 3.2, 2.9234068314087893]) - offset #upright
 print start_config
 time.sleep(3.0)
 robot = youbots[r]
@@ -153,16 +154,16 @@ print 'init done'
 time.sleep(2.0)
 
 
-def startExtruding(fast)
+def startExtruding(fast):
     stopExtruding() #first, stop both fast and slow commands
     if fast: #then start the appropriate command
-        extrude_pub_fast.pub(Bool(data=True))
+        extrude_pub_fast.publish(Bool(data=True))
     else:
-        extrude_pub_slow.pub(Bool(data=False))
+        extrude_pub_slow.publish(Bool(data=False))
     
-def stopExtruding()
-    extrude_pub_fast.pub(Bool(data=False))
-    extrude_pub_slow.pub(Bool(data=False))
+def stopExtruding():
+    extrude_pub_fast.publish(Bool(data=False))
+    extrude_pub_slow.publish(Bool(data=False))
 
 
 def MoveStraight(velocity_factor, rel_diff):
@@ -195,11 +196,13 @@ def MoveStraight(velocity_factor, rel_diff):
     
     
     
+    startExtruding(fast=True)
+    rospy.sleep(3.0)
     
     while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
         
         timestamp = time.time()
-        startExtruding(fast=True)
+        
         
         
         cart_dist = np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
@@ -275,9 +278,15 @@ def MoveStraight(velocity_factor, rel_diff):
 
     stop()
     stopExtruding()
-    print 'loop'
+    print 'finished segment'
+    rospy.sleep(0.5)
     
-MoveStraight(0.1, np.array([-0.02, -0.02, 0]))
+MoveStraight(0.3, np.array([0.0, 0., 0.03]))
+"""
+MoveStraight(0.1, np.array([0., -0.04, 0]))
+MoveStraight(0.1, np.array([0.04, 0., 0]))
+MoveStraight(0.1, np.array([0., 0.04, 0]))
+"""
 
 
 """
@@ -308,6 +317,5 @@ MoveClecoDownVel(6.0,0.04)
 """
 
 
-while True:
-    time.sleep(0.1)
+rospy.spin()
 
