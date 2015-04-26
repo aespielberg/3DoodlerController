@@ -181,12 +181,13 @@ class GLWidget(qtViewer3d):
                 
             elif self.workingWithProjection:
                 view_dir = self._display.View.ViewOrientation().ViewReferencePlane().Coord() #Note that this is backwards!
-                t = -z/vz
-                x = x + vx*t
-                y = y + vy*t
-                z = 0
+                d = -view_dir[0]*(self.workingPoint.X() - x) -view_dir[1]*(self.workingPoint.Y() - y) -view_dir[2]*(self.workingPoint.Z() - z)
+                d /=  (-view_dir[0]*vx) + (-view_dir[1]*vy) + (-view_dir[2]*vz)
+                x = x + vx*d
+                y = y + vy*d
+                z = z + vz*d
                 #TODO: WIP
-                #point = gp_Pnt(x, y, z)
+                point = gp_Pnt(x, y, z)
             
             self._display.DisplayShape(point, update=False)
 
