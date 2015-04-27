@@ -37,6 +37,7 @@ the example is extends Qt's :ref:`OpenGL overpainting example`
 import random
 import sys
 import IPython
+import time
 
 from OCC.Display.qtDisplay import qtViewer3d, get_qt_modules
 from OCC.gp import gp_Pnt2d, gp_Pnt
@@ -83,7 +84,8 @@ class GLWidget(qtViewer3d):
         self.pts = []
         self.shiftHeld = True
         self.shapesToCurves = {}
-        self.workingWithProjection = False
+        self.workingPoint = None
+        self.currentSpline = None
 
 
         self.trolltechGreen = QtGui.QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
@@ -120,6 +122,12 @@ class GLWidget(qtViewer3d):
             
         self.shapesToCurves = rerender
         self._display.Viewer.Grid().GetObject().Display()
+        
+    def lookupSpline(self, spline):
+        for shape in self.shapesToCurves:
+            if shape.IsEqual(spline):
+                return self.shapesToCurves[shape]
+        return None #didn't find anything
                 
 
     
@@ -127,11 +135,18 @@ class GLWidget(qtViewer3d):
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
             currentSpline = self._display.GetSelectedShape()
-            if currentSpline is not None:
+            if currentSpline is not None and currentSpline is not False:
                 self.delete(currentSpline)
+                
+    def mouseReleaseEvent(self, event):
+        
+        super(GLWidget, self).mouseReleaseEvent(event)
+        self.currentSpline =  self._display.GetSelectedShape()
+            
+        
 
     def mousePressEvent(self, event):
-        #IPython.embed()
+
         self.lastPos = event.pos()
         
         super(GLWidget, self).mousePressEvent(event)
@@ -142,10 +157,13 @@ class GLWidget(qtViewer3d):
         worldCoords = super(GLWidget, self).mapToGlobal( self.lastPos )
         print self.lastPos
         """
-        currentSpline =  self._display.GetSelectedShape()
-        print currentSpline
-        if currentSpline is not None:
-            currentSpline = self.shapesToCurves[currentSpline] #take the shape and get the real curve from it
+        
+        print self.currentSpline
+        corCurve = None #curve corresponding to the selected spline
+
+        if self.currentSpline is not None and self.currentSpline is not False:
+            corCurve = self.lookupSpline(self.currentSpline) #TODO: not working
+            #self.currentSpline = self.shapesToCurves[self.currentSpline] #take the shape and get the real curve from it
         
         if event.buttons() & QtCore.Qt.LeftButton:
             #self.currentSpline = self._display.GetSelectedShape()
@@ -171,15 +189,15 @@ class GLWidget(qtViewer3d):
                 
             point = gp_Pnt(x, y, z)
             
-            if currentSpline is not None: #something is selected
+            
+            if corCurve is not None and corCurve is not False: #something is selected
                 print 'not none'
                 #get project onto it
-                projection = GeomAPI_ProjectPointOnCurve(point, currentSpline)
+                projection = GeomAPI_ProjectPointOnCurve(point, corCurve)
                 point = projection.NearestPoint()
-                self.workingWithProjection = True #Future things should work in this point's plane intersection
                 self.workingPoint = point #TODO: should I just make this none-able?
-                
-            elif self.workingWithProjection:
+              
+            elif self.workingPoint is not None:
                 view_dir = self._display.View.ViewOrientation().ViewReferencePlane().Coord() #Note that this is backwards!
                 d = -view_dir[0]*(self.workingPoint.X() - x) -view_dir[1]*(self.workingPoint.Y() - y) -view_dir[2]*(self.workingPoint.Z() - z)
                 d /=  (-view_dir[0]*vx) + (-view_dir[1]*vy) + (-view_dir[2]*vz)
@@ -189,6 +207,7 @@ class GLWidget(qtViewer3d):
                 #TODO: WIP
                 point = gp_Pnt(x, y, z)
             
+            
             self._display.DisplayShape(point, update=False)
 
                 
@@ -196,6 +215,7 @@ class GLWidget(qtViewer3d):
             
         elif event.buttons() & QtCore.Qt.RightButton and (event.modifiers() & QtCore.Qt.ShiftModifier):
             print 'second'
+            print self.pts
             curve = self.points_to_bspline(self.pts)
             self._display.DisplayShape(curve, update=False)
 
@@ -210,14 +230,19 @@ class GLWidget(qtViewer3d):
             shapes = self._display.GetSelectedShapes()
             
             for shape in shapes:
+                known = False
                 for knownShape in self.shapesToCurves:
                     if shape.IsEqual(knownShape):
-                        continue
+                        known = True
+                        break
+                if known:
+                    continue
                 #Did not see it
                 self.shapesToCurves[shape] = curve
+
             print self.shapesToCurves
             
-            self.workingWithProjection = False #reset this value
+            self.workingPoint = None #reset this value
             
             
         
