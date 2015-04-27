@@ -56,6 +56,10 @@ QtCore, QtGui, QtOpenGL = get_qt_modules()
 
 SAVE_FILE = "test.txt"
 
+X_VOL = 0.15
+Y_VOL = 0.15
+Z_VOL = 0.15
+
 
 try:
     from OpenGL.GL import (glViewport, glMatrixMode, glOrtho, glLoadIdentity,
@@ -146,6 +150,69 @@ class GLWidget(qtViewer3d):
             sample.append(point)
             
         return sample
+        
+    def fit_to_volume(self, all_samples):
+        #First get bounding box
+        max_x = -sys.float_info.max
+        max_y = -sys.float_info.max
+        max_z = -sys.float_info.max
+        min_x = sys.float_info.max
+        min_y = sys.float_info.max
+        min_z = sys.float_info.max
+        
+        for sample in all_samples:
+            for point in sample:
+                if point.X() > max_x:
+                    max_x = point.X()
+                if point.Y() > max_y:
+                    max_y = point.Y()
+                if point.Z() > max_z:
+                    max_z = point.Z()
+                if point.X() < min_x:
+                    min_x = point.X()
+                if point.Y() < min_y:
+                    min_y = point.Y()
+                if point.Z() < min_z:
+                    min_z = point.Z()
+                    
+        x_range = max_x - min_x
+        y_range = max_y - min_y
+        z_range = max_z - min_z
+                
+        scale_x = VOL_X / max_x
+        scale_y = VOL_Y / max_y
+        scale_z = VOL_z / max_z
+                
+        scale = np.min([scale_x, scale_y, scale_z]) #Get the biggest downscale
+                
+        #Now that we have how much we should scale everything, we should scale everything and return it.
+        scaled_samples = []
+        for sample in all_samples:
+            scaled_sample = []
+            
+            for point in sample:
+                scaled_point = gp_Pnt(point.X() * scale, point.Y() * scale, point.Z() * scale)
+                scaled_sample.append(scaled_point)
+                
+            scaled_samples.append(scaled_sample)
+                
+        return scaled_samples            
+                    
+                    
+        
+        
+    def sampleToArm(self, all_samples):
+        #This does the grunt work of taking all the splines and creating reasonable paths.
+        #First, convert to a reasonable print volume.
+        converted_samples = self.fit_to_volume(all_samples)
+        
+        #Second, order the splines in a reasonable way.
+        
+        #Third, add subsequent prints followed by "off" paths that don't self-intersect
+        #If possible, come up with good path orientations
+        
+        
+        pass #To implement
             
         
     def saveSamplesToFile(self, sample):
@@ -160,11 +227,15 @@ class GLWidget(qtViewer3d):
 
     def saveCurvesToFile(self):
         curves = list(set(self.shapesToCurves.values()))
+        all_samples = []
         for curve in curves:
             sample = self.sampleCurve(curve.GetObject())
             self.saveSamplesToFile(sample)
             with open(SAVE_FILE, "a") as myfile:
                 myfile.write("-\n") #delimiter for ending a spline
+            all_samples.append(sample)
+            
+        return all_samples
             
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
@@ -174,7 +245,8 @@ class GLWidget(qtViewer3d):
                 
         if event.key() == QtCore.Qt.Key_S and (event.modifiers() & QtCore.Qt.ControlModifier):
             print 'saving time!'
-            self.saveCurvesToFile()
+            all_samples = self.saveCurvesToFile()
+            self.sampleToArm(all_samples)
                 
                 
     def mouseReleaseEvent(self, event):
