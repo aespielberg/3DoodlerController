@@ -38,6 +38,8 @@ import random
 import sys
 import IPython
 import time
+import os
+
 
 from OCC.Display.qtDisplay import qtViewer3d, get_qt_modules
 from OCC.gp import gp_Pnt2d, gp_Pnt
@@ -51,6 +53,9 @@ from OCC.TColgp import TColgp_Array1OfPnt
 
 
 QtCore, QtGui, QtOpenGL = get_qt_modules()
+
+SAVE_FILE = "test.txt"
+
 
 try:
     from OpenGL.GL import (glViewport, glMatrixMode, glOrtho, glLoadIdentity,
@@ -72,6 +77,7 @@ class GLWidget(qtViewer3d):
         midnight = QtCore.QTime(0, 0, 0)
         random.seed(midnight.secsTo(QtCore.QTime.currentTime()))
 
+        
         self.object = 0
         self.xRot = 0
         self.yRot = 0
@@ -128,15 +134,48 @@ class GLWidget(qtViewer3d):
             if shape.IsEqual(spline):
                 return self.shapesToCurves[shape]
         return None #didn't find anything
-                
+        
+        
+    def sampleCurve(self, curve, res=10):
+        sample = []
+        last = curve.LastParameter()
+        first = curve.FirstParameter()
+        for i in range(res):
+            u = first + (last - first)/res * i
+            point = curve.Value(u)
+            sample.append(point)
+            
+        return sample
+            
+        
+    def saveSamplesToFile(self, sample):
+        try:
+            os.remove(SAVE_FILE)
+        except:
+            print 'nothing to remove!'
+            pass
+        with open(SAVE_FILE, "a") as myfile:
+            for point in sample:
+                myfile.write(str(point.X()) + " " + str(point.Y()) + " " + str(point.Z()) + "\n")    
 
-    
+    def saveCurvesToFile(self):
+        curves = list(set(self.shapesToCurves.values()))
+        for curve in curves:
+            sample = self.sampleCurve(curve.GetObject())
+            self.saveSamplesToFile(sample)
+            with open(SAVE_FILE, "a") as myfile:
+                myfile.write("-\n") #delimiter for ending a spline
             
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
             currentSpline = self._display.GetSelectedShape()
             if currentSpline is not None and currentSpline is not False:
                 self.delete(currentSpline)
+                
+        if event.key() == QtCore.Qt.Key_S and (event.modifiers() & QtCore.Qt.ControlModifier):
+            print 'saving time!'
+            self.saveCurvesToFile()
+                
                 
     def mouseReleaseEvent(self, event):
         
