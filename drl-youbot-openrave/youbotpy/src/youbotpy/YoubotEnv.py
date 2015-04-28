@@ -11,7 +11,7 @@ from tfplugin import TfPlugin
 
 class YoubotEnv:
 
-    def __init__(self, sim=False,viewer=False,env_xml=None,youbot_names=[],registered_objects=[],use_tfplugin=True):
+    def __init__(self, sim=False,viewer=False,env_xml=None,youbot_names=[],registered_objects=[],use_tfplugin=True, youbot_model='kuka-youbot.robot.xml'):
         self.youbotpydir = os.popen('rospack find youbotpy').read()
         print self.youbotpydir
         
@@ -26,7 +26,7 @@ class YoubotEnv:
         youbots = {}
         youbot_hands = {}
         for youbot_name in youbot_names:
-            youbot = env.ReadRobotURI(self.youbotpydir[:-1] + '/../models/robots/kuka-youbot.robot.xml')
+            youbot = env.ReadRobotURI(self.youbotpydir[:-1] + '/../models/robots/' + youbot_model)
             #youbot = env.ReadRobotURI(self.youbotpydir[:-1] + '/../models/robots/kuka-youbot-hires.robot.xml')
             youbot.SetName(youbot_name)
             env.Add(youbot,True)
