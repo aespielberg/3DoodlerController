@@ -80,6 +80,22 @@ Our code is being hosted on Github in a private repository, if you would like ac
 
 
 \section{YouBot 3Doodler Clamp Tool}
+We designed a 3Doodler clamp with four ideas in mind - first, that fit onto the existing gripper fingers of the YouBot so that the robot could equip and unequip it as necessary; second, that it be fabricated in two halves, so that it can be easily disassembled by us if necessary, third, that it hold the 3Doodler rigidly in place, and fourth, that it not weigh more than the YouBot's payload (1.6~kg).
+
+In order to achieve the third point, we designed a two ringed structure which snugly fits 3Doodler geomtry at two locations, reducing the degrees of freedom to merely rotation about its extrusion axis.  Rotation here probably doesn't affect the output.  The clamp was 3D printed, and so the clamp was coated with an outer later of 0.3~mm TangoBlack+ to increase the grippiness of the clamp.
+
+The 3Doodler initially was designed to be used with short "sticks" of ABS or PLA that the 3Doodler company sells.  Since we want to have potentially long prints without a reloading mechanism, we are feeding in material from a reel that the YouBot carries along with it.
+
+Unfortunately, right now the 3Doodler with the clamp is too heavy, and so right now we are only using one half of the clamp (which isn't as rigid but mostly works).  We are considering shortening the clamp to reduce the weight, but we need to explore a way to do so that also leaves enough room for the plastic feed-in.
+
+The 3Doodler Clamp was designed in openSCAD.  See figure \ref{fig:clamp} for a rendering of the design.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=3.0in]{images/clamp.png}
+  \caption{3Doodler Clamp.}
+  \label{fig:clamp}
+\end{figure}
 
 
 \section{Electronics for ROS-3Doodler Interfacing}
