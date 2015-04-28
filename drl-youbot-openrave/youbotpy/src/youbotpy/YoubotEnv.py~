@@ -11,7 +11,7 @@ from tfplugin import TfPlugin
 
 class YoubotEnv:
 
-    def __init__(self, sim=False,viewer=False,env_xml=None,youbot_names=[],registered_objects=[]):
+    def __init__(self, sim=False,viewer=False,env_xml=None,youbot_names=[],registered_objects=[],use_tfplugin=True, youbot_model='kuka-youbot.robot.xml'):
         self.youbotpydir = os.popen('rospack find youbotpy').read()
         print self.youbotpydir
         
@@ -24,29 +24,47 @@ class YoubotEnv:
             env.Load(env_xml)
         
         youbots = {}
+        youbot_hands = {}
         for youbot_name in youbot_names:
-            youbot = env.ReadRobotURI(self.youbotpydir[:-1] + '/../models/robots/kuka-youbot.robot.xml')
+            youbot = env.ReadRobotURI(self.youbotpydir[:-1] + '/../models/robots/' + youbot_model)
             #youbot = env.ReadRobotURI(self.youbotpydir[:-1] + '/../models/robots/kuka-youbot-hires.robot.xml')
             youbot.SetName(youbot_name)
             env.Add(youbot,True)
             youbots[youbot_name] = youbot
 
+        self.basemanips = {}
+        for name in youbot_names:
+            self.basemanips[name] = orpy.interfaces.BaseManipulation(youbots[name],plannername='BiRRT')
+
         tfplugin=None
         if not sim:
-            tfplugin = TfPlugin(env,'map')
+            if use_tfplugin:
+                tfplugin = TfPlugin(env,'map')
             for youbot_name in youbot_names:
                 probotcontroller = orpy.RaveCreateController(env,'youbotcontroller')
                 youbots[youbot_name].SetController(probotcontroller)
                 #tfplugin.RegisterBody(or_body=youbots[youbot_name],tf_id=youbot_name)
-                tfplugin.RegisterRobotHand(or_body=youbots[youbot_name],tf_id=youbot_name+'_arm')
+                if use_tfplugin:
+                    openrave_frame_in_tf_frame = np.eye(4)
+                    openrave_frame_in_tf_frame[2,3] = -0.12 # difference betweeen vicon origin and openrave kinbody origin.
+                    tfplugin.RegisterBody(or_body=youbots[youbot_name],tf_id=youbot_name,openrave_frame_in_tf_frame=openrave_frame_in_tf_frame)
+                    #tfplugin.RegisterBody(or_body=youbots[youbot_name],tf_id=youbot_name,openrave_frame_in_tf_frame=openrave_frame_in_tf_frame,planar_tracking=True)
+                    #tfplugin.RegisterRobotHand(or_body=youbots[youbot_name],tf_id=youbot_name+'_arm')
                 # Also add youbot hands that are tracked separately.
-                #youbot_hand = env.ReadKinBodyURI(self.youbotpydir[:-1] + '/../models/objects/youbothand.kinbody.xml')
-                #youbot_hand.SetName(youbot_name+'_arm')
-                #env.Add(youbot_hand,True)
-                #tfplugin.RegisterBody(or_body=youbot_hand,tf_id=youbot_hand.GetName())
-            if not (registered_objects is None):
-                for oname in registered_objects: 
-                    tfplugin.RegisterBody(or_body=env.GetKinBody(oname),tf_id=oname)
+                detached_hands = True
+                if detached_hands:
+                    youbot_hand = env.ReadKinBodyURI(self.youbotpydir[:-1] + '/../models/objects/youbothand.kinbody.xml')
+                    youbot_hand.SetName(youbot_name+'_arm')
+                    env.Add(youbot_hand,True)
+                    youbot_hand.Enable(False)
+                    openrave_frame_in_tf_frame = np.eye(4)
+                    openrave_frame_in_tf_frame[2,3] = 0.013 # difference betweeen vicon origin and openrave kinbody origin.
+                    tfplugin.RegisterBody(or_body=youbot_hand,tf_id=youbot_hand.GetName(),openrave_frame_in_tf_frame=openrave_frame_in_tf_frame)
+                    youbot_hands[youbot_name] = youbot_hand
+            if use_tfplugin:
+                if not (registered_objects is None):
+                    for oname in registered_objects: 
+                        tfplugin.RegisterBody(or_body=env.GetKinBody(oname),tf_id=oname)
 
         if sim and viewer:
             # nudge robots a little, b/c clicking on trimeshes overlapping perfectly causes openrave to crash.
@@ -59,7 +77,45 @@ class YoubotEnv:
         self.tfplugin = tfplugin
         self.sim =sim
         self.youbots = youbots
+        self.youbot_hands = youbot_hands
         self.arm_joint_offsets = np.array([2.96, 1.70, -0.55, 0.80, 4.58])
+
+
+    def PlanArmTo(self,robot,goal,planner=None):
+        if planner is None:
+            planner = self.basemanips[robot.GetName()]
+        with self.env:
+            robot.SetActiveDOFs(range(5))
+            traj = planner.MoveActiveJoints(goal=goal,maxiter=5000,steplength=0.15,maxtries=2,outputtrajobj=True)
+            #print traj.serialize().replace("\\n","\n")
+        while not robot.GetController().IsDone():
+            time.sleep(0.01)
+        return traj
+    
+
+    def PlanBaseTo(self,robot,goal,planner=None):
+        if planner is None:
+            planner = self.basemanips[robot.GetName()]
+        xyyaw = np.array([goal[0,3],goal[1,3],np.arctan2(goal[1,0],goal[0,0])])
+        return self.PlanBaseToXYYaw(robot,xyyaw,planner)
+
+    
+    def PlanBaseToXYYaw(self,robot,xyyaw,planner):
+        if planner is None:
+            planner = self.basemanips[robot.GetName()]
+        current = robot.GetTransform()
+        currentxyyaw = np.array([current[0,3],current[1,3],np.arctan2(current[1,0],current[0,0])])
+        if np.linalg.norm(currentxyyaw-xyyaw) < 0.0001:
+            print robot.GetName(),' already at goal. Not moving.'
+            return 
+        with self.env:
+            robot.SetActiveDOFs([],orpy.DOFAffine.X|orpy.DOFAffine.Y|orpy.DOFAffine.RotationAxis,[0,0,1])
+            traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.15,maxtries=2,execute=False,outputtrajobj=True)
+            robot.GetController().SetPath(traj)
+        while not robot.GetController().IsDone():
+            time.sleep(0.01)
+        return traj
+
 
     def GetRealStartPoses(self,youbot_names,objects):
         # Register with tfplugin
@@ -75,7 +131,7 @@ class YoubotEnv:
             self.tfplugin.RegisterBody(or_body=self.env.GetKinBody(oname),tf_id=oname)
         #raw_input('Hit enter if start poses are updated from vicon.')
         # Unregister with tfplugin
-        time.sleep(2.0)
+        time.sleep(3.0)
         for youbot_name in youbot_names:
             self.tfplugin.UnregisterBody(or_body=self.youbots[youbot_name])
             # set back to idealcontroller
@@ -98,12 +154,14 @@ class YoubotEnv:
             return robot.GetController().SendCommand("MoveArm "+ command, True)
             # brics_actuator/JointPositions /drcX/arm_1/arm_controller/position_command
 
-    def Grab(self, name, part):
-        self.MoveGripper(name, 0.0, 0.0)
+    def Grab(self, name, part, move_gripper=True):
+        if move_gripper:
+            self.MoveGripper(name, 0.0, 0.0)
         self.youbots[name].Grab(part)
         
-    def Release(self, name, part):
-        self.MoveGripper(name, 0.01, 0.01)
+    def Release(self, name, part, move_gripper=True):
+        if move_gripper:
+            self.MoveGripper(name, 0.01, 0.01)
         self.youbots[name].Release(part)
 
     # TODO: testing
@@ -124,7 +182,9 @@ class YoubotEnv:
           robot.SetDOFValues([left, right], [5,6])          
           #self.youbots[name].SetDOFValues(joint_values)
         else:
-           return robot.GetController().SendCommand("MoveGripper "+str(left)+"," +str(right), False) == 'True'
+           robot.GetController().SendCommand("MoveGripper "+str(left)+"," +str(right), False) == 'True'
+           time.sleep(3.0)
+           return
            # brics_actuator/JointPositions /drcX/arm_1/gripper_controller/position_command
 
     def ExecuteTrajectory(self,name,traj,start_index=0,end_index=None):

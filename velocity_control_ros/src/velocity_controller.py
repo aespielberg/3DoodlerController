@@ -39,7 +39,7 @@ SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian sp
 kd = 0.
 ki = 0.
 kp = 1.
-ki = 1.6
+#ki = 1.6
 kd = 0.0002 #Been finding this really bad, maybe get rid of it
 
 
@@ -60,7 +60,7 @@ r = all_robot_names[0]
 envfile = 'environments/floor.env.xml'
 
 youbotenv = youbotpy.YoubotEnv(sim=sim,viewer=True,env_xml=envfile, \
-                               youbot_names=all_robot_names, registered_objects=None)
+                               youbot_names=all_robot_names, registered_objects=None, youbot_model='kuka-youbot-doodler.robot.xml')
 
 env = youbotenv.env
 youbots = youbotenv.youbots
@@ -75,7 +75,17 @@ grasp_generator = GraspGenerator.GraspGenerator(env)
 
 offset = np.array([2.950, 1.1345, -2.5482, 1.7890, 2.9234])
 
-
+"""
+robot = youbots['drc1']
+manip = robot.GetManipulators()[0]
+ikmodel = orpy.databases.inversekinematics.InverseKinematicsModel(robot,iktype=orpy.IkParameterization.Type.TranslationZAxisAngle4D)
+if not ikmodel.load():
+    ikmodel.autogenerate()
+IPython.embed()
+target=ikmodel.manip.GetTransform()[0:3,3]
+direction = np.random.rand(3)-0.5
+sol = manip.FindIKSolutions(orpy.IkParameterization(orpy.Ray(target,direction),orpy.IkParameterization.Type.TranslationDirection5D),orpy.IkFilterOptions.CheckEnvCollisions)
+"""
 
 
 robot_base_homes = {}
@@ -88,11 +98,19 @@ for r in all_robot_names:
 
 
 
-op_pose = np.eye(4)
+
+
+is_ready = False
+
+
+def ready_callback(msg):
+    is_ready = msg.data
 
 rospy.init_node('velocity_controller')
 pub = rospy.Publisher('/' + all_robot_names[0] + '/arm_1/arm_controller/velocity_command', JointVelocities, queue_size=1)
 pos_pub = rospy.Publisher('/end_effector_pose', Vector3, queue_size=1)
+sub = rospy.Subscriber('ready', Bool, ready_callback)
+
 extrude_pub_fast = rospy.Publisher('fast', Bool, queue_size=1)
 extrude_pub_slow = rospy.Publisher('slow', Bool, queue_size=1)
 
@@ -156,15 +174,21 @@ time.sleep(2.0)
 
 def startExtruding(fast):
     stopExtruding() #first, stop both fast and slow commands
-    if fast: #then start the appropriate command
+     #then start the appropriate command
+    if fast:
         extrude_pub_fast.publish(Bool(data=True))
     else:
-        extrude_pub_slow.publish(Bool(data=False))
+        extrude_pub_slow.publish(Bool(data=True))
+
     
 def stopExtruding():
     extrude_pub_fast.publish(Bool(data=False))
     extrude_pub_slow.publish(Bool(data=False))
+    rospy.sleep(2.0)
 
+def waitForReady():
+    while not is_ready:
+        pass #spin
 
 def MoveStraight(velocity_factor, rel_diff):
     """
@@ -195,9 +219,9 @@ def MoveStraight(velocity_factor, rel_diff):
     best_distance = sys.maxint
     
     
-    
-    startExtruding(fast=True)
-    rospy.sleep(3.0)
+    #waitForReady()
+    startExtruding(fast=False)
+    rospy.sleep(1.0)
     
     while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
         
@@ -270,7 +294,7 @@ def MoveStraight(velocity_factor, rel_diff):
         
         v = createVelocity(vel*velocity_factor)
         pub.publish(v)
-        rospy.sleep(0.1)
+        rospy.sleep(0.02)
         print 'speed is'
         print (np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) - cart_dist)/dt
 
@@ -281,12 +305,21 @@ def MoveStraight(velocity_factor, rel_diff):
     print 'finished segment'
     rospy.sleep(0.5)
     
-MoveStraight(0.3, np.array([0.0, 0., 0.03]))
-"""
-MoveStraight(0.1, np.array([0., -0.04, 0]))
-MoveStraight(0.1, np.array([0.04, 0., 0]))
-MoveStraight(0.1, np.array([0., 0.04, 0]))
-"""
+    
+#MoveStraight(0.75, np.array([0.0, 0., 0.02]))
+
+speed = 0.1
+dist = 0.04
+#MoveStraight(speed, np.array([dist, 0., 0]))
+MoveStraight(speed, np.array([0., dist, 0]))
+#MoveStraight(speed, np.array([-dist, 0., 0]))
+stopExtruding()
+#MoveStraight(speed, np.array([0., -dist, 0]))
+#startExtruding(fast=True)
+#MoveStraight(speed, np.array([0., dist, 0]))
+
+
+
 
 
 """
