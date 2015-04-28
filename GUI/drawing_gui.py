@@ -206,13 +206,13 @@ class GLWidget(qtViewer3d):
         #First, convert to a reasonable print volume.
         converted_samples = self.fit_to_volume(all_samples)
         
-        #Second, order the splines in a reasonable way.
+        #TODO: Second, order the splines in a reasonable way.
         
-        #Third, add subsequent prints followed by "off" paths that don't self-intersect
+        #TODO: Third, add subsequent prints followed by "off" paths that don't self-intersect
         #If possible, come up with good path orientations
         
         
-        pass #To implement
+        
             
         
     def saveSamplesToFile(self, sample):
