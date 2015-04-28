@@ -37,6 +37,9 @@ the example is extends Qt's :ref:`OpenGL overpainting example`
 import random
 import sys
 import IPython
+import time
+import os
+
 
 from OCC.Display.qtDisplay import qtViewer3d, get_qt_modules
 from OCC.gp import gp_Pnt2d, gp_Pnt
@@ -50,6 +53,13 @@ from OCC.TColgp import TColgp_Array1OfPnt
 
 
 QtCore, QtGui, QtOpenGL = get_qt_modules()
+
+SAVE_FILE = "test.txt"
+
+X_VOL = 0.15
+Y_VOL = 0.15
+Z_VOL = 0.15
+
 
 try:
     from OpenGL.GL import (glViewport, glMatrixMode, glOrtho, glLoadIdentity,
@@ -71,6 +81,7 @@ class GLWidget(qtViewer3d):
         midnight = QtCore.QTime(0, 0, 0)
         random.seed(midnight.secsTo(QtCore.QTime.currentTime()))
 
+        
         self.object = 0
         self.xRot = 0
         self.yRot = 0
@@ -83,7 +94,8 @@ class GLWidget(qtViewer3d):
         self.pts = []
         self.shiftHeld = True
         self.shapesToCurves = {}
-        self.workingWithProjection = False
+        self.workingPoint = None
+        self.currentSpline = None
 
 
         self.trolltechGreen = QtGui.QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
@@ -120,18 +132,132 @@ class GLWidget(qtViewer3d):
             
         self.shapesToCurves = rerender
         self._display.Viewer.Grid().GetObject().Display()
+        
+    def lookupSpline(self, spline):
+        for shape in self.shapesToCurves:
+            if shape.IsEqual(spline):
+                return self.shapesToCurves[shape]
+        return None #didn't find anything
+        
+        
+    def sampleCurve(self, curve, res=10):
+        sample = []
+        last = curve.LastParameter()
+        first = curve.FirstParameter()
+        for i in range(res):
+            u = first + (last - first)/res * i
+            point = curve.Value(u)
+            sample.append(point)
+            
+        return sample
+        
+    def fit_to_volume(self, all_samples):
+        #First get bounding box
+        max_x = -sys.float_info.max
+        max_y = -sys.float_info.max
+        max_z = -sys.float_info.max
+        min_x = sys.float_info.max
+        min_y = sys.float_info.max
+        min_z = sys.float_info.max
+        
+        for sample in all_samples:
+            for point in sample:
+                if point.X() > max_x:
+                    max_x = point.X()
+                if point.Y() > max_y:
+                    max_y = point.Y()
+                if point.Z() > max_z:
+                    max_z = point.Z()
+                if point.X() < min_x:
+                    min_x = point.X()
+                if point.Y() < min_y:
+                    min_y = point.Y()
+                if point.Z() < min_z:
+                    min_z = point.Z()
+                    
+        x_range = max_x - min_x
+        y_range = max_y - min_y
+        z_range = max_z - min_z
                 
+        scale_x = VOL_X / max_x
+        scale_y = VOL_Y / max_y
+        scale_z = VOL_z / max_z
+                
+        scale = np.min([scale_x, scale_y, scale_z]) #Get the biggest downscale
+                
+        #Now that we have how much we should scale everything, we should scale everything and return it.
+        scaled_samples = []
+        for sample in all_samples:
+            scaled_sample = []
+            
+            for point in sample:
+                scaled_point = gp_Pnt(point.X() * scale, point.Y() * scale, point.Z() * scale)
+                scaled_sample.append(scaled_point)
+                
+            scaled_samples.append(scaled_sample)
+                
+        return scaled_samples            
+                    
+                    
+        
+        
+    def sampleToArm(self, all_samples):
+        #This does the grunt work of taking all the splines and creating reasonable paths.
+        #First, convert to a reasonable print volume.
+        converted_samples = self.fit_to_volume(all_samples)
+        
+        #Second, order the splines in a reasonable way.
+        
+        #Third, add subsequent prints followed by "off" paths that don't self-intersect
+        #If possible, come up with good path orientations
+        
+        
+        pass #To implement
+            
+        
+    def saveSamplesToFile(self, sample):
+        try:
+            os.remove(SAVE_FILE)
+        except:
+            print 'nothing to remove!'
+            pass
+        with open(SAVE_FILE, "a") as myfile:
+            for point in sample:
+                myfile.write(str(point.X()) + " " + str(point.Y()) + " " + str(point.Z()) + "\n")    
 
-    
+    def saveCurvesToFile(self):
+        curves = list(set(self.shapesToCurves.values()))
+        all_samples = []
+        for curve in curves:
+            sample = self.sampleCurve(curve.GetObject())
+            self.saveSamplesToFile(sample)
+            with open(SAVE_FILE, "a") as myfile:
+                myfile.write("-\n") #delimiter for ending a spline
+            all_samples.append(sample)
+            
+        return all_samples
             
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
             currentSpline = self._display.GetSelectedShape()
-            if currentSpline is not None:
+            if currentSpline is not None and currentSpline is not False:
                 self.delete(currentSpline)
+                
+        if event.key() == QtCore.Qt.Key_S and (event.modifiers() & QtCore.Qt.ControlModifier):
+            print 'saving time!'
+            all_samples = self.saveCurvesToFile()
+            self.sampleToArm(all_samples)
+                
+                
+    def mouseReleaseEvent(self, event):
+        
+        super(GLWidget, self).mouseReleaseEvent(event)
+        self.currentSpline =  self._display.GetSelectedShape()
+            
+        
 
     def mousePressEvent(self, event):
-        #IPython.embed()
+
         self.lastPos = event.pos()
         
         super(GLWidget, self).mousePressEvent(event)
@@ -142,10 +268,13 @@ class GLWidget(qtViewer3d):
         worldCoords = super(GLWidget, self).mapToGlobal( self.lastPos )
         print self.lastPos
         """
-        currentSpline =  self._display.GetSelectedShape()
-        print currentSpline
-        if currentSpline is not None:
-            currentSpline = self.shapesToCurves[currentSpline] #take the shape and get the real curve from it
+        
+        print self.currentSpline
+        corCurve = None #curve corresponding to the selected spline
+
+        if self.currentSpline is not None and self.currentSpline is not False:
+            corCurve = self.lookupSpline(self.currentSpline) #TODO: not working
+            #self.currentSpline = self.shapesToCurves[self.currentSpline] #take the shape and get the real curve from it
         
         if event.buttons() & QtCore.Qt.LeftButton:
             #self.currentSpline = self._display.GetSelectedShape()
@@ -171,15 +300,15 @@ class GLWidget(qtViewer3d):
                 
             point = gp_Pnt(x, y, z)
             
-            if currentSpline is not None: #something is selected
+            
+            if corCurve is not None and corCurve is not False: #something is selected
                 print 'not none'
                 #get project onto it
-                projection = GeomAPI_ProjectPointOnCurve(point, currentSpline)
+                projection = GeomAPI_ProjectPointOnCurve(point, corCurve)
                 point = projection.NearestPoint()
-                self.workingWithProjection = True #Future things should work in this point's plane intersection
                 self.workingPoint = point #TODO: should I just make this none-able?
-                
-            elif self.workingWithProjection:
+              
+            elif self.workingPoint is not None:
                 view_dir = self._display.View.ViewOrientation().ViewReferencePlane().Coord() #Note that this is backwards!
                 d = -view_dir[0]*(self.workingPoint.X() - x) -view_dir[1]*(self.workingPoint.Y() - y) -view_dir[2]*(self.workingPoint.Z() - z)
                 d /=  (-view_dir[0]*vx) + (-view_dir[1]*vy) + (-view_dir[2]*vz)
@@ -189,6 +318,7 @@ class GLWidget(qtViewer3d):
                 #TODO: WIP
                 point = gp_Pnt(x, y, z)
             
+            
             self._display.DisplayShape(point, update=False)
 
                 
@@ -196,6 +326,7 @@ class GLWidget(qtViewer3d):
             
         elif event.buttons() & QtCore.Qt.RightButton and (event.modifiers() & QtCore.Qt.ShiftModifier):
             print 'second'
+            print self.pts
             curve = self.points_to_bspline(self.pts)
             self._display.DisplayShape(curve, update=False)
 
@@ -210,14 +341,19 @@ class GLWidget(qtViewer3d):
             shapes = self._display.GetSelectedShapes()
             
             for shape in shapes:
+                known = False
                 for knownShape in self.shapesToCurves:
                     if shape.IsEqual(knownShape):
-                        continue
+                        known = True
+                        break
+                if known:
+                    continue
                 #Did not see it
                 self.shapesToCurves[shape] = curve
+
             print self.shapesToCurves
             
-            self.workingWithProjection = False #reset this value
+            self.workingPoint = None #reset this value
             
             
         
