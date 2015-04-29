@@ -110,7 +110,7 @@ Python Open CasCADe (PythonOCC) was used as an API for designing the GUI.  In re
 
 As a final feature, users are able to save and output their splines to a format for the Doodler.  Rather than save entire splines, for now, we save sampled polyline approximations, since our current 3Doodler path planning algorithm can only draw straight segments.
 
-Before we submit, we'd like to add functionality to allow users to snap knots to certain grid locations, and to orient spline segments along the Cartesian axes.  Further, we'd like to add more visual feedback when adding knot points by showing the plane in which that camera view allows users to add knots to.
+Before we submit, we'd like to add functionality to allow users to snap knots to certain grid locations, and to orient spline segments along the Cartesian axes.  Further, we'd like to add more visual feedback when adding knot points by showing the plane in which that camera view allows users to add knots to.  As a stretch goal, we'd like to allow instant printing of splines as soon as they're drawn.
 
 \begin{figure}[ht]
   \centering
@@ -120,18 +120,14 @@ Before we submit, we'd like to add functionality to allow users to snap knots to
 \end{figure}
 
 \section{Path Ordering}
+After emitting our collection of polylines from the GUI, we need to come up with a suitable order in which to draw them.  Obviously, this probably is not the order in which they are drawn, as splines can be drawn in an arbitrary order, but higher polylines cannot be fabricated before their support.  Further, in this step, we must remove any polylines which cannot be printed, namely, those suspended in mid-air with no support (if we were to add structural analysis, this could also remove any splines with bad structure).
 
-\section{YouBot controller and Path Planning}
+Path ordering involves three steps.  The first step is to rescale all the polylines to a reasonable size.  For now, this is necessary because we are not using the robot base in our controller and thus are limited to a finite workspace, but when base controls are finally added, users will still want to restrict their robot to a finite sized volume on which to fabricate (note that regardless of the relaxation x and y limitations, the system will be limited in the z-axis).  The second step is to generate a constraint graph.  Polyliness must be fabricated after their support.  The final step is to order the polylines satisfying the constraint graph following a heuristic that helps to make the fabrication process as simple as possible (particularly, limiting the risk for collisions).  For now, we achieve this by preferring more "interior" polylines to be fabricated before more exterior polylines, and lower polylines before higher polylinees, in order to enforce movement in a roughly monotonic direction.  This part of the pipeline is implemented, but not currently well tested.
+
+\section{YouBot Controller and Path Planning}
 
 \section{Demonstrations}
 TODO: Vicki.  Can you also add an image of our complete Youbot setup here along with images of results?
-
-
-\section{Exposition}
-
-
-
-\section{Conclusion}
 
 
 

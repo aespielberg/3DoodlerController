@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  28 APR 2015 20:13
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  28 APR 2015 20:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -292,11 +292,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 Package hyperref Info: Option `colorlinks' set `true' on input line 505.
 Package hyperref Info: Option `breaklinks' set `true' on input line 505.
 )
-(./template.aux
-
-LaTeX Warning: Label `fig:clamp' multiply defined.
-
-)
+(./template.aux)
 \openout1 = `template.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 31.
@@ -404,45 +400,33 @@ File: images/clamp.png Graphic file (type png)
 Package pdftex.def Info: images/clamp.png used on input line 95.
 (pdftex.def)             Requested size: 216.81pt x 205.5368pt.
 
-
-LaTeX Warning: Reference `fig:GUI' on page 1 undefined on input line 105.
-
 [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 
  <./images/clamp.png>]
-<images/GUI.png, id=27, 362.10281pt x 267.24844pt>
+<images/GUI.png, id=28, 362.10281pt x 267.24844pt>
 File: images/GUI.png Graphic file (type png)
  <use images/GUI.png>
 Package pdftex.def Info: images/GUI.png used on input line 117.
 (pdftex.def)             Requested size: 216.81pt x 160.01591pt.
 
 No file template.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 141.
-[2
-
- <./images/GUI.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 141.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 137.
+[2 <./images/GUI.png>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 137.
  (./template.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 141.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 141.
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: There were multiply-defined labels.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 141.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 137.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 137.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 137.
  ) 
 Here is how much of TeX's memory you used:
- 6967 strings out of 493481
- 104745 string characters out of 3143392
- 189024 words of memory out of 3000000
+ 6965 strings out of 493481
+ 104727 string characters out of 3143392
+ 192032 words of memory out of 3000000
  10182 multiletter control sequences out of 15000+200000
  22075 words of font info for 48 fonts, out of 3000000 for 9000
  965 hyphenation exceptions out of 8191
- 43i,15n,40p,752b,319s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,15n,40p,1102b,319s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf
 -dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fo
@@ -452,10 +436,10 @@ ic/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helveti
 c/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></
 usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texli
 ve/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on template.pdf (2 pages, 208232 bytes).
+Output written on template.pdf (2 pages, 207978 bytes).
 PDF statistics:
- 72 PDF objects out of 1000 (max. 8388607)
- 56 compressed objects within 1 object stream
- 15 named destinations out of 1000 (max. 500000)
+ 71 PDF objects out of 1000 (max. 8388607)
+ 55 compressed objects within 1 object stream
+ 13 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
