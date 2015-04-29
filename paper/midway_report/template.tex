@@ -99,24 +99,32 @@ The 3Doodler Clamp was designed in openSCAD.  See figure \ref{fig:clamp} for a r
 
 
 \section{Electronics for ROS-3Doodler Interfacing}
-TODO: Vicki
+TODO: Vicki.
 
 \section{GUI}
+The GUI (See Figure \ref{fig:GUI} was designed in order to allow users to easily draw arbitrary splines.  The GUI allows for B-spline creation via cube interpolation over a series of knot points, which are created on click.  Individual splines can be deleted by selecting them and hitting the delete key, (right now, the way PythonOCC works, this deletes the grid as well).  Finally, since doodled structures must be supported, we added two features.  First, when adding a knot point, if a spline is currently selected, the added knot will snap to that spline by taking the projection to the curve.  Secondly, the first spline is always completely in the $z=0$ plane, giving future splines a reliable base to build off of.
+
+In order to make adding knot points easier when not snapping them to existing splines (since a point on a 2D screen can correspond to an infinite number of locations along a ray in 3D), we add knot points beyond the first point of a spline to the plane uniquely defined by the first point and the camera ray as the plane's normal.
+
+Python Open CasCADe (PythonOCC) was used as an API for designing the GUI.  In retrospect, PythonOCC might have been a bad choice, since its very bad documentation is making development a bit slower than desired, and because there are two capabilities which are less than optimally implemented, the first being the fact that deletion of a spline deletes the grid as well, and the second being that the B-spline projection metric is rather bad and that thus sometimes snapping operations give undesired results.  (Adding the capability of selecting splines also required a massive ugly hack since rendered shapes and their underlying geometric curve do not reference each other.)
+
+As a final feature, users are able to save and output their splines to a format for the Doodler.  Rather than save entire splines, for now, we save sampled polyline approximations, since our current 3Doodler path planning algorithm can only draw straight segments.
+
+Before we submit, we'd like to add functionality to allow users to snap knots to certain grid locations, and to orient spline segments along the Cartesian axes.  Further, we'd like to add more visual feedback when adding knot points by showing the plane in which that camera view allows users to add knots to.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=3.0in]{images/GUI.png}
+  \caption{A screenshot of the GUI with two splines.  Notice that one spline is attached to the other at a knot point.}
+  \label{fig:GUI}
+\end{figure}
 
 \section{Path Ordering}
 
 \section{YouBot controller and Path Planning}
 
 \section{Demonstrations}
-TODO: Vicki
-
-
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=1.5in]{images/samplefigure}
-  \caption{Sample illustration.}
-\end{figure}
+TODO: Vicki.  Can you also add an image of our complete Youbot setup here along with images of results?
 
 
 \section{Exposition}
