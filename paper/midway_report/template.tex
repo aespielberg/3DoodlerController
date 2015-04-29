@@ -61,7 +61,7 @@ Midway project report.
 
 \section{Introduction}
 
-For our project, we seek to equip a Kuka YouBot (TODO: image) with a plastic extruder (namely, the 3Doodler) in order to allow a mobile manipulator to create freeform 3D shapes.  As the 3Doodler can only extrude plastic strands, all shapes that we create must be compositions of 3D curve segments.
+For our project, we seek to equip a Kuka YouBot (Figure \ref{fig:youbot}) with a plastic extruder (namely, the 3Doodler, see Figure \ref{fig:3doodler}) in order to allow a mobile manipulator to create freeform 3D shapes.  As the 3Doodler can only extrude plastic strands, all shapes that we create must be compositions of 3D curve segments.
 
 Creating such a system requires several components, which we outline here.  In particular, the system requires:
 
@@ -73,9 +73,23 @@ Creating such a system requires several components, which we outline here.  In p
 \item A velocity controller for the YouBot arm which allows for smooth extrusion in three dimensions without collisions upon previously extruded paths.
 \end{itemize}
 
-We now, in turn, discuss each of these components, their challenges, how they are currently being implemented, the remaining work which we'll aim to deliver in this class, and what will probably have to be left for future work.  Finally, we discuss our goal for our final deliverable (demonstration prints).
+We now, in turn, discuss each of these components, their challenges, how they are currently being implemented, the remaining work which we'll aim to deliver in this class, and what will probably have to be left for future work.  Finally, we discuss our goal for our final deliverable (demonstration prints).  Throughout this project, The Robot Operating System (ROS), a commonly used framework for developing robot applications and communicating between robots on a network (and programs on a robot) is used.
 
 Our code is being hosted on Github in a private repository, if you would like access to see our files we can add you to the repository!
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=3.0in]{images/youbot.jpg}
+  \caption{The Kuka Youbot.}
+  \label{fig:youbot}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=3.0in]{images/3doodler.jpg}
+  \caption{The 3Doodler Pen.}
+  \label{fig:3doodler}
+\end{figure}
 
 
 
@@ -124,7 +138,12 @@ After emitting our collection of polylines from the GUI, we need to come up with
 
 Path ordering involves three steps.  The first step is to rescale all the polylines to a reasonable size.  For now, this is necessary because we are not using the robot base in our controller and thus are limited to a finite workspace, but when base controls are finally added, users will still want to restrict their robot to a finite sized volume on which to fabricate (note that regardless of the relaxation x and y limitations, the system will be limited in the z-axis).  The second step is to generate a constraint graph.  Polyliness must be fabricated after their support.  The final step is to order the polylines satisfying the constraint graph following a heuristic that helps to make the fabrication process as simple as possible (particularly, limiting the risk for collisions).  For now, we achieve this by preferring more "interior" polylines to be fabricated before more exterior polylines, and lower polylines before higher polylinees, in order to enforce movement in a roughly monotonic direction.  This part of the pipeline is implemented, but not currently well tested.
 
-\section{YouBot Controller and Path Planning}
+\section{YouBot Controller}
+Control for line segments is done by smoothly interpolating between the joint configuration of a starting configuration and a target end-effector pose.  The velocity controller relies on a hand-tuned PID controller.  For now, a standard inverse kinematic solver implemented in the lab for Youbot configuration is used for computing the target arm configuration from a desired world pose.  We have also developed a velocity controller for the base, but it is unclear as of now how to integrate that into our controller planning (we consider this a stretch goal).
+
+The arm configuration has shown the ability to consistently follow straight line trajectories.  Precision is to around 3~mm over trajectories of approximately 4~cm.  By far the greatest noise is in the z direction, which we hope to make the control smoother.  Rather than work in joint space, we may achieve this by working directly with the Jacobians of the end effector motion.  Further, we'd like to replace our current inverse kinematic solver with one which can allow us to specify "don't care" values - often, requesting a 6-DOF target for the end effector can over-constrain the IK solver and lead to target configurations with no solutions.  Having, say, a 4-DOF solver not requiring only specification of the Cartesian location in space and a target angle with the z-axis would be preferable.  Note though that this will require some caution as the direction of the 3Doodler (pushing vs. pulling) can lead to different results.  Further, we have to be careful not to self-intersect with our own drawing, so adding drawn curves to the OpenRave environment would be useful.
+
+We also currently have an issue that the end effector is assumed to be the end of the fingers of the YouBot instead of the 3Doodler nozzle, causing wider motions than intended at the end of the nozzle.  We hope to fix this soon.  We 
 
 \section{Demonstrations}
 TODO: Vicki.  Can you also add an image of our complete Youbot setup here along with images of results?
