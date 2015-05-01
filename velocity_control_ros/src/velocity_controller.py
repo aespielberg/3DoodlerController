@@ -25,6 +25,8 @@ from geometry_msgs.msg import Vector3
 from std_msgs.msg import Bool
 import sys
 
+from vicon_utils import *
+
 
 
 BACKUP_AMT = 0.05
@@ -33,14 +35,16 @@ MOVE_AMT = 0.1
 MAX_VEL = 0.1
 THRESH = 0.002
 BIG_THRESH = 0.006
-BAD_ITERS = 15
+BAD_ITERS = 10
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
 
 kd = 0.
 ki = 0.
 kp = 1.
 #ki = 1.6
-kd = 0.0002 #Been finding this really bad, maybe get rid of it
+#kd = 0.0002 #Been finding this really bad, maybe get rid of it
+#ki = 26.4
+#kd = 0.1
 
 
 
@@ -75,17 +79,14 @@ grasp_generator = GraspGenerator.GraspGenerator(env)
 
 offset = np.array([2.950, 1.1345, -2.5482, 1.7890, 2.9234])
 
-"""
+
 robot = youbots['drc1']
 manip = robot.GetManipulators()[0]
 ikmodel = orpy.databases.inversekinematics.InverseKinematicsModel(robot,iktype=orpy.IkParameterization.Type.TranslationZAxisAngle4D)
 if not ikmodel.load():
     ikmodel.autogenerate()
-IPython.embed()
-target=ikmodel.manip.GetTransform()[0:3,3]
-direction = np.random.rand(3)-0.5
-sol = manip.FindIKSolutions(orpy.IkParameterization(orpy.Ray(target,direction),orpy.IkParameterization.Type.TranslationDirection5D),orpy.IkFilterOptions.CheckEnvCollisions)
-"""
+
+
 
 
 robot_base_homes = {}
@@ -137,6 +138,19 @@ def MoveArmTo(robot,goal,planner):
     finally:
         orpy.RaveSetDebugLevel(orpy.DebugLevel.Info)
         
+def get_relative_pose(mat):
+    pose = PoseStamped()
+    pose.header.frame_id = '/map'
+    pose.pose.x = mat[0, 3]
+    pose.pose.y = mat[1, 3]
+    pose.pose.z = mat[2, 3]
+    tr_pose = transform_by_subjects(global_fleet_pose, '/' + all_robot_names[0])
+    mat2 = copy.deepcopy(mat)
+    mat2[0, 3] = tr_pose.pose.x
+    mat2[1, 3] = tr_pose.pose.y
+    mat2[2, 3] = tr_pose.pose.z
+    return mat2
+        
 def getEndEffector():
     return youbots[r].GetManipulators()[0].GetEndEffectorTransform()
     
@@ -169,6 +183,23 @@ time.sleep(3.0)
 robot = youbots[r]
 MoveArmTo(robot,start_config,planners[r])
 print 'init done'
+
+
+#Testing
+"""
+target=ikmodel.manip.GetTransform()[0:3,3]
+#direction = np.random.rand(3)-0.5
+
+parameterization = orpy.IkParameterization()
+parameterization.SetTranslationZAxisAngle4D(target, -np.pi/3)
+IPython.embed()
+sol = manip.FindIKSolutions(parameterization, orpy.IkFilterOptions.CheckEnvCollisions)
+MoveArmTo(robot, sol, planners[r])
+#sol = manip.FindIKSolutions(orpy.IkParameterization().SetTranslationZAxisAngle4D(target,0.0), orpy.IkFilterOptions.CheckEnvCollisions)
+"""
+
+
+
 time.sleep(2.0)
 
 
@@ -249,11 +280,12 @@ def MoveStraight(velocity_factor, rel_diff):
         current_arm = robot.GetDOFValues()[0:5]
         
         sub_target = copy.deepcopy(getEndEffector())
+        horizon = 0.001
         pos_pub.publish(Vector3(x=sub_target[0, 3], y=sub_target[1, 3], z=sub_target[2, 3]))
-        sub_target[0, 3] += (target[0, 3] - sub_target[0, 3])
-        sub_target[1, 3] += (target[1, 3] - sub_target[1, 3])
-        sub_target[2, 3] += (target[2, 3] - sub_target[2, 3])
- 
+        sub_target[0, 3] += (target[0, 3] - sub_target[0, 3])*horizon
+        sub_target[1, 3] += (target[1, 3] - sub_target[1, 3])*horizon
+        sub_target[2, 3] += (target[2, 3] - sub_target[2, 3])*horizon
+        print target[:-1, 3] - sub_target[:-1, 3]
         
         
 
@@ -308,10 +340,14 @@ def MoveStraight(velocity_factor, rel_diff):
     
 #MoveStraight(0.75, np.array([0.0, 0., 0.02]))
 
-speed = 0.1
+speed = 0.005
 dist = 0.04
-#MoveStraight(speed, np.array([dist, 0., 0]))
-MoveStraight(speed, np.array([0., dist, 0]))
+
+MoveStraight(0.1, np.array([-0.005, 0.0, 0.0]))
+#MoveStraight(0.1, np.array([0.0, 0., 0.03]))
+
+#MoveStraight(0.3, np.array([-0.02, -0.02, 0]))
+#MoveStraight(speed, np.array([0., 0, dist]))
 #MoveStraight(speed, np.array([-dist, 0., 0]))
 stopExtruding()
 #MoveStraight(speed, np.array([0., -dist, 0]))
