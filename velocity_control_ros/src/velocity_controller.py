@@ -11,6 +11,7 @@ import copy
 import IPython
 from itertools import izip,product,combinations,chain
 import datetime
+import euclid
 
 import openravepy as orpy
 import youbotpy
@@ -21,7 +22,7 @@ import CollisionConstraints
 import copy
 import tfplugin
 from brics_actuator.msg import JointVelocities, JointValue
-from geometry_msgs.msg import Vector3
+from geometry_msgs.msg import Vector3 as Vector3_g
 from std_msgs.msg import Bool
 import sys
 
@@ -37,6 +38,7 @@ THRESH = 0.002
 BIG_THRESH = 0.006
 BAD_ITERS = 10
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
+CLAMP_VALUE = 0.15
 
 kd = 0.
 ki = 0.
@@ -109,7 +111,7 @@ def ready_callback(msg):
 
 rospy.init_node('velocity_controller')
 pub = rospy.Publisher('/' + all_robot_names[0] + '/arm_1/arm_controller/velocity_command', JointVelocities, queue_size=1)
-pos_pub = rospy.Publisher('/end_effector_pose', Vector3, queue_size=1)
+pos_pub = rospy.Publisher('/end_effector_pose', Vector3_g, queue_size=1)
 sub = rospy.Subscriber('ready', Bool, ready_callback)
 
 extrude_pub_fast = rospy.Publisher('fast', Bool, queue_size=1)
@@ -141,14 +143,27 @@ def MoveArmTo(robot,goal,planner):
 def get_relative_pose(mat):
     pose = PoseStamped()
     pose.header.frame_id = '/map'
-    pose.pose.x = mat[0, 3]
-    pose.pose.y = mat[1, 3]
-    pose.pose.z = mat[2, 3]
-    tr_pose = transform_by_subjects(global_fleet_pose, '/' + all_robot_names[0])
+    pose.pose.position.x = mat[0, 3]
+    pose.pose.position.y = mat[1, 3]
+    pose.pose.position.z = mat[2, 3]
+    tr_pose = transform_by_subjects(pose, '/' + all_robot_names[0])
     mat2 = copy.deepcopy(mat)
-    mat2[0, 3] = tr_pose.pose.x
-    mat2[1, 3] = tr_pose.pose.y
-    mat2[2, 3] = tr_pose.pose.z
+    mat2[0, 3] = tr_pose.pose.position.x
+    mat2[1, 3] = tr_pose.pose.position.y
+    mat2[2, 3] = tr_pose.pose.position.z
+    return mat2
+    
+def get_global_pose(mat):
+    pose = PoseStamped()
+    pose.header.frame_id = '/' + all_robot_names[0]
+    pose.pose.position.x = mat[0, 3]
+    pose.pose.position.y = mat[1, 3]
+    pose.pose.position.z = mat[2, 3]
+    tr_pose = transform_by_subjects(pose, '/map')
+    mat2 = copy.deepcopy(mat)
+    mat2[0, 3] = tr_pose.pose.position.x
+    mat2[1, 3] = tr_pose.pose.position.y
+    mat2[2, 3] = tr_pose.pose.position.z
     return mat2
         
 def getEndEffector():
@@ -234,9 +249,9 @@ def MoveStraight(velocity_factor, rel_diff):
     
     
     
-    target_x = transform[0, 3] + rel_diff[0]
-    target_y = transform[1, 3] + rel_diff[1]
-    target_z = transform[2, 3] + rel_diff[2]
+    target_x = get_relative_pose(transform)[0, 3] + rel_diff[0]
+    target_y = get_relative_pose(transform)[1, 3] + rel_diff[1]
+    target_z = get_relative_pose(transform)[2, 3] + rel_diff[2] #Drc1's base frame
     target = copy.deepcopy(transform)
     target[0, 3] = target_x
     target[1, 3] = target_y
@@ -254,13 +269,13 @@ def MoveStraight(velocity_factor, rel_diff):
     startExtruding(fast=False)
     rospy.sleep(1.0)
     
-    while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
+    while np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2) > THRESH:
         
         timestamp = time.time()
         
         
         
-        cart_dist = np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
+        cart_dist = np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2)
         if cart_dist < best_distance:
             best_distance = cart_dist
         else:
@@ -274,23 +289,27 @@ def MoveStraight(velocity_factor, rel_diff):
         print target
         """
         print 'dist is: '
-        print np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
+        print np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2)
         
         
         current_arm = robot.GetDOFValues()[0:5]
         
-        sub_target = copy.deepcopy(getEndEffector())
-        horizon = 0.001
-        pos_pub.publish(Vector3(x=sub_target[0, 3], y=sub_target[1, 3], z=sub_target[2, 3]))
+        sub_target = copy.deepcopy(get_relative_pose(getEndEffector())) #in drc1's frame
+        #horizon = 0.001
+        horizon = 1
+        pos_pub.publish(Vector3_g(x=sub_target[0, 3], y=sub_target[1, 3], z=sub_target[2, 3]))
         sub_target[0, 3] += (target[0, 3] - sub_target[0, 3])*horizon
         sub_target[1, 3] += (target[1, 3] - sub_target[1, 3])*horizon
-        sub_target[2, 3] += (target[2, 3] - sub_target[2, 3])*horizon
+        sub_target[2, 3] += (target[2, 3] - sub_target[2, 3])*horizon #in drc1's frame
         print target[:-1, 3] - sub_target[:-1, 3]
         
         
-
-        sol = yik.FindIKSolutions(robot, sub_target)
+        print sub_target
+        sol = yik.FindIKSolutions(robot, get_global_pose(sub_target)) #convert it back to the global frame and find IK solutions in global frame
         closest_arm = GetClosestArm(current_arm, sol)
+        
+                
+        
         old_error = diff
         
         
@@ -299,6 +318,10 @@ def MoveStraight(velocity_factor, rel_diff):
         #P-Term in PID controller
         
         diff = closest_arm - current_arm
+        
+        
+        
+        
         
         if itera > BAD_ITERS and cart_dist < BIG_THRESH: #if we're getting worse than the best for BAD_ITERS consecutive cycles and not a million miles away
             break
@@ -323,12 +346,18 @@ def MoveStraight(velocity_factor, rel_diff):
         norm=np.linalg.norm(vel)
         if norm != 0:
             vel /= norm
+            
+        for i in range(len(vel)):
+            if abs(vel[i]) < CLAMP_VALUE:
+                vel[i] = 0.0
+
+        
+        #IPython.embed()
         
         v = createVelocity(vel*velocity_factor)
         pub.publish(v)
         rospy.sleep(0.02)
-        print 'speed is'
-        print (np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) - cart_dist)/dt
+        
 
         #MoveArmTo(robot, closest_arm, planners[r])
 
@@ -343,7 +372,10 @@ def MoveStraight(velocity_factor, rel_diff):
 speed = 0.005
 dist = 0.04
 
-MoveStraight(0.1, np.array([-0.005, 0.0, 0.0]))
+MoveStraight(0.1, np.array([-0.015, 0.0, 0.0]))
+MoveStraight(0.1, np.array([0., 0.015, 0.0]))
+MoveStraight(0.1, np.array([0.015, 0.0, 0.0]))
+MoveStraight(0.1, np.array([0., -0.015, 0.0]))
 #MoveStraight(0.1, np.array([0.0, 0., 0.03]))
 
 #MoveStraight(0.3, np.array([-0.02, -0.02, 0]))
