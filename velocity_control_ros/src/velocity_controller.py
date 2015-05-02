@@ -35,10 +35,10 @@ LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
 THRESH = 0.002
-BIG_THRESH = 0.006
+BIG_THRESH = 0.004
 BAD_ITERS = 10
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
-CLAMP_VALUE = 0.15
+CLAMP_VALUE = 0.1
 
 kd = 0.
 ki = 0.
@@ -351,7 +351,7 @@ def MoveStraight(velocity_factor, rel_diff):
             if abs(vel[i]) < CLAMP_VALUE:
                 vel[i] = 0.0
 
-        
+        print vel
         #IPython.embed()
         
         v = createVelocity(vel*velocity_factor)
@@ -372,10 +372,15 @@ def MoveStraight(velocity_factor, rel_diff):
 speed = 0.005
 dist = 0.04
 
-MoveStraight(0.1, np.array([-0.015, 0.0, 0.0]))
-MoveStraight(0.1, np.array([0., 0.015, 0.0]))
-MoveStraight(0.1, np.array([0.015, 0.0, 0.0]))
-MoveStraight(0.1, np.array([0., -0.015, 0.0]))
+#MoveStraight(0.1, np.array([-0.008, 0.008, 0.0]))
+MoveStraight(0.1, np.array([0.008, 0., 0.008]))
+
+
+#MoveStraight(0.1, np.array([-0.015, 0.0, 0.0]))
+#MoveStraight(0.1, np.array([0., 0.015, 0.0]))
+#MoveStraight(0.1, np.array([0.015, 0.0, 0.0]))
+#MoveStraight(0.1, np.array([0., -0.015, 0.0]))
+
 #MoveStraight(0.1, np.array([0.0, 0., 0.03]))
 
 #MoveStraight(0.3, np.array([-0.02, -0.02, 0]))
