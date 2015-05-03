@@ -60,6 +60,7 @@ from OCC.TColgp import TColgp_Array1OfPnt
 QtCore, QtGui, QtOpenGL = get_qt_modules()
 
 SAVE_FILE = "test.txt"
+FIXED_FILE = "output.txt"
 
 X_VOL = 0.15
 Y_VOL = 0.15
@@ -166,7 +167,7 @@ class GLWidget(qtViewer3d):
             prevVal = point
         return False
         
-    def minDistFromCenter(self, curve, res=10000):
+    def minDistFromCenter(self, curve, mid_x, mid_y, res=10000):
         last = curve.LastParameter()
         first = curve.FirstParameter()
         min_dist = sys.float_info.max
@@ -174,7 +175,9 @@ class GLWidget(qtViewer3d):
         for i in range(res):
             u = first + (last - first)/res * i
             point = curve.Value(u)
-            dist = np.sqrt(point.X() * point.X() + point.Y() * point.Y())
+            x_diff = point.X() - mid_x
+            y_diff - point.Y() - mid_y
+            dist = np.sqrt(x_diff * x_diff + y_diff * y_diff)
             if  dist < min_dist
                 min_dist = dist
         return min_dist
@@ -190,7 +193,41 @@ class GLWidget(qtViewer3d):
             
         return sample
         
+    def getCenter(self, res=10000):
+        max_x = -sys.float_info.max
+        max_y = -sys.float_info.max
+        min_x = sys.float_info.max
+        min_y = sys.float_info.max
+        
+        for curve in self.buildGraph:
+            
+        
+        
+            last = curve.LastParameter()
+            first = curve.FirstParameter()
+            #First get bounding box
+            
+            
+            for i in range(res):
+                u = first + (last - first)/res * i
+                point = curve.Value(u)
+                if point.X() > max_x:
+                    max_x = point.X()
+                if point.Y() > max_y:
+                    max_y = point.Y()
+                if point.X() < min_x:
+                    min_x = point.X()
+                if point.Y() < min_y:
+                    min_y = point.Y()
+        
+        x_middle = (max_x + min_x) / 2
+        y_middle = (max_y + min_y) / 2
+        
+        return (x_middle, y_middle)
+        
     def fit_to_volume(self, all_samples):
+        #TODO: use PCA to rotate?
+        
         #First get bounding box
         max_x = -sys.float_info.max
         max_y = -sys.float_info.max
@@ -244,20 +281,20 @@ class GLWidget(qtViewer3d):
                 
         return scaled_samples            
                     
-    def graph_to_ordering(self, graph, roots):
+    def graph_to_ordering(self, graph, roots, mid_x, mid_y):
         pq = PQ()
         curves = []
         for node in roots:
             edges = graph.edges(node, data=True)
             for edge in edges:
-                pq.put( edge[0], self.minDistFromCenter(edge[0]) )
+                pq.put( edge[0], self.minDistFromCenter(edge[0]), mid_x, mid_y )
                 
         while not pq.empty(): #While there are still edges
             node = pq.get()
             curves.append(node)
             edges = graph.edges(node, data=True)
             if not (edge[1] in curves or edge[1] in pq): #if sink of edge hasn't been seen yet, no point in adding it twice
-                pq.put( edge[1] , self.minDistFromCenter(edge[1]) )
+                pq.put( edge[1] , self.minDistFromCenter(edge[1]), mid_x, mid_y )
                 
         return curves
         
@@ -296,7 +333,7 @@ class GLWidget(qtViewer3d):
             
         return fixed_graph
         
-    def sampleToArm(self, all_samples):
+    def sampleToArm(self):
     
         #TODO: First, order the splines through a graph traversal.  keep greedily adding the lowest connection point, guarantees never make "dangles."
         #Use this to prevent cycles.
@@ -318,14 +355,26 @@ class GLWidget(qtViewer3d):
         nx.draw(self.buildGraph)
         plt.savefig("graph2.pdf")
         
-        #Second, convert to a reasonable print volume.
+        
+        
+        
+        #Second, use heuristic of inward before outward.
+        (mid_x, mid_y) = self.getCenter()
+        curves = self.graph_to_ordering(self, graph, roots, mid_x, mid_y)
+        
+        #Third, sample
+        all_samples = self.saveCurvesToFile(curves)
+        
+        #Fourth and finally, convert to a reasonable print volume
         converted_samples = self.fit_to_volume(all_samples)
         
+        #TODO: refactor to share code with all the existing save files
+        with open(FIXED_FILE, "a") as myfile:
+            for sample in all_samples:
+                for point in sample:
+                    myfile.write(str(point.X()) + " " + str(point.Y()) + " " + str(point.Z()) + "\n")   
+                myfile.write("-\n")    
         
-        #Third use heuristic of inward before outward.
-        
-        
-        #Fourth and finally, sample
         
         
 
@@ -344,8 +393,8 @@ class GLWidget(qtViewer3d):
             for point in sample:
                 myfile.write(str(point.X()) + " " + str(point.Y()) + " " + str(point.Z()) + "\n")    
 
-    def saveCurvesToFile(self):
-        curves = list(set(self.shapesToCurves.values()))
+    def saveCurvesToFile(self, curves):
+        #curves = list(set(self.shapesToCurves.values()))
         all_samples = []
         for curve in curves:
             sample = self.sampleCurve(curve.GetObject())
