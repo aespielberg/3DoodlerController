@@ -39,6 +39,8 @@ import sys
 import IPython
 import time
 import os
+import networkx as nx
+
 
 
 from OCC.Display.qtDisplay import qtViewer3d, get_qt_modules
@@ -96,6 +98,8 @@ class GLWidget(qtViewer3d):
         self.shapesToCurves = {}
         self.workingPoint = None
         self.currentSpline = None
+        self.buildGraph = nx.Graph()
+        self.currentConnections = set()
 
 
         self.trolltechGreen = QtGui.QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
@@ -139,6 +143,21 @@ class GLWidget(qtViewer3d):
                 return self.shapesToCurves[shape]
         return None #didn't find anything
         
+    def findCurvesRoot(self):
+        return [curve for curve in self.buildGraph if self.isCurveRoot(curve)]
+        
+    def isCurveRoot(self, curve, res=10000):
+        last = curve.LastParameter()
+        first = curve.FirstParameter()
+        prevVal = None
+        for i in range(res):
+            u = first + (last - first)/res * i
+            point = curve.Value(u)
+            if prevVal is not None:
+                if np.sign(prevVal.Z()) * np.sign(point.Z()) <= 0 #if it intersects the z axis
+                    return True
+            prevVal = point
+        return False
         
     def sampleCurve(self, curve, res=10):
         sample = []
@@ -314,6 +333,7 @@ class GLWidget(qtViewer3d):
                 projection = GeomAPI_ProjectPointOnCurve(point, corCurve)
                 point = projection.NearestPoint()
                 self.workingPoint = point #TODO: should I just make this none-able?
+                slef.currentConnections.add(corCurve) #Add a connection
               
             elif self.workingPoint is not None:
                 view_dir = self._display.View.ViewOrientation().ViewReferencePlane().Coord() #Note that this is backwards!
@@ -335,6 +355,12 @@ class GLWidget(qtViewer3d):
             print 'second'
             print self.pts
             curve = self.points_to_bspline(self.pts)
+            
+            #Add the curve to the network:
+            self.buildGraph.add_node(curve)
+            for s in self.currentConnections:
+                self.buildGraph.add_edge(s, curve) #from that spline to this current curve
+            
             self._display.DisplayShape(curve, update=False)
 
             self._display.View.SetZoom(1.0) #force a repaint
@@ -361,6 +387,7 @@ class GLWidget(qtViewer3d):
             print self.shapesToCurves
             
             self.workingPoint = None #reset this value
+            self.currentConnections = set() #reset this value
             
             
         
