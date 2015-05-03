@@ -262,9 +262,23 @@ class GLWidget(qtViewer3d):
         x_middle = (max_x + min_x) / 2
         y_middle = (max_y + min_y) / 2
                 
-        scale_x = X_VOL / max_x
-        scale_y = Y_VOL / max_y
-        scale_z = Z_VOL / max_z
+        scale_x = X_VOL / x_range
+        scale_y = Y_VOL / y_range
+        scale_z = Z_VOL / z_range
+        
+        print all_samples
+        
+        print X_VOL
+        print Y_VOL
+        print Z_VOL
+        
+        print x_range
+        print y_range
+        print z_range
+        
+        print scale_x
+        print scale_y
+        print scale_z
                 
         scale = np.min([scale_x, scale_y, scale_z]) #Get the biggest downscale
                 
@@ -284,17 +298,20 @@ class GLWidget(qtViewer3d):
     def graph_to_ordering(self, graph, roots, mid_x, mid_y):
         pq = PQ()
         curves = []
+        print 'roots in gto'
+        print roots
         for node in roots:
-            edges = graph.edges(node, data=True)
-            for edge in edges:
-                pq.put( edge[0], self.minDistFromCenter(edge[0], mid_x, mid_y) )
+            pq.put(node, mid_x, mid_y)
+
                 
         while not pq.empty(): #While there are still edges
+            print 'in da loop again'
             node = pq.get()
             curves.append(node)
             edges = graph.edges(node, data=True)
-            if not (edge[1] in curves): #if sink of edge hasn't been seen yet, no point in adding it twice
-                pq.put( edge[1] , self.minDistFromCenter(edge[1], mid_x, mid_y) )
+            for edge in edges:
+                if not (edge[1] in curves): #if sink of edge hasn't been seen yet, no point in adding it twice
+                    pq.put( edge[1] , self.minDistFromCenter(edge[1], mid_x, mid_y) )
                 
         return curves
         
@@ -347,6 +364,7 @@ class GLWidget(qtViewer3d):
 
         cycleless_graph = self.fix_graph(roots)
         
+        
         nx.draw(cycleless_graph)
         plt.savefig("graph.pdf")
         
@@ -362,6 +380,7 @@ class GLWidget(qtViewer3d):
         (mid_x, mid_y) = self.getCenter()
         curves = self.graph_to_ordering(cycleless_graph, roots, mid_x, mid_y)
         
+
         #Third, sample
         all_samples = self.saveCurvesToFile(curves)
         
@@ -369,8 +388,13 @@ class GLWidget(qtViewer3d):
         converted_samples = self.fit_to_volume(all_samples)
         
         #TODO: refactor to share code with all the existing save files
+        try:
+            os.remove(FIXED_FILE)
+        except:
+            print 'nothing to remove again!'
+            
         with open(FIXED_FILE, "a") as myfile:
-            for sample in all_samples:
+            for sample in converted_samples:
                 for point in sample:
                     myfile.write(str(point.X()) + " " + str(point.Y()) + " " + str(point.Z()) + "\n")   
                 myfile.write("-\n")    
@@ -388,7 +412,7 @@ class GLWidget(qtViewer3d):
             os.remove(SAVE_FILE)
         except:
             print 'nothing to remove!'
-            pass
+            
         with open(SAVE_FILE, "a") as myfile:
             for point in sample:
                 myfile.write(str(point.X()) + " " + str(point.Y()) + " " + str(point.Z()) + "\n")    
