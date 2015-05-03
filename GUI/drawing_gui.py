@@ -42,6 +42,7 @@ import os
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
+from Queue import PriorityQueue as PQ
 
 
 
@@ -150,7 +151,7 @@ class GLWidget(qtViewer3d):
         return None #didn't find anything
         
     def findCurvesRoot(self):
-        return [curve for curve in self.buildGraph if self.isCurveRoot(curve)]
+        return [curve for curve in self.buildGraph if self.isCurveRoot(curve.GetObject())]
         
     def isCurveRoot(self, curve, res=10000):
         last = curve.LastParameter()
@@ -230,8 +231,40 @@ class GLWidget(qtViewer3d):
                 
         return scaled_samples            
                     
-                    
     
+    def add_node_to_queue(self, node, graph, pq):
+        edges = graph.edges(node, data=True)
+        for edge in edges:
+            min_con_val = sys.float_info.max
+            for conn_point in edge[2]['points']:
+                print conn_point
+                if conn_point.Z() < min_con_val:
+                    min_con_val = conn_point.Z()
+            pq.put( (node, edge), min_con_val )
+                
+        return pq
+    
+    def fix_graph(self, roots):
+        graph = self.buildGraph
+        fixed_graph = nx.Graph()
+        pq = PQ()
+        
+        for node in roots:
+            self.add_node_to_queue(node, graph, pq)
+            fixed_graph.add_node(node)
+            
+                        
+        #Now the priority queue has been initialized
+        while not pq.empty(): #While there are still edges
+            print fixed_graph.number_of_nodes()
+            (node, edge) = pq.get()
+            print 'in the loop'
+            if not (edge[1] in fixed_graph): #if sink of edge hasn't been added yet
+                fixed_graph.add_node(edge[1])
+                fixed_graph.add_edge(node, edge[1], points=edge[2])
+                self.add_node_to_queue(edge[1], graph, pq)
+            
+        return fixed_graph
         
     def sampleToArm(self, all_samples):
     
@@ -242,11 +275,28 @@ class GLWidget(qtViewer3d):
         
         roots = self.findCurvesRoot()
         
+        print 'roots'
+        print roots
+        print ''
+
+        cycleless_graph = self.fix_graph(roots)
+        
+        nx.draw(cycleless_graph)
+        plt.savefig("graph.pdf")
+        
+        plt.clf()
+        
+        nx.draw(self.buildGraph)
+        plt.savefig("graph2.pdf")
+        
+        exit()
+        
+        
+        
         #This does the grunt work of taking all the splines and creating reasonable paths.
         #Second, convert to a reasonable print volume.
         converted_samples = self.fit_to_volume(all_samples)
         
-        IPython.embed()
         
         #TODO: Third, add subsequent prints followed by "off" paths that don't self-intersect
         #If possible, come up with good path orientations - probably just move this to arm code
@@ -313,7 +363,7 @@ class GLWidget(qtViewer3d):
         corCurve = None #curve corresponding to the selected spline
 
         if self.currentSpline is not None and self.currentSpline is not False:
-            corCurve = self.lookupSpline(self.currentSpline) #TODO: not working
+            corCurve = self.lookupSpline(self.currentSpline)
             #self.currentSpline = self.shapesToCurves[self.currentSpline] #take the shape and get the real curve from it
         
         if event.buttons() & QtCore.Qt.LeftButton:
