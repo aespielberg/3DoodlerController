@@ -40,6 +40,8 @@ import IPython
 import time
 import os
 import networkx as nx
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 
@@ -99,7 +101,7 @@ class GLWidget(qtViewer3d):
         self.workingPoint = None
         self.currentSpline = None
         self.buildGraph = nx.Graph()
-        self.currentConnections = set()
+        self.currentConnections = {}
 
 
         self.trolltechGreen = QtGui.QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
@@ -119,7 +121,11 @@ class GLWidget(qtViewer3d):
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground, 0)
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
         
-        
+    def appendToDict(self, dictionary, key, val):
+        if key in dictionary:
+            dictionary[key].append(val)
+        else:
+            dictionary[key] = [val]  
         
     def delete(self, shape):
         rerender = {}
@@ -154,7 +160,7 @@ class GLWidget(qtViewer3d):
             u = first + (last - first)/res * i
             point = curve.Value(u)
             if prevVal is not None:
-                if np.sign(prevVal.Z()) * np.sign(point.Z()) <= 0 #if it intersects the z axis
+                if np.sign(prevVal.Z()) * np.sign(point.Z()) <= 0: #if it intersects the z axis
                     return True
             prevVal = point
         return False
@@ -205,9 +211,9 @@ class GLWidget(qtViewer3d):
         x_middle = (max_x + min_x) / 2
         y_middle = (max_y + min_y) / 2
                 
-        scale_x = VOL_X / max_x
-        scale_y = VOL_Y / max_y
-        scale_z = VOL_z / max_z
+        scale_x = X_VOL / max_x
+        scale_y = Y_VOL / max_y
+        scale_z = Z_VOL / max_z
                 
         scale = np.min([scale_x, scale_y, scale_z]) #Get the biggest downscale
                 
@@ -225,17 +231,25 @@ class GLWidget(qtViewer3d):
         return scaled_samples            
                     
                     
-        
+    
         
     def sampleToArm(self, all_samples):
+    
+        #TODO: First, order the splines through a graph traversal.  keep greedily adding the lowest connection point, guarantees never make "dangles."
+        #Use this to prevent cycles.
+        #Remove edges contributing to cycles.
+        #Then use heuristic of inward before outward.
+        
+        roots = self.findCurvesRoot()
+        
         #This does the grunt work of taking all the splines and creating reasonable paths.
-        #First, convert to a reasonable print volume.
+        #Second, convert to a reasonable print volume.
         converted_samples = self.fit_to_volume(all_samples)
         
-        #TODO: Second, order the splines in a reasonable way.
+        IPython.embed()
         
         #TODO: Third, add subsequent prints followed by "off" paths that don't self-intersect
-        #If possible, come up with good path orientations
+        #If possible, come up with good path orientations - probably just move this to arm code
         
         
         
@@ -272,7 +286,7 @@ class GLWidget(qtViewer3d):
         if event.key() == QtCore.Qt.Key_S and (event.modifiers() & QtCore.Qt.ControlModifier):
             print 'saving time!'
             all_samples = self.saveCurvesToFile()
-            self.sampleToArm(all_samples)
+            self.sampleToArm(all_samples) #TODO: don't take in samples
                 
                 
     def mouseReleaseEvent(self, event):
@@ -280,7 +294,7 @@ class GLWidget(qtViewer3d):
         super(GLWidget, self).mouseReleaseEvent(event)
         self.currentSpline =  self._display.GetSelectedShape()
             
-        
+    
 
     def mousePressEvent(self, event):
 
@@ -332,8 +346,9 @@ class GLWidget(qtViewer3d):
                 #get project onto it
                 projection = GeomAPI_ProjectPointOnCurve(point, corCurve)
                 point = projection.NearestPoint()
+
                 self.workingPoint = point #TODO: should I just make this none-able?
-                slef.currentConnections.add(corCurve) #Add a connection
+                self.appendToDict(self.currentConnections, corCurve, point)#Add a connection
               
             elif self.workingPoint is not None:
                 view_dir = self._display.View.ViewOrientation().ViewReferencePlane().Coord() #Note that this is backwards!
@@ -359,7 +374,7 @@ class GLWidget(qtViewer3d):
             #Add the curve to the network:
             self.buildGraph.add_node(curve)
             for s in self.currentConnections:
-                self.buildGraph.add_edge(s, curve) #from that spline to this current curve
+                self.buildGraph.add_edge(s, curve, points = self.currentConnections[s]) #from that spline to this current curve
             
             self._display.DisplayShape(curve, update=False)
 
@@ -387,7 +402,7 @@ class GLWidget(qtViewer3d):
             print self.shapesToCurves
             
             self.workingPoint = None #reset this value
-            self.currentConnections = set() #reset this value
+            self.currentConnections = {} #reset this value
             
             
         
