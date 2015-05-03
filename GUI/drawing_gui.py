@@ -166,6 +166,19 @@ class GLWidget(qtViewer3d):
             prevVal = point
         return False
         
+    def minDistFromCenter(self, curve, res=10000):
+        last = curve.LastParameter()
+        first = curve.FirstParameter()
+        min_dist = sys.float_info.max
+        prevVal = None
+        for i in range(res):
+            u = first + (last - first)/res * i
+            point = curve.Value(u)
+            dist = np.sqrt(point.X() * point.X() + point.Y() * point.Y())
+            if  dist < min_dist
+                min_dist = dist
+        return min_dist
+        
     def sampleCurve(self, curve, res=10):
         sample = []
         last = curve.LastParameter()
@@ -231,8 +244,25 @@ class GLWidget(qtViewer3d):
                 
         return scaled_samples            
                     
+    def graph_to_ordering(self, graph, roots):
+        pq = PQ()
+        curves = []
+        for node in roots:
+            edges = graph.edges(node, data=True)
+            for edge in edges:
+                pq.put( edge[0], self.minDistFromCenter(edge[0]) )
+                
+        while not pq.empty(): #While there are still edges
+            node = pq.get()
+            curves.append(node)
+            edges = graph.edges(node, data=True)
+            if not (edge[1] in curves or edge[1] in pq): #if sink of edge hasn't been seen yet, no point in adding it twice
+                pq.put( edge[1] , self.minDistFromCenter(edge[1]) )
+                
+        return curves
+        
     
-    def add_node_to_queue(self, node, graph, pq):
+    def add_node_to_queue_z(self, node, graph, pq):
         edges = graph.edges(node, data=True)
         for edge in edges:
             min_con_val = sys.float_info.max
@@ -250,7 +280,7 @@ class GLWidget(qtViewer3d):
         pq = PQ()
         
         for node in roots:
-            self.add_node_to_queue(node, graph, pq)
+            self.add_node_to_queue_z(node, graph, pq)
             fixed_graph.add_node(node)
             
                         
@@ -262,7 +292,7 @@ class GLWidget(qtViewer3d):
             if not (edge[1] in fixed_graph): #if sink of edge hasn't been added yet
                 fixed_graph.add_node(edge[1])
                 fixed_graph.add_edge(node, edge[1], points=edge[2])
-                self.add_node_to_queue(edge[1], graph, pq)
+                self.add_node_to_queue_z(edge[1], graph, pq)
             
         return fixed_graph
         
@@ -271,7 +301,6 @@ class GLWidget(qtViewer3d):
         #TODO: First, order the splines through a graph traversal.  keep greedily adding the lowest connection point, guarantees never make "dangles."
         #Use this to prevent cycles.
         #Remove edges contributing to cycles.
-        #Then use heuristic of inward before outward.
         
         roots = self.findCurvesRoot()
         
@@ -289,17 +318,17 @@ class GLWidget(qtViewer3d):
         nx.draw(self.buildGraph)
         plt.savefig("graph2.pdf")
         
-        exit()
-        
-        
-        
-        #This does the grunt work of taking all the splines and creating reasonable paths.
         #Second, convert to a reasonable print volume.
         converted_samples = self.fit_to_volume(all_samples)
         
         
-        #TODO: Third, add subsequent prints followed by "off" paths that don't self-intersect
-        #If possible, come up with good path orientations - probably just move this to arm code
+        #Third use heuristic of inward before outward.
+        
+        
+        #Fourth and finally, sample
+        
+        
+
         
         
         
