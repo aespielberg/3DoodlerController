@@ -160,6 +160,8 @@ class GLWidget(qtViewer3d):
         min_y = sys.float_info.max
         min_z = sys.float_info.max
         
+        
+        
         for sample in all_samples:
             for point in sample:
                 if point.X() > max_x:
@@ -175,9 +177,14 @@ class GLWidget(qtViewer3d):
                 if point.Z() < min_z:
                     min_z = point.Z()
                     
+        
+                    
         x_range = max_x - min_x
         y_range = max_y - min_y
         z_range = max_z - min_z
+        
+        x_middle = (max_x + min_x) / 2
+        y_middle = (max_y + min_y) / 2
                 
         scale_x = VOL_X / max_x
         scale_y = VOL_Y / max_y
@@ -185,13 +192,13 @@ class GLWidget(qtViewer3d):
                 
         scale = np.min([scale_x, scale_y, scale_z]) #Get the biggest downscale
                 
-        #Now that we have how much we should scale everything, we should scale everything and return it.
+        #Now that we have how much we should scale everything, we should center in x and y, scale everything, and return it.
         scaled_samples = []
         for sample in all_samples:
             scaled_sample = []
             
             for point in sample:
-                scaled_point = gp_Pnt(point.X() * scale, point.Y() * scale, point.Z() * scale)
+                scaled_point = gp_Pnt((point.X() - x_middle) * scale, (point.Y() - y_middle) * scale, point.Z() * scale)
                 scaled_sample.append(scaled_point)
                 
             scaled_samples.append(scaled_sample)
