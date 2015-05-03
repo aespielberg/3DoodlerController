@@ -301,7 +301,9 @@ class GLWidget(qtViewer3d):
         print 'roots in gto'
         print roots
         for node in roots:
-            pq.put(node, mid_x, mid_y)
+            print 'min dist'
+            print self.minDistFromCenter(node, mid_x, mid_y)
+            pq.put(node, self.minDistFromCenter(node, mid_x, mid_y))
 
                 
         while not pq.empty(): #While there are still edges
