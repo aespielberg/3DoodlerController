@@ -168,17 +168,17 @@ class GLWidget(qtViewer3d):
         return False
         
     def minDistFromCenter(self, curve, mid_x, mid_y, res=10000):
-        last = curve.LastParameter()
-        first = curve.FirstParameter()
+        last = curve.GetObject().LastParameter()
+        first = curve.GetObject().FirstParameter()
         min_dist = sys.float_info.max
         prevVal = None
         for i in range(res):
             u = first + (last - first)/res * i
-            point = curve.Value(u)
+            point = curve.GetObject().Value(u)
             x_diff = point.X() - mid_x
-            y_diff - point.Y() - mid_y
+            y_diff = point.Y() - mid_y
             dist = np.sqrt(x_diff * x_diff + y_diff * y_diff)
-            if  dist < min_dist
+            if  dist < min_dist:
                 min_dist = dist
         return min_dist
         
@@ -203,14 +203,14 @@ class GLWidget(qtViewer3d):
             
         
         
-            last = curve.LastParameter()
-            first = curve.FirstParameter()
+            last = curve.GetObject().LastParameter()
+            first = curve.GetObject().FirstParameter()
             #First get bounding box
             
             
             for i in range(res):
                 u = first + (last - first)/res * i
-                point = curve.Value(u)
+                point = curve.GetObject().Value(u)
                 if point.X() > max_x:
                     max_x = point.X()
                 if point.Y() > max_y:
@@ -287,14 +287,14 @@ class GLWidget(qtViewer3d):
         for node in roots:
             edges = graph.edges(node, data=True)
             for edge in edges:
-                pq.put( edge[0], self.minDistFromCenter(edge[0]), mid_x, mid_y )
+                pq.put( edge[0], self.minDistFromCenter(edge[0], mid_x, mid_y) )
                 
         while not pq.empty(): #While there are still edges
             node = pq.get()
             curves.append(node)
             edges = graph.edges(node, data=True)
-            if not (edge[1] in curves or edge[1] in pq): #if sink of edge hasn't been seen yet, no point in adding it twice
-                pq.put( edge[1] , self.minDistFromCenter(edge[1]), mid_x, mid_y )
+            if not (edge[1] in curves): #if sink of edge hasn't been seen yet, no point in adding it twice
+                pq.put( edge[1] , self.minDistFromCenter(edge[1], mid_x, mid_y) )
                 
         return curves
         
@@ -360,7 +360,7 @@ class GLWidget(qtViewer3d):
         
         #Second, use heuristic of inward before outward.
         (mid_x, mid_y) = self.getCenter()
-        curves = self.graph_to_ordering(self, graph, roots, mid_x, mid_y)
+        curves = self.graph_to_ordering(cycleless_graph, roots, mid_x, mid_y)
         
         #Third, sample
         all_samples = self.saveCurvesToFile(curves)
@@ -375,7 +375,7 @@ class GLWidget(qtViewer3d):
                     myfile.write(str(point.X()) + " " + str(point.Y()) + " " + str(point.Z()) + "\n")   
                 myfile.write("-\n")    
         
-        
+        print 'wrote to file!'
         
 
         
@@ -413,8 +413,8 @@ class GLWidget(qtViewer3d):
                 
         if event.key() == QtCore.Qt.Key_S and (event.modifiers() & QtCore.Qt.ControlModifier):
             print 'saving time!'
-            all_samples = self.saveCurvesToFile()
-            self.sampleToArm(all_samples) #TODO: don't take in samples
+            #all_samples = self.saveCurvesToFile()
+            self.sampleToArm() 
                 
                 
     def mouseReleaseEvent(self, event):
