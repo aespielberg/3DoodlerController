@@ -13,6 +13,20 @@
     <node name="velocity_controller" pkg="velocity_control_ros"  type="velocity_controller.py" output="screen" />
     <node name="record_points_to_text" pkg="velocity_control_ros"  type="record_points_to_text.py" output="log" />
     
+    
+    <group ns="drc1"> 
+    
+        <node machine="drc1" name="arm_feedback" pkg="robot"  type="arm_feedback.py" output="log"> <remap from="/tf" to="/drc1/tf"/> </node>
+        
+        <!--node name="mini_cartesian" pkg="robot"  type="mini_cartesian.py" output="screen" /-->
+                <node machine="drc1" name="mini_cartesian" pkg="robot"  type="mini_cartesian.py" output="log" />
+
+                <node machine="drc1" name="arm" pkg="robot"  type="arm.py" output="log" />
+
+                <node machine="drc1" name="vicon" pkg="vicon"  type="vicon.py" output="screen" />
+        
+    </group>
+    
 		      
 		      
 </launch>

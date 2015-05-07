@@ -25,6 +25,8 @@ from brics_actuator.msg import JointVelocities, JointValue
 from geometry_msgs.msg import Vector3 as Vector3_g
 from std_msgs.msg import Bool
 import sys
+from assembly_common.srv import BasePose,ArmCommand
+import tf.transformations as tr
 
 from vicon_utils import *
 
@@ -34,18 +36,20 @@ BACKUP_AMT = 0.05
 LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
-THRESH = 0.002
-BIG_THRESH = 0.004
+THRESH = 0.001
+BIG_THRESH = 0.005
 BAD_ITERS = 10
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
-CLAMP_VALUE = 0.1
+CLAMP_VALUE = 0.0
+pos_acc = 0.008
+ang_acc = 0.05
 
 kd = 0.
 ki = 0.
 kp = 1.
 #ki = 1.6
 #kd = 0.0002 #Been finding this really bad, maybe get rid of it
-#ki = 26.4
+#ki = 3.3
 #kd = 0.1
 
 
@@ -84,9 +88,13 @@ offset = np.array([2.950, 1.1345, -2.5482, 1.7890, 2.9234])
 
 robot = youbots['drc1']
 manip = robot.GetManipulators()[0]
+"""
+print 'make ikmodel'
 ikmodel = orpy.databases.inversekinematics.InverseKinematicsModel(robot,iktype=orpy.IkParameterization.Type.TranslationZAxisAngle4D)
+print 'load it or autogenerate it'
 if not ikmodel.load():
     ikmodel.autogenerate()
+"""
 
 
 
@@ -110,6 +118,8 @@ def ready_callback(msg):
     is_ready = msg.data
 
 rospy.init_node('velocity_controller')
+feedback_service = '/drc1/arm_feedback_command'
+arm_feedback = rospy.ServiceProxy(feedback_service, BasePose)
 pub = rospy.Publisher('/' + all_robot_names[0] + '/arm_1/arm_controller/velocity_command', JointVelocities, queue_size=1)
 pos_pub = rospy.Publisher('/end_effector_pose', Vector3_g, queue_size=1)
 sub = rospy.Subscriber('ready', Bool, ready_callback)
@@ -210,12 +220,14 @@ parameterization.SetTranslationZAxisAngle4D(target, -np.pi/3)
 IPython.embed()
 sol = manip.FindIKSolutions(parameterization, orpy.IkFilterOptions.CheckEnvCollisions)
 MoveArmTo(robot, sol, planners[r])
-#sol = manip.FindIKSolutions(orpy.IkParameterization().SetTranslationZAxisAngle4D(target,0.0), orpy.IkFilterOptions.CheckEnvCollisions)
 """
+#sol = manip.FindIKSolutions(orpy.IkParameterization().SetTranslationYAxisAngle4D(target,0.0), orpy.IkFilterOptions.CheckEnvCollisions)
 
 
 
-time.sleep(2.0)
+
+
+
 
 
 def startExtruding(fast):
@@ -235,6 +247,54 @@ def stopExtruding():
 def waitForReady():
     while not is_ready:
         pass #spin
+        
+
+    
+    
+        
+def arm_feedback_wrapper(xx, yy, theta, pos_acc, ang_acc, base_offset, frame):
+    print "arm_feedback(%f, %f, %f, %f, %f, %s, %s)" % (xx, yy, theta, pos_acc, ang_acc, base_offset, frame)
+    success = False
+    while not success:
+        success = True
+        try:
+            arm_feedback(xx, yy, theta, pos_acc, ang_acc, base_offset, frame)
+        except Exception:
+            success = False
+            print "Arm feedback threw an exception. Trying again..."
+            rospy.sleep(0.5)
+            
+def move(xx, yy, theta):
+    pose = PoseStamped()
+    pose.header.frame_id = '/drc1_arm'
+    pose.pose.position.x = -xx
+    pose.pose.position.y = -yy
+    quat = tr.quaternion_from_euler(0., 0., -theta, axes='sxyz')
+    pose.pose.orientation.x = quat[0]
+    pose.pose.orientation.y = quat[1]
+    pose.pose.orientation.z = quat[2]
+    pose.pose.orientation.w = quat[3]
+    
+    tr_pose = transform_by_subjects(pose, '/map')
+    
+    target_euler = tr.euler_from_quaternion(np.array([tr_pose.pose.orientation.x, tr_pose.pose.orientation.y, tr_pose.pose.orientation.z, tr_pose.pose.orientation.w]), axes='sxyz')
+    
+    target_x = tr_pose.pose.position.x
+    target_y = tr_pose.pose.position.y
+    target_theta = target_euler[2]
+    
+    
+    arm_feedback_wrapper(target_x, target_y, target_theta - np.pi, pos_acc, ang_acc, False, '/map')
+    
+    IPython.embed()
+    
+def projectPoint(p, line, point):
+    #projects p onto the line in direction line protruding from point
+    num = np.dot(p - point, line) #remove the offset from p, then add it back at the end
+    dem = np.dot(line, line)
+    return num / dem * line + point
+    
+    
 
 def MoveStraight(velocity_factor, rel_diff):
     """
@@ -244,19 +304,30 @@ def MoveStraight(velocity_factor, rel_diff):
     """
     velocity_factor *= SPEED_FACTOR
     
-    transform = getEndEffector()
+    #transform is start
+    transform = get_relative_pose(getEndEffector())
+    
     #For debugging with rqt_plot:
     
     
     
-    target_x = get_relative_pose(transform)[0, 3] + rel_diff[0]
-    target_y = get_relative_pose(transform)[1, 3] + rel_diff[1]
-    target_z = get_relative_pose(transform)[2, 3] + rel_diff[2] #Drc1's base frame
+    target_x = transform[0, 3] + rel_diff[0]
+    target_y = transform[1, 3] + rel_diff[1]
+    target_z = transform[2, 3] + rel_diff[2] #Drc1's base frame
+    
+    #target is goal
     target = copy.deepcopy(transform)
     target[0, 3] = target_x
     target[1, 3] = target_y
     target[2, 3] = target_z
     
+    
+    
+    #line is between start and finish
+    
+    line = target[:3, 3] - transform[:3, 3]
+    
+
     #initialize:
     diff = np.array([0., 0., 0., 0., 0.])
     integ = np.array([0., 0., 0., 0., 0.])
@@ -278,7 +349,7 @@ def MoveStraight(velocity_factor, rel_diff):
         cart_dist = np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2)
         if cart_dist < best_distance:
             best_distance = cart_dist
-        else:
+        elif cart_dist < BIG_THRESH:
             itera += 1
         
         
@@ -295,13 +366,24 @@ def MoveStraight(velocity_factor, rel_diff):
         current_arm = robot.GetDOFValues()[0:5]
         
         sub_target = copy.deepcopy(get_relative_pose(getEndEffector())) #in drc1's frame
-        #horizon = 0.001
-        horizon = 1
+        horizon = 0.01
+        #horizon = 1
         pos_pub.publish(Vector3_g(x=sub_target[0, 3], y=sub_target[1, 3], z=sub_target[2, 3]))
-        sub_target[0, 3] += (target[0, 3] - sub_target[0, 3])*horizon
-        sub_target[1, 3] += (target[1, 3] - sub_target[1, 3])*horizon
-        sub_target[2, 3] += (target[2, 3] - sub_target[2, 3])*horizon #in drc1's frame
-        print target[:-1, 3] - sub_target[:-1, 3]
+        #TODO:Hack for now, must generalize
+        
+        
+
+
+        
+        #project our current location onto the target line to get the direction we need to go.
+        sub_target[:3, 3] = projectPoint(sub_target[:-1, 3], line, transform[:-1, 3]) #TODO: wrap this function
+        #sub_target[:3, :3] = transform[:3, :3]
+        
+        direc = (target[:3, 3] - sub_target[:3, 3])
+        direc_norm = np.linalg.norm(direc, 2)
+        
+        sub_target[:3, 3] += direc * horizon / direc_norm #in drc1's frame
+
         
         
         print sub_target
@@ -323,7 +405,7 @@ def MoveStraight(velocity_factor, rel_diff):
         
         
         
-        if itera > BAD_ITERS and cart_dist < BIG_THRESH: #if we're getting worse than the best for BAD_ITERS consecutive cycles and not a million miles away
+        if itera > BAD_ITERS: #if we're getting worse than the best for BAD_ITERS consecutive cycles and not a million miles away
             break
         
         
@@ -343,6 +425,11 @@ def MoveStraight(velocity_factor, rel_diff):
         vel = kp * diff + ki * integ + kd * deriv
         
         
+        #TESTING - keep in plane
+        vel[0] = 0.
+        vel[4] = 0.
+        
+        
         norm=np.linalg.norm(vel)
         if norm != 0:
             vel /= norm
@@ -351,12 +438,14 @@ def MoveStraight(velocity_factor, rel_diff):
             if abs(vel[i]) < CLAMP_VALUE:
                 vel[i] = 0.0
 
-        print vel
+    
+        print diff
         #IPython.embed()
         
         v = createVelocity(vel*velocity_factor)
+        #IPython.embed()
         pub.publish(v)
-        rospy.sleep(0.02)
+        rospy.sleep(0.01)
         
 
         #MoveArmTo(robot, closest_arm, planners[r])
@@ -372,8 +461,25 @@ def MoveStraight(velocity_factor, rel_diff):
 speed = 0.005
 dist = 0.04
 
+#move(0.0, 0., np.pi)
+
 #MoveStraight(0.1, np.array([-0.008, 0.008, 0.0]))
-MoveStraight(0.1, np.array([0.008, 0., 0.008]))
+#MoveStraight(0.1, np.array([0., 0., 0.01]))
+#MoveStraight(0.3, np.array([0., 0., 0.08]))
+#MoveStraight(0.3, np.array([-0.02, 0., 0.0]))
+
+"""
+MoveStraight(0.1, np.array([0., 0., 0.01]))
+MoveStraight(0.1, np.array([0., 0., 0.01]))
+MoveStraight(0.1, np.array([0., 0., 0.01]))
+MoveStraight(0.1, np.array([0., 0., 0.01]))
+MoveStraight(0.1, np.array([0., 0., 0.01]))
+MoveStraight(0.1, np.array([0., 0., 0.01]))
+MoveStraight(0.1, np.array([0., 0., 0.01]))
+MoveStraight(0.1, np.array([0., 0., 0.01]))
+MoveStraight(0.1, np.array([0., 0., 0.01]))
+"""
+
 
 
 #MoveStraight(0.1, np.array([-0.015, 0.0, 0.0]))
