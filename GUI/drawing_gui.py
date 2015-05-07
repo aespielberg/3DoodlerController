@@ -39,6 +39,11 @@ import sys
 import IPython
 import time
 import os
+import networkx as nx
+import numpy as np
+import matplotlib.pyplot as plt
+from Queue import PriorityQueue as PQ
+
 
 
 from OCC.Display.qtDisplay import qtViewer3d, get_qt_modules
@@ -55,6 +60,7 @@ from OCC.TColgp import TColgp_Array1OfPnt
 QtCore, QtGui, QtOpenGL = get_qt_modules()
 
 SAVE_FILE = "test.txt"
+FIXED_FILE = "output.txt"
 
 X_VOL = 0.15
 Y_VOL = 0.15
@@ -96,6 +102,8 @@ class GLWidget(qtViewer3d):
         self.shapesToCurves = {}
         self.workingPoint = None
         self.currentSpline = None
+        self.buildGraph = nx.Graph()
+        self.currentConnections = {}
 
 
         self.trolltechGreen = QtGui.QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
@@ -115,7 +123,11 @@ class GLWidget(qtViewer3d):
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground, 0)
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
         
-        
+    def appendToDict(self, dictionary, key, val):
+        if key in dictionary:
+            dictionary[key].append(val)
+        else:
+            dictionary[key] = [val]  
         
     def delete(self, shape):
         rerender = {}
@@ -139,6 +151,36 @@ class GLWidget(qtViewer3d):
                 return self.shapesToCurves[shape]
         return None #didn't find anything
         
+    def findCurvesRoot(self):
+        return [curve for curve in self.buildGraph if self.isCurveRoot(curve.GetObject())]
+        
+    def isCurveRoot(self, curve, res=10000):
+        last = curve.LastParameter()
+        first = curve.FirstParameter()
+        prevVal = None
+        for i in range(res):
+            u = first + (last - first)/res * i
+            point = curve.Value(u)
+            if prevVal is not None:
+                if np.sign(prevVal.Z()) * np.sign(point.Z()) <= 0: #if it intersects the z axis
+                    return True
+            prevVal = point
+        return False
+        
+    def minDistFromCenter(self, curve, mid_x, mid_y, res=10000):
+        last = curve.GetObject().LastParameter()
+        first = curve.GetObject().FirstParameter()
+        min_dist = sys.float_info.max
+        prevVal = None
+        for i in range(res):
+            u = first + (last - first)/res * i
+            point = curve.GetObject().Value(u)
+            x_diff = point.X() - mid_x
+            y_diff = point.Y() - mid_y
+            dist = np.sqrt(x_diff * x_diff + y_diff * y_diff)
+            if  dist < min_dist:
+                min_dist = dist
+        return min_dist
         
     def sampleCurve(self, curve, res=10):
         sample = []
@@ -151,7 +193,41 @@ class GLWidget(qtViewer3d):
             
         return sample
         
+    def getCenter(self, res=10000):
+        max_x = -sys.float_info.max
+        max_y = -sys.float_info.max
+        min_x = sys.float_info.max
+        min_y = sys.float_info.max
+        
+        for curve in self.buildGraph:
+            
+        
+        
+            last = curve.GetObject().LastParameter()
+            first = curve.GetObject().FirstParameter()
+            #First get bounding box
+            
+            
+            for i in range(res):
+                u = first + (last - first)/res * i
+                point = curve.GetObject().Value(u)
+                if point.X() > max_x:
+                    max_x = point.X()
+                if point.Y() > max_y:
+                    max_y = point.Y()
+                if point.X() < min_x:
+                    min_x = point.X()
+                if point.Y() < min_y:
+                    min_y = point.Y()
+        
+        x_middle = (max_x + min_x) / 2
+        y_middle = (max_y + min_y) / 2
+        
+        return (x_middle, y_middle)
+        
     def fit_to_volume(self, all_samples):
+        #TODO: use PCA to rotate?
+        
         #First get bounding box
         max_x = -sys.float_info.max
         max_y = -sys.float_info.max
@@ -159,6 +235,8 @@ class GLWidget(qtViewer3d):
         min_x = sys.float_info.max
         min_y = sys.float_info.max
         min_z = sys.float_info.max
+        
+        
         
         for sample in all_samples:
             for point in sample:
@@ -175,41 +253,157 @@ class GLWidget(qtViewer3d):
                 if point.Z() < min_z:
                     min_z = point.Z()
                     
+        
+                    
         x_range = max_x - min_x
         y_range = max_y - min_y
         z_range = max_z - min_z
+        
+        x_middle = (max_x + min_x) / 2
+        y_middle = (max_y + min_y) / 2
                 
-        scale_x = VOL_X / max_x
-        scale_y = VOL_Y / max_y
-        scale_z = VOL_z / max_z
+        scale_x = X_VOL / x_range
+        scale_y = Y_VOL / y_range
+        scale_z = Z_VOL / z_range
+        
+        print all_samples
+        
+        print X_VOL
+        print Y_VOL
+        print Z_VOL
+        
+        print x_range
+        print y_range
+        print z_range
+        
+        print scale_x
+        print scale_y
+        print scale_z
                 
         scale = np.min([scale_x, scale_y, scale_z]) #Get the biggest downscale
                 
-        #Now that we have how much we should scale everything, we should scale everything and return it.
+        #Now that we have how much we should scale everything, we should center in x and y, scale everything, and return it.
         scaled_samples = []
         for sample in all_samples:
             scaled_sample = []
             
             for point in sample:
-                scaled_point = gp_Pnt(point.X() * scale, point.Y() * scale, point.Z() * scale)
+                scaled_point = gp_Pnt((point.X() - x_middle) * scale, (point.Y() - y_middle) * scale, point.Z() * scale)
                 scaled_sample.append(scaled_point)
                 
             scaled_samples.append(scaled_sample)
                 
         return scaled_samples            
                     
-                    
+    def graph_to_ordering(self, graph, roots, mid_x, mid_y):
+        pq = PQ()
+        curves = []
+        print 'roots in gto'
+        print roots
+        for node in roots:
+            print 'min dist'
+            print self.minDistFromCenter(node, mid_x, mid_y)
+            pq.put(node, self.minDistFromCenter(node, mid_x, mid_y))
+
+                
+        while not pq.empty(): #While there are still edges
+            print 'in da loop again'
+            node = pq.get()
+            curves.append(node)
+            edges = graph.edges(node, data=True)
+            for edge in edges:
+                if not (edge[1] in curves): #if sink of edge hasn't been seen yet, no point in adding it twice
+                    pq.put( edge[1] , self.minDistFromCenter(edge[1], mid_x, mid_y) )
+                
+        return curves
+        
+    
+    def add_node_to_queue_z(self, node, graph, pq):
+        edges = graph.edges(node, data=True)
+        for edge in edges:
+            min_con_val = sys.float_info.max
+            for conn_point in edge[2]['points']:
+                print conn_point
+                if conn_point.Z() < min_con_val:
+                    min_con_val = conn_point.Z()
+            pq.put( (node, edge), min_con_val )
+                
+        return pq
+    
+    def fix_graph(self, roots):
+        graph = self.buildGraph
+        fixed_graph = nx.Graph()
+        pq = PQ()
+        
+        for node in roots:
+            self.add_node_to_queue_z(node, graph, pq)
+            fixed_graph.add_node(node)
+            
+                        
+        #Now the priority queue has been initialized
+        while not pq.empty(): #While there are still edges
+            print fixed_graph.number_of_nodes()
+            (node, edge) = pq.get()
+            print 'in the loop'
+            if not (edge[1] in fixed_graph): #if sink of edge hasn't been added yet
+                fixed_graph.add_node(edge[1])
+                fixed_graph.add_edge(node, edge[1], points=edge[2])
+                self.add_node_to_queue_z(edge[1], graph, pq)
+            
+        return fixed_graph
+        
+    def sampleToArm(self):
+    
+        #TODO: First, order the splines through a graph traversal.  keep greedily adding the lowest connection point, guarantees never make "dangles."
+        #Use this to prevent cycles.
+        #Remove edges contributing to cycles.
+        
+        roots = self.findCurvesRoot()
+        
+        print 'roots'
+        print roots
+        print ''
+
+        cycleless_graph = self.fix_graph(roots)
         
         
-    def sampleToArm(self, all_samples):
-        #This does the grunt work of taking all the splines and creating reasonable paths.
-        #First, convert to a reasonable print volume.
+        nx.draw(cycleless_graph)
+        plt.savefig("graph.pdf")
+        
+        plt.clf()
+        
+        nx.draw(self.buildGraph)
+        plt.savefig("graph2.pdf")
+        
+        
+        
+        
+        #Second, use heuristic of inward before outward.
+        (mid_x, mid_y) = self.getCenter()
+        curves = self.graph_to_ordering(cycleless_graph, roots, mid_x, mid_y)
+        
+
+        #Third, sample
+        all_samples = self.saveCurvesToFile(curves)
+        
+        #Fourth and finally, convert to a reasonable print volume
         converted_samples = self.fit_to_volume(all_samples)
         
-        #TODO: Second, order the splines in a reasonable way.
+        #TODO: refactor to share code with all the existing save files
+        try:
+            os.remove(FIXED_FILE)
+        except:
+            print 'nothing to remove again!'
+            
+        with open(FIXED_FILE, "a") as myfile:
+            for sample in converted_samples:
+                for point in sample:
+                    myfile.write(str(point.X()) + " " + str(point.Y()) + " " + str(point.Z()) + "\n")   
+                myfile.write("-\n")    
         
-        #TODO: Third, add subsequent prints followed by "off" paths that don't self-intersect
-        #If possible, come up with good path orientations
+        print 'wrote to file!'
+        
+
         
         
         
@@ -220,13 +414,13 @@ class GLWidget(qtViewer3d):
             os.remove(SAVE_FILE)
         except:
             print 'nothing to remove!'
-            pass
+            
         with open(SAVE_FILE, "a") as myfile:
             for point in sample:
                 myfile.write(str(point.X()) + " " + str(point.Y()) + " " + str(point.Z()) + "\n")    
 
-    def saveCurvesToFile(self):
-        curves = list(set(self.shapesToCurves.values()))
+    def saveCurvesToFile(self, curves):
+        #curves = list(set(self.shapesToCurves.values()))
         all_samples = []
         for curve in curves:
             sample = self.sampleCurve(curve.GetObject())
@@ -245,8 +439,8 @@ class GLWidget(qtViewer3d):
                 
         if event.key() == QtCore.Qt.Key_S and (event.modifiers() & QtCore.Qt.ControlModifier):
             print 'saving time!'
-            all_samples = self.saveCurvesToFile()
-            self.sampleToArm(all_samples)
+            #all_samples = self.saveCurvesToFile()
+            self.sampleToArm() 
                 
                 
     def mouseReleaseEvent(self, event):
@@ -254,7 +448,7 @@ class GLWidget(qtViewer3d):
         super(GLWidget, self).mouseReleaseEvent(event)
         self.currentSpline =  self._display.GetSelectedShape()
             
-        
+    
 
     def mousePressEvent(self, event):
 
@@ -273,7 +467,7 @@ class GLWidget(qtViewer3d):
         corCurve = None #curve corresponding to the selected spline
 
         if self.currentSpline is not None and self.currentSpline is not False:
-            corCurve = self.lookupSpline(self.currentSpline) #TODO: not working
+            corCurve = self.lookupSpline(self.currentSpline)
             #self.currentSpline = self.shapesToCurves[self.currentSpline] #take the shape and get the real curve from it
         
         if event.buttons() & QtCore.Qt.LeftButton:
@@ -306,7 +500,9 @@ class GLWidget(qtViewer3d):
                 #get project onto it
                 projection = GeomAPI_ProjectPointOnCurve(point, corCurve)
                 point = projection.NearestPoint()
+
                 self.workingPoint = point #TODO: should I just make this none-able?
+                self.appendToDict(self.currentConnections, corCurve, point)#Add a connection
               
             elif self.workingPoint is not None:
                 view_dir = self._display.View.ViewOrientation().ViewReferencePlane().Coord() #Note that this is backwards!
@@ -328,6 +524,12 @@ class GLWidget(qtViewer3d):
             print 'second'
             print self.pts
             curve = self.points_to_bspline(self.pts)
+            
+            #Add the curve to the network:
+            self.buildGraph.add_node(curve)
+            for s in self.currentConnections:
+                self.buildGraph.add_edge(s, curve, points = self.currentConnections[s]) #from that spline to this current curve
+            
             self._display.DisplayShape(curve, update=False)
 
             self._display.View.SetZoom(1.0) #force a repaint
@@ -354,6 +556,7 @@ class GLWidget(qtViewer3d):
             print self.shapesToCurves
             
             self.workingPoint = None #reset this value
+            self.currentConnections = {} #reset this value
             
             
         
