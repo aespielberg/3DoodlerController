@@ -37,7 +37,7 @@ LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
 THRESH = 0.001
-BIG_THRESH = 0.005
+BIG_THRESH = 0.006
 BAD_ITERS = 10
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
 CLAMP_VALUE = 0.0
@@ -122,6 +122,7 @@ feedback_service = '/drc1/arm_feedback_command'
 arm_feedback = rospy.ServiceProxy(feedback_service, BasePose)
 pub = rospy.Publisher('/' + all_robot_names[0] + '/arm_1/arm_controller/velocity_command', JointVelocities, queue_size=1)
 pos_pub = rospy.Publisher('/end_effector_pose', Vector3_g, queue_size=1)
+pos_pub_goal = rospy.Publisher('/end_effector_goal', Vector3_g, queue_size=1)
 sub = rospy.Subscriber('ready', Bool, ready_callback)
 
 extrude_pub_fast = rospy.Publisher('fast', Bool, queue_size=1)
@@ -203,11 +204,14 @@ def stop():
 #start_config = np.array([2.9499957785497077, 1.334502240891718, -1.2181996753192461, 1.789004272867827, 2.9234068314087893]) - offset #outright
 start_config = np.array([2.9499957785497077, 1.44502240891718, -1.2181996753192461, 2.6, 2.9234068314087893]) - offset #angled
 #start_config = np.array([2.9499957785497077, 1.24502240891718, -1.2181996753192461, 3.2, 2.9234068314087893]) - offset #upright
+#start_config = np.array([2.9499957785497077, 0.84502240891718, -0.8181996753192461, 2.6, 2.9234068314087893]) - offset #angled different
+
 print start_config
 time.sleep(3.0)
 robot = youbots[r]
 MoveArmTo(robot,start_config,planners[r])
 print 'init done'
+
 
 
 #Testing
@@ -296,7 +300,7 @@ def projectPoint(p, line, point):
     
     
 
-def MoveStraight(velocity_factor, rel_diff):
+def MoveStraight(velocity_factor, rel_diff, horiz=True):
     """
     Moves the end effector in a straight line.
     Velocity_factor - how fast to move the joints
@@ -338,8 +342,8 @@ def MoveStraight(velocity_factor, rel_diff):
     
     #waitForReady()
     startExtruding(fast=False)
-    rospy.sleep(1.0)
-    
+    rospy.sleep(2.0)
+    loop_count = 0
     while np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2) > THRESH:
         
         timestamp = time.time()
@@ -366,10 +370,18 @@ def MoveStraight(velocity_factor, rel_diff):
         current_arm = robot.GetDOFValues()[0:5]
         
         sub_target = copy.deepcopy(get_relative_pose(getEndEffector())) #in drc1's frame
-        horizon = 0.01
-        #horizon = 1
+        
+        #0.03 for horizontal
+        #0.01 for vertical
+        if horiz:
+            horizon = 0.02
+            #horizon = 0.001
+        else:
+            horizon = 0.01
+
         pos_pub.publish(Vector3_g(x=sub_target[0, 3], y=sub_target[1, 3], z=sub_target[2, 3]))
-        #TODO:Hack for now, must generalize
+        
+        
         
         
 
@@ -383,6 +395,8 @@ def MoveStraight(velocity_factor, rel_diff):
         direc_norm = np.linalg.norm(direc, 2)
         
         sub_target[:3, 3] += direc * horizon / direc_norm #in drc1's frame
+        
+        pos_pub_goal.publish(Vector3_g(x=sub_target[0, 3], y=sub_target[1, 3], z=sub_target[2, 3]))
 
         
         
@@ -390,7 +404,11 @@ def MoveStraight(velocity_factor, rel_diff):
         sol = yik.FindIKSolutions(robot, get_global_pose(sub_target)) #convert it back to the global frame and find IK solutions in global frame
         closest_arm = GetClosestArm(current_arm, sol)
         
-                
+        """
+        MoveArmTo(robot,closest_arm,planners[r])
+        rospy.sleep(0.01)
+        continue
+        """
         
         old_error = diff
         
@@ -442,7 +460,14 @@ def MoveStraight(velocity_factor, rel_diff):
         print diff
         #IPython.embed()
         
-        v = createVelocity(vel*velocity_factor)
+        loop_count += 1
+        print loop_count
+        vel_fac = np.min([velocity_factor, velocity_factor * loop_count / 200.])
+        
+        print 'vel fac is '
+        print vel_fac
+        
+        v = createVelocity(vel*vel_fac)
         #IPython.embed()
         pub.publish(v)
         rospy.sleep(0.01)
@@ -458,15 +483,25 @@ def MoveStraight(velocity_factor, rel_diff):
     
 #MoveStraight(0.75, np.array([0.0, 0., 0.02]))
 
-speed = 0.005
-dist = 0.04
+
 
 #move(0.0, 0., np.pi)
+#move(-0.04, 0., np.pi)
 
 #MoveStraight(0.1, np.array([-0.008, 0.008, 0.0]))
 #MoveStraight(0.1, np.array([0., 0., 0.01]))
-#MoveStraight(0.3, np.array([0., 0., 0.08]))
+#MoveStraight(0.9, np.array([0., 0., 0.02]))
+
+#MoveStraight(0.3, np.array([-0.02, 0., 0.]), horiz=True)
+MoveStraight(0.3, np.array([-0.02, 0., 0.]), horiz=True)
+MoveStraight(0.5, np.array([0., 0., 0.02]), horiz=False)
+#MoveStraight(0.5, np.array([-0.02, 0., -0.02]), horiz=True)
+
+
+#MoveStraight(0.3, np.array([0., 0., 0.02]))
 #MoveStraight(0.3, np.array([-0.02, 0., 0.0]))
+#MoveStraight(0.1, np.array([-0.014, 0., 0.014]))
+#MoveStraight(0.3, np.array([-0.02, 0., 0.]))
 
 """
 MoveStraight(0.1, np.array([0., 0., 0.01]))
