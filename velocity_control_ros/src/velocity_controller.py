@@ -37,7 +37,7 @@ LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
 THRESH = 0.001
-BIG_THRESH = 0.006
+BIG_THRESH = 0.004
 BAD_ITERS = 10
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
 CLAMP_VALUE = 0.0
@@ -49,8 +49,8 @@ ki = 0.
 kp = 1.
 #ki = 1.6
 #kd = 0.0002 #Been finding this really bad, maybe get rid of it
-#ki = 3.3
-#kd = 0.1
+ki = 0.5
+#kd = 0.125
 
 
 
@@ -374,7 +374,7 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         #0.03 for horizontal
         #0.01 for vertical
         if horiz:
-            horizon = 0.02
+            horizon = 0.01
             #horizon = 0.001
         else:
             horizon = 0.01
@@ -449,8 +449,10 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         
         
         norm=np.linalg.norm(vel)
+        print 'norm is ' + str(norm)
         if norm != 0:
             vel /= norm
+        
             
         for i in range(len(vel)):
             if abs(vel[i]) < CLAMP_VALUE:
@@ -493,8 +495,12 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
 #MoveStraight(0.9, np.array([0., 0., 0.02]))
 
 #MoveStraight(0.3, np.array([-0.02, 0., 0.]), horiz=True)
-MoveStraight(0.3, np.array([-0.02, 0., 0.]), horiz=True)
-MoveStraight(0.5, np.array([0., 0., 0.02]), horiz=False)
+
+MoveStraight(0.3, np.array([-0.01, 0., 0.]), horiz=True)
+MoveStraight(0.3, np.array([0., 0., 0.01]), horiz=False)
+
+#MoveStraight(0.3, np.array([-0.01, 0., 0.01]), horiz=True)
+
 #MoveStraight(0.5, np.array([-0.02, 0., -0.02]), horiz=True)
 
 
