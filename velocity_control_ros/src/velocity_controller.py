@@ -512,6 +512,58 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     
 #MoveStraight(0.75, np.array([0.0, 0., 0.02]))
 
+def point_from_string(s):
+    np.array([float(x) for x in s.split(' ')])
+
+def file_to_commands(filename):
+    idx = 0
+    with open(fname) as f:
+        idx += 1
+        for line in f:
+            if line == '-':
+                #End of spline
+                idx = 0
+                continue
+                
+            point = point_from_string(line)
+            if idx == 1:
+                #move base to position
+                #TODO: Raise arm
+                
+                
+                #TODO: move base using the real move base command
+                
+                
+                #lower_arm
+                MoveArmTo(robot,start_config,planners[r])
+                
+                
+                
+            else:
+                #First, rotate to point
+                point = point_from_string(line)
+                xy1 = prev_point[0:-1]
+                xy2 = point[0:-1]
+                angle = np.dot(xy1, xy2) / (np.linalg.norm(xy1, 2) * np.linalg.norm(xy2, 2))
+                move(0., 0., angle)
+                
+                #now we need to rotate this onto the xz plane
+                rot_mat = rotation_matrix(angle, np.array([0., 0., 1.]))
+                xz_diff = rot_max.dot(point - prev_point)
+                
+                #And now move the arm by this amount
+                MoveStraight(0.3, xz_diff)
+                
+                
+                #Finally, back up by the amount we moved and move the arm back into position
+                dist = np.norm(point - prev_point)
+                
+                
+                move(-dist, 0., 0.) #finally, back up
+                
+                MoveArmTo(robot,start_config,planners[r]) #put the arm back in the starting configuration
+                
+            prev_point = point #bookkeeping
 
 
 #move(0.0, 0., np.pi)
