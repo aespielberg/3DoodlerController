@@ -567,8 +567,8 @@ def file_to_commands(filename):
 
 
 #move(0.0, 0., np.pi)
-MoveStraight(0.3, np.array([0., 0., 0.01]), horiz=False)
-
+MoveStraight(0.3, np.array([0., 0., 0.02]), horiz=False)
+exit()
 move(-0.04, 0., 0.)
 
 #MoveStraight(0.1, np.array([-0.008, 0.008, 0.0]))
