@@ -41,8 +41,8 @@ BIG_THRESH = 0.004
 BAD_ITERS = 10
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
 CLAMP_VALUE = 0.0
-pos_acc = 0.008
-ang_acc = 0.05
+pos_acc = 0.005 #ideally 0.001
+ang_acc = 0.05 #ideally 0.02
 
 kd = 0.
 ki = 0.
@@ -144,7 +144,7 @@ def MoveArmTo(robot,goal,planner):
         orpy.RaveSetDebugLevel(orpy.DebugLevel.Verbose)
         with env:
             robot.SetActiveDOFs(range(5))
-            traj = planner.MoveActiveJoints(goal=goal,maxiter=5000,steplength=0.15,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.01)
+            traj = planner.MoveActiveJoints(goal=goal,maxiter=5000,steplength=0.001,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.00025)
             robot.GetController().SetPath(traj)
         while not robot.GetController().IsDone():
             time.sleep(0.01)
@@ -228,10 +228,32 @@ MoveArmTo(robot, sol, planners[r])
 #sol = manip.FindIKSolutions(orpy.IkParameterization().SetTranslationYAxisAngle4D(target,0.0), orpy.IkFilterOptions.CheckEnvCollisions)
 
 
+#add a small cylinder to the environment
+def addGeometryToEnvironment(endpoint1, endpoint2):
+    #TODO: How do we add in the doodler?
+    radius = 0.0005
+    with env:
+        prism = orpy.RaveCreateKinBody(env, '')
+        prism.SetName(str(np.random.rand())) #give it a random name - we'll never reference it
+        points_diff = (endpoint2 - endpoint1)[:-1, 3] #difference vector
+        offset = endpoint1[:-1, 3]
+        norm = np.linalg.norm(points_diff, 2)
+        prism.InitFromBoxes(np.array([[0., 0., 0., radius*2., radius*2., norm]]), True)
+        tr_matrix = tr.compose_matrix(angles = np.arcsin( points_diff/norm ), translate=offset)
+        env.Add(prism, True)
+        prism.SetTransform(tr_matrix)
+    
+        
 
-
-
-
+#FOR TESTING
+def moveArmWrapper():
+    pose = get_relative_pose(getEndEffector())
+    #pose[0, 3] += 0.01
+    arm = yik.FindIKSolutions(robot, get_global_pose(pose))
+    print arm
+    MoveArmTo(robot, arm, planners[r])
+    
+    
 
 
 def startExtruding(fast):
@@ -290,7 +312,6 @@ def move(xx, yy, theta):
     
     arm_feedback_wrapper(target_x, target_y, target_theta - np.pi, pos_acc, ang_acc, False, '/map')
     
-    IPython.embed()
     
 def projectPoint(p, line, point):
     #projects p onto the line in direction line protruding from point
@@ -402,6 +423,9 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         
         print sub_target
         sol = yik.FindIKSolutions(robot, get_global_pose(sub_target)) #convert it back to the global frame and find IK solutions in global frame
+        if not sol:
+            break
+            print "COULD NOT REACH TARGET"
         closest_arm = GetClosestArm(current_arm, sol)
         
         """
@@ -480,6 +504,9 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     stop()
     stopExtruding()
     print 'finished segment'
+    
+    addGeometryToEnvironment(get_global_pose(transform), getEndEffector())
+    
     rospy.sleep(0.5)
     
     
@@ -488,7 +515,9 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
 
 
 #move(0.0, 0., np.pi)
-#move(-0.04, 0., np.pi)
+MoveStraight(0.3, np.array([0., 0., 0.01]), horiz=False)
+
+move(-0.04, 0., 0.)
 
 #MoveStraight(0.1, np.array([-0.008, 0.008, 0.0]))
 #MoveStraight(0.1, np.array([0., 0., 0.01]))
@@ -496,7 +525,16 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
 
 #MoveStraight(0.3, np.array([-0.02, 0., 0.]), horiz=True)
 
-MoveStraight(0.3, np.array([-0.01, 0., 0.]), horiz=True)
+#MoveStraight(0.3, np.array([-0.01, 0., 0.]), horiz=True)
+
+MoveStraight(0.3, np.array([0., 0., 0.01]), horiz=False)
+
+move(0., -0.04, 0.)
+
+MoveStraight(0.3, np.array([0., 0., 0.01]), horiz=False)
+
+move(0., 0., np.pi/32.)
+
 MoveStraight(0.3, np.array([0., 0., 0.01]), horiz=False)
 
 #MoveStraight(0.3, np.array([-0.01, 0., 0.01]), horiz=True)
@@ -520,7 +558,7 @@ MoveStraight(0.1, np.array([0., 0., 0.01]))
 MoveStraight(0.1, np.array([0., 0., 0.01]))
 MoveStraight(0.1, np.array([0., 0., 0.01]))
 """
-
+IPython.embed()
 
 
 #MoveStraight(0.1, np.array([-0.015, 0.0, 0.0]))
