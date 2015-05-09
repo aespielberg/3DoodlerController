@@ -183,9 +183,13 @@ class GLWidget(qtViewer3d):
         return min_dist
         
     def sampleCurve(self, curve, res=10):
+        tol = 0.015
+        uThresh = curve.Resolution(tol)
         sample = []
         last = curve.LastParameter()
         first = curve.FirstParameter()
+        
+        res = (last - first) / uThresh
         for i in range(res):
             u = first + (last - first)/res * i
             point = curve.Value(u)
