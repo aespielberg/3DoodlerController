@@ -2,8 +2,8 @@
 
 dir
 1639
-svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models/objects/sundvik
-svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models/objects/sundvik
+svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 

@@ -2,8 +2,8 @@
 
 dir
 1561
-svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/tfplugin/testdata
-svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/tfplugin/testdata
+svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 

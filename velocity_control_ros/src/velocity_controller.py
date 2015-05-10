@@ -360,21 +360,26 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     velocity_factor *= SPEED_FACTOR
     
     #transform is start
-    transform = get_relative_pose(getEndEffector())
+    transform = getEndEffector()
     
     #For debugging with rqt_plot:
     
-    
-    
+
+    step = robot.GetTransform()[:-1, :-1].dot(rel_diff)
+    """
     target_x = transform[0, 3] + rel_diff[0]
     target_y = transform[1, 3] + rel_diff[1]
     target_z = transform[2, 3] + rel_diff[2] #Drc1's base frame
+    """
     
     #target is goal
     target = copy.deepcopy(transform)
+    target[:-1, 3] += step
+    """
     target[0, 3] = target_x
     target[1, 3] = target_y
     target[2, 3] = target_z
+    """
     
     
     
@@ -395,13 +400,13 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     startExtruding(fast=False)
     rospy.sleep(2.0)
     loop_count = 0
-    while np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2) > THRESH:
+    while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
         
         timestamp = time.time()
         
         
         
-        cart_dist = np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2)
+        cart_dist = np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
         if cart_dist < best_distance:
             best_distance = cart_dist
         elif cart_dist < BIG_THRESH:
@@ -415,12 +420,12 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         print target
         """
         print 'dist is: '
-        print np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2)
+        print np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
         
         
         current_arm = robot.GetDOFValues()[0:5]
         
-        sub_target = copy.deepcopy(get_relative_pose(getEndEffector())) #in drc1's frame
+        sub_target = copy.deepcopy(getEndEffector()) #in drc1's frame
         
         #0.03 for horizontal
         #0.01 for vertical
@@ -452,7 +457,7 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         
         
         print sub_target
-        sol = yik.FindIKSolutions(robot, get_global_pose(sub_target)) #convert it back to the global frame and find IK solutions in global frame
+        sol = yik.FindIKSolutions(robot, sub_target) #convert it back to the global frame and find IK solutions in global frame
         if not sol:
             break
             print "COULD NOT REACH TARGET"
@@ -536,7 +541,7 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     print 'finished segment'
     
 
-    addGeometryToEnvironment(get_global_pose(transform), getEndEffector())
+    addGeometryToEnvironment(transform, getEndEffector())
     
     rospy.sleep(0.5)
     
@@ -639,7 +644,7 @@ def file_to_commands(filename):
 
 #move(0.0, 0., np.pi)
 
-
+IPython.embed()
 file_to_commands('output.txt')
 
 
