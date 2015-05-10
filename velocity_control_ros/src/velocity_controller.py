@@ -266,10 +266,13 @@ def addGeometryToEnvironment(endpoint1, endpoint2):
         offset = endpoint1[:-1, 3]
         norm = np.linalg.norm(points_diff, 2)
         prism.InitFromBoxes(np.array([[0., 0., 0., radius*2., radius*2., norm]]), True)
-        tr_matrix = tr.compose_matrix(angles = np.arcsin( points_diff/norm ), translate=offset)
+        z = np.array([0., 0., norm])
+        cross = np.cross(z, points_diff)
+        angle = np.arccos(np.dot(z, points_diff) / (norm * norm) )
+        tr_matrix = tr.rotation_matrix(angle, cross)
+        tr_matrix[:-1, 3] = endpoint1[:-1, 3]
         env.Add(prism, True)
         prism.SetTransform(tr_matrix)
-    
         
 
 #FOR TESTING
@@ -532,6 +535,7 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     stopExtruding()
     print 'finished segment'
     
+
     addGeometryToEnvironment(get_global_pose(transform), getEndEffector())
     
     rospy.sleep(0.5)
@@ -587,15 +591,17 @@ def file_to_commands(filename):
                 #First, rotate to point
                 point = point_from_string(line)
                 robot_pos = robot.GetTransform()[0:2, -1]
-                xy1 = prev_point[0:-1] - robot_pos
-                xy2 = point[0:-1] - robot_pos
+                robot_dir = robot.GetTransform()[0:2, 0]
+                robot_dir_self = [1., 0.]
+                xy1 = robot_dir
+                xy2 = point[0:-1] - prev_point[0:-1]
                 angle = np.arccos( np.dot(xy1, xy2) / (np.linalg.norm(xy1, 2) * np.linalg.norm(xy2, 2)) )
                 move(0., 0., angle)
                 
-                
+                angle2 = np.arccos( np.dot(robot_dir_self, xy2) / (np.linalg.norm(robot_dir_self, 2) * np.linalg.norm(xy2, 2)) )
                 
                 #now we need to rotate this onto the xz plane
-                rot_mat = tr.rotation_matrix(angle, np.array([0., 0., 1.]))[:-1, :-1] #just get the rotation part
+                rot_mat = tr.rotation_matrix(angle2, np.array([0., 0., 1.]))[:-1, :-1] #just get the rotation part
                 
                 xz_diff = rot_mat.dot(point - prev_point)
                 
@@ -605,6 +611,7 @@ def file_to_commands(filename):
                 
                 
                 #And now move the arm by this amount
+                
                 MoveStraight(0.3, xz_diff)
                 
                 
@@ -621,7 +628,8 @@ def file_to_commands(filename):
                 current_pose[0, 3] += dist
                 sols = yik.FindIKSolutions(robot, get_global_pose(current_pose))
                 current_arm = robot.GetDOFValues()[0:5]
-                sol = GetClosestArm(current_arm, sols)
+                sol = GetClosestArm(start_config, sols)
+    
                 MoveArmTo(robot, sol, planners[r])
                 
                 
