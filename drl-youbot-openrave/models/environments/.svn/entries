@@ -2,8 +2,8 @@
 
 dir
 1639
-svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models/environments
-svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models/environments
+svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 
@@ -25,40 +25,6 @@ spbaker
 
 
 c4b41905-7492-43aa-9acf-8b5ffadedbda
-
-fouryoubots.env.xml
-file
-
-
-
-
-2014-01-21T00:22:28.000000Z
-b893ccca7d1e3c96dfa3db5c89aec2d8
-2013-11-20T20:17:43.651932Z
-1127
-mdogar
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-1518
 
 wingtransport.env.xml
 file
@@ -356,4 +322,38 @@ aespielberg
 
 
 1220
+
+fouryoubots.env.xml
+file
+
+
+
+
+2014-01-21T00:22:28.000000Z
+b893ccca7d1e3c96dfa3db5c89aec2d8
+2013-11-20T20:17:43.651932Z
+1127
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1518
 

@@ -138,6 +138,33 @@ def GetClosestArm(cur_arm, sol):
             ret_i = i
     #IPython.embed()
     return sol[ret_i]
+    
+def MoveBaseTo(robot,xyyaw,planner,skip_waypoints=False):
+    try:
+        orpy.RaveSetDebugLevel(orpy.DebugLevel.Verbose)
+        robot.GetEnv().GetKinBody('floor').Enable(False)
+        current = robot.GetTransform()
+        currentxyyaw = np.array([current[0,3],current[1,3],np.arctan2(current[1,0],current[0,0])])
+        if np.linalg.norm(currentxyyaw-xyyaw) < 0.0001:
+            print robot.GetName(),' already at goal. Not moving.'
+            return 
+        with env:
+            robot.SetActiveDOFs([],orpy.DOFAffine.X|orpy.DOFAffine.Y|orpy.DOFAffine.RotationAxis,[0,0,1])
+            traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.15,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.01)
+            if skip_waypoints:
+                traj.Remove(1,traj.GetNumWaypoints()-1)
+            robot.GetController().SetPath(traj)
+        while not robot.GetController().IsDone():
+            time.sleep(0.01)
+    except Exception, e:
+        print str(e)
+        c = raw_input('IPython shell?(y/n)')
+        if c == 'y':
+            IPython.embed()
+        raise e
+    finally:
+        robot.GetEnv().GetKinBody('floor').Enable(True)
+        orpy.RaveSetDebugLevel(orpy.DebugLevel.Info)
 
 def MoveArmTo(robot,goal,planner):
     try:
@@ -211,7 +238,7 @@ time.sleep(3.0)
 robot = youbots[r]
 MoveArmTo(robot,start_config,planners[r])
 print 'init done'
-
+default_z = getEndEffector()[3, 2]
 
 
 #Testing
@@ -239,10 +266,13 @@ def addGeometryToEnvironment(endpoint1, endpoint2):
         offset = endpoint1[:-1, 3]
         norm = np.linalg.norm(points_diff, 2)
         prism.InitFromBoxes(np.array([[0., 0., 0., radius*2., radius*2., norm]]), True)
-        tr_matrix = tr.compose_matrix(angles = np.arcsin( points_diff/norm ), translate=offset)
+        z = np.array([0., 0., norm])
+        cross = np.cross(z, points_diff)
+        angle = np.arccos(np.dot(z, points_diff) / (norm * norm) )
+        tr_matrix = tr.rotation_matrix(angle, cross)
+        tr_matrix[:-1, 3] = endpoint1[:-1, 3]
         env.Add(prism, True)
         prism.SetTransform(tr_matrix)
-    
         
 
 #FOR TESTING
@@ -330,21 +360,26 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     velocity_factor *= SPEED_FACTOR
     
     #transform is start
-    transform = get_relative_pose(getEndEffector())
+    transform = getEndEffector()
     
     #For debugging with rqt_plot:
     
-    
-    
+
+    step = robot.GetTransform()[:-1, :-1].dot(rel_diff)
+    """
     target_x = transform[0, 3] + rel_diff[0]
     target_y = transform[1, 3] + rel_diff[1]
     target_z = transform[2, 3] + rel_diff[2] #Drc1's base frame
+    """
     
     #target is goal
     target = copy.deepcopy(transform)
+    target[:-1, 3] += step
+    """
     target[0, 3] = target_x
     target[1, 3] = target_y
     target[2, 3] = target_z
+    """
     
     
     
@@ -365,13 +400,13 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     startExtruding(fast=False)
     rospy.sleep(2.0)
     loop_count = 0
-    while np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2) > THRESH:
+    while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
         
         timestamp = time.time()
         
         
         
-        cart_dist = np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2)
+        cart_dist = np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
         if cart_dist < best_distance:
             best_distance = cart_dist
         elif cart_dist < BIG_THRESH:
@@ -385,12 +420,12 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         print target
         """
         print 'dist is: '
-        print np.linalg.norm(get_relative_pose(getEndEffector())[:-1, 3] - target[:-1, 3], 2)
+        print np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
         
         
         current_arm = robot.GetDOFValues()[0:5]
         
-        sub_target = copy.deepcopy(get_relative_pose(getEndEffector())) #in drc1's frame
+        sub_target = copy.deepcopy(getEndEffector()) #in drc1's frame
         
         #0.03 for horizontal
         #0.01 for vertical
@@ -422,7 +457,7 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         
         
         print sub_target
-        sol = yik.FindIKSolutions(robot, get_global_pose(sub_target)) #convert it back to the global frame and find IK solutions in global frame
+        sol = yik.FindIKSolutions(robot, sub_target) #convert it back to the global frame and find IK solutions in global frame
         if not sol:
             break
             print "COULD NOT REACH TARGET"
@@ -505,7 +540,8 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     stopExtruding()
     print 'finished segment'
     
-    addGeometryToEnvironment(get_global_pose(transform), getEndEffector())
+
+    addGeometryToEnvironment(transform, getEndEffector())
     
     rospy.sleep(0.5)
     
@@ -513,13 +549,13 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
 #MoveStraight(0.75, np.array([0.0, 0., 0.02]))
 
 def point_from_string(s):
-    np.array([float(x) for x in s.split(' ')])
+    return np.array([float(x) for x in s.split(' ')])
 
 def file_to_commands(filename):
     idx = 0
-    with open(fname) as f:
-        idx += 1
+    with open(filename) as f:
         for line in f:
+            idx += 1
             if line == '-':
                 #End of spline
                 idx = 0
@@ -529,47 +565,92 @@ def file_to_commands(filename):
             if idx == 1:
                 #move base to position
                 #TODO: Raise arm
+                MoveArmTo(robot, np.array([0., 0., 0., 0., 0.]), planners[r])
+                
+                #TODO: who cares about theta?
+                current = robot.GetTransform()
+                
+                yaw = np.arctan2(current[1,0],current[0,0])
                 
                 
-                #TODO: move base using the real move base command
-                
+                MoveBaseTo(robot,np.array([point[0], point[1], yaw]),planners[r],skip_waypoints=False)
                 
                 #lower_arm
                 MoveArmTo(robot,start_config,planners[r])
+                
+                #Finally, move the arm to the appropriate height
+                
+                current_pose = get_relative_pose(getEndEffector())
+                current_pose[3, 2] += point[2]
+                sols = yik.FindIKSolutions(robot, get_global_pose(current_pose))
+                current_arm = robot.GetDOFValues()[0:5]
+                sol = GetClosestArm(current_arm, sols)
+                
+                
+                MoveArmTo(robot, sol, planners[r])
+                
                 
                 
                 
             else:
                 #First, rotate to point
                 point = point_from_string(line)
-                xy1 = prev_point[0:-1]
-                xy2 = point[0:-1]
-                angle = np.dot(xy1, xy2) / (np.linalg.norm(xy1, 2) * np.linalg.norm(xy2, 2))
+                robot_pos = robot.GetTransform()[0:2, -1]
+                robot_dir = robot.GetTransform()[0:2, 0]
+                robot_dir_self = [1., 0.]
+                xy1 = robot_dir
+                xy2 = point[0:-1] - prev_point[0:-1]
+                angle = np.arccos( np.dot(xy1, xy2) / (np.linalg.norm(xy1, 2) * np.linalg.norm(xy2, 2)) )
                 move(0., 0., angle)
                 
+                angle2 = np.arccos( np.dot(robot_dir_self, xy2) / (np.linalg.norm(robot_dir_self, 2) * np.linalg.norm(xy2, 2)) )
+                
                 #now we need to rotate this onto the xz plane
-                rot_mat = rotation_matrix(angle, np.array([0., 0., 1.]))
-                xz_diff = rot_max.dot(point - prev_point)
+                rot_mat = tr.rotation_matrix(angle2, np.array([0., 0., 1.]))[:-1, :-1] #just get the rotation part
+                
+                xz_diff = rot_mat.dot(point - prev_point)
+                
+                print xz_diff
+                
+                xz_diff[1] = 0. #clamp away numerical error
+                
                 
                 #And now move the arm by this amount
+                
                 MoveStraight(0.3, xz_diff)
                 
                 
-                #Finally, back up by the amount we moved and move the arm back into position
-                dist = np.norm(point - prev_point)
+                #Back up by the amount we moved and move the arm back into position
+                dist = np.linalg.norm(point - prev_point, 2)
+                
                 
                 
                 move(-dist, 0., 0.) #finally, back up
                 
-                MoveArmTo(robot,start_config,planners[r]) #put the arm back in the starting configuration
+                #Arm back into correct x position:
+                
+                current_pose = get_relative_pose(getEndEffector())
+                current_pose[0, 3] += dist
+                sols = yik.FindIKSolutions(robot, get_global_pose(current_pose))
+                current_arm = robot.GetDOFValues()[0:5]
+                sol = GetClosestArm(start_config, sols)
+    
+                MoveArmTo(robot, sol, planners[r])
+                
+                
                 
             prev_point = point #bookkeeping
 
 
 #move(0.0, 0., np.pi)
-MoveStraight(0.3, np.array([0., 0., 0.02]), horiz=False)
-exit()
-move(-0.04, 0., 0.)
+
+IPython.embed()
+file_to_commands('output.txt')
+
+
+#MoveStraight(0.3, np.array([0., 0., 0.02]), horiz=False)
+#exit()
+#move(-0.04, 0., 0.)
 
 #MoveStraight(0.1, np.array([-0.008, 0.008, 0.0]))
 #MoveStraight(0.1, np.array([0., 0., 0.01]))
