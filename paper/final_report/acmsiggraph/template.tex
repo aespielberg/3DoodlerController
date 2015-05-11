@@ -26,6 +26,21 @@
 
 \keywords{3D Printing, Robotics, 3Doodler, Trajectory Controller}
 
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+
+
 \begin{document}
 
 %% \teaser{
@@ -37,24 +52,12 @@
 
 \begin{abstract}
 
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse
-molestie consequat, vel illum dolore eu feugiat nulla facilisis at 
-vero eros et accumsan et iusto odio dignissim qui blandit praesent
-luptatum zzril delenit augue duis dolore te feugait nulla
-facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit,
-sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna
-aliquam erat volutpat.
+TODO: awesome abstract!
 
 Citations can be done this way~\cite{Jobs95} or this more concise 
 way~\shortcite{Jobs95}, depending upon the application.
 
-Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper
-suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem
-vel eum iriure dolor in hendrerit~\cite{Pellacini:2005:LAH}
-in vulputate velit esse molestie~\cite{notes2002} 
-consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
-accumsan et iusto odio dignissim qui blandit praesent luptatum zzril
-delenit augue duis dolore te feugait nulla facilisi.~\cite{Park:2006:DSI}
+
 
 \end{abstract}
 
@@ -121,6 +124,43 @@ In this section, we detail how our system converts our collection of B-Splines t
 In this section, we first explain how we transform a graph representing the splines and their connections into a tree in which any traversal, starting from the root, will never lead to fabricating a spline before its support.  Next, we describe a heuristic for traversing that tree in a way that hopes to simplify the collision-free motion planning problem.  Finally, we describe how we sample the splines and scale them to fit to a reasonable print volume.
 
 \subsection{Constraint Generation}
+
+Consider a multigraph $G = (V, E)$ where $V$ corresponds to the set of splines and there exists an edge $E$ between two nodes in $V$ when their corresponding splines are connected (for each connection).  With each edge $e \in E$ associate its connection height, $e_z$.  Let $R \subseteq V$ be the root nodes of this graph, which correspond to splines which intersect the plane $z=0$.
+
+Given this setup, we present an algorithm in Figure (TODO) for transforming this graph into a forest such that the fabrication of splines in any path from any root to a connected leaf guarantees that any spline's support will be built before it.  Note that as a limitation, this only considers geometric feasibility, and does not perform any sort of physical simulation to verify the stability of such a fabrication order.
+
+\begin{algorithm}
+\caption{My algorithm}\label{euclid}
+\begin{algorithmic}[1]
+\Procedure{MyProcedure}{}
+\State $\textit{stringlen} \gets \text{length of }\textit{string}$
+\State $i \gets \textit{patlen}$
+\BState \emph{top}:
+\If {$i > \textit{stringlen}$} \Return false
+\EndIf
+\State $j \gets \textit{patlen}$
+\BState \emph{loop}:
+\If {$\textit{string}(i) = \textit{path}(j)$}
+\State $j \gets j-1$.
+\State $i \gets i-1$.
+\State \textbf{goto} \emph{loop}.
+\State \textbf{close};
+\EndIf
+\State $i \gets i+\max(\textit{delta}_1(\textit{string}(i)),\textit{delta}_2(j))$.
+\State \textbf{goto} \emph{top}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}
+Any traversal from a root to a connected leaf in the forest output by Algorithm (TODO) will not lead to fabricating a spline before its support.
+\end{theorem}
+
+\begin{proof}
+TODO: prove this!
+\end{proof}
+
+
 
 \subsection{Heuristic Ordering}
 
