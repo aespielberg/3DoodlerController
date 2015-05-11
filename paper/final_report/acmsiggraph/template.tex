@@ -125,29 +125,48 @@ In this section, we first explain how we transform a graph representing the spli
 
 \subsection{Constraint Generation}
 
-Consider a multigraph $G = (V, E)$ where $V$ corresponds to the set of splines and there exists an edge $E$ between two nodes in $V$ when their corresponding splines are connected (for each connection).  With each edge $e \in E$ associate its connection height, $e_z$.  Let $R \subseteq V$ be the root nodes of this graph, which correspond to splines which intersect the plane $z=0$.
+Consider a graph $G = (V, E)$ where $V$ corresponds to the set of splines and there exists an edge $E$ between two nodes in $V$ when their corresponding splines are connected (for each connection).  With each edge $e_i \in E$ associate the minimum connection height of all points in which those two splines connect, $e_i^z$, and with each node $v_j \in V$, associate the height of the minimum $e_i^z$ among all edges $e_i$ connected to $v_j$ as $e_{min_z}$.  Let $R \subseteq V$ be the root nodes of this graph, which correspond to splines which intersect the plane $z=0$.
+
+TODO: clean up all this terminology to match algorithm.
 
 Given this setup, we present an algorithm in Figure (TODO) for transforming this graph into a forest such that the fabrication of splines in any path from any root to a connected leaf guarantees that any spline's support will be built before it.  Note that as a limitation, this only considers geometric feasibility, and does not perform any sort of physical simulation to verify the stability of such a fabrication order.
 
 \begin{algorithm}
 \caption{My algorithm}\label{euclid}
 \begin{algorithmic}[1]
-\Procedure{MyProcedure}{}
-\State $\textit{stringlen} \gets \text{length of }\textit{string}$
-\State $i \gets \textit{patlen}$
-\BState \emph{top}:
-\If {$i > \textit{stringlen}$} \Return false
-\EndIf
-\State $j \gets \textit{patlen}$
-\BState \emph{loop}:
-\If {$\textit{string}(i) = \textit{path}(j)$}
-\State $j \gets j-1$.
-\State $i \gets i-1$.
-\State \textbf{goto} \emph{loop}.
-\State \textbf{close};
-\EndIf
-\State $i \gets i+\max(\textit{delta}_1(\textit{string}(i)),\textit{delta}_2(j))$.
-\State \textbf{goto} \emph{top}.
+\Procedure{GraphToForest}{}
+\BState \textbf{Input:} $G$
+\BState $pq \gets \textit{PriorityQueue()}$
+\BState $F \gets \textit{Graph()}$ \Comment{We will build the output graph as $F$}.
+\BState For each $r_i \in R$:
+\State $F \gets F \cup \{r_i\}$
+\State For each $e_{ij}$ connected to $r_i$
+\State \hspace{\algorithmicindent} $pq.put( (r_i, e_{ij}), e_{ij}^z)$.
+
+\BState While $pq \neq \emptyset$: \Comment{While the priority queue still has nodes}
+\State $(v_i, e_{ij}^z) = pq.pop()$
+\State if $v_j \notin F$:
+\State \hspace{\algorithmicindent} $F \gets F \cup \{v_j\}$
+\State \hspace{\algorithmicindent} $F \gets F \cup \{e_ij\}$
+\State \hspace{\algorithmicindent} For each $e_{jk}$ connected to $v_j$
+\State \hspace{\algorithmicindent} \hspace{\algorithmicindent} $pq.put( (v_j, e_{jk}), e_{jk}^z)$.
+\BState \textbf{Output:} $F$
+
+%\State $\textit{stringlen} \gets \text{length of %}\textit{string}$
+%\State $i \gets \textit{patlen}$
+%\BState \emph{top}:
+%\If {$i > \textit{stringlen}$} \Return false
+%\EndIf
+%\State $j \gets \textit{patlen}$
+%\BState \emph{loop}:
+%\If {$\textit{string}(i) = \textit{path}(j)$}
+%\State $j \gets j-1$.
+%\State $i \gets i-1$.
+%\State \textbf{goto} \emph{loop}.
+%\State \textbf{close};
+%\EndIf
+%\State $i \gets i+\max(\textit{delta}_1(\textit{string}(i)),\textit{delta}_2(j))$.
+%\State \textbf{goto} \emph{top}.
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
