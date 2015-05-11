@@ -132,7 +132,7 @@ TODO: clean up all this terminology to match algorithm.
 Given this setup, we present an algorithm in Figure (TODO) for transforming this graph into a forest such that the fabrication of splines in any path from any root to a connected leaf guarantees that any spline's support will be built before it.  Note that as a limitation, this only considers geometric feasibility, and does not perform any sort of physical simulation to verify the stability of such a fabrication order.
 
 \begin{algorithm}
-\caption{My algorithm}\label{euclid}
+\caption{Graph To Forest}\label{alg:graphtoforest}
 \begin{algorithmic}[1]
 \Procedure{GraphToForest}{}
 \BState \textbf{Input:} $G$
@@ -171,17 +171,19 @@ Given this setup, we present an algorithm in Figure (TODO) for transforming this
 \end{algorithmic}
 \end{algorithm}
 
+We say a spline $a$ is supported by a spline $b$ if $b$ connects to the lowest connection point on $a$.
+
 \begin{theorem}
-Any traversal from a root to a connected leaf in the forest output by Algorithm (TODO) will not lead to fabricating a spline before its support.
+Any traversal from a root to a connected leaf in the forest output by Algorithm \ref{alg:graphtoforest} will not lead to fabricating a spline before its support.
 \end{theorem}
 
-We say a spline $a$ is supported by a spline $b$ if $b$ connects to the lowest connection point on $a$.
+
 
 \begin{proof}
 TODO: prove this!
 Proof by Induction.
 Base case: We will always add a root node first, and since they intersect at $z=0$, they require no support.
-Inductive case: Assume that through step $k$, no node has been added before its support.  Now, assume that at step $k+1$, we want to add a new spline $v_{k+1}$, that's connected to one of the existing splines in $F$.  We prove here that this must choose a spline that is supported by $F$.  Assume for contradiction's sake that $v_{k+1}$ is \emph{not} supported by any spline currently in $F$.  Then there exists another connection point on 
+Inductive case: Assume that through step $k$, no node has been added before its support.  Now, assume that at step $k+1$, we want to add a new spline $v_{k+1}$, that's connected to one of the existing splines in $F$.  We prove here that this must choose a spline that is supported by $F$.  Assume for contradiction's sake that $v_{k+1}$ is \emph{not} supported by any spline currently in $F$.  Then that must mean that it is supported by a spline that has not yet been added.  Call that spline $v'$.  But then, if $v'$ has not yet been added, its lowest connection point must be higher, because otherwise it would have been 
 
 \end{proof}
 
