@@ -23,7 +23,7 @@ import copy
 import tfplugin
 from brics_actuator.msg import JointVelocities, JointValue
 from geometry_msgs.msg import Vector3 as Vector3_g
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Time
 import sys
 from assembly_common.srv import BasePose,ArmCommand
 import tf.transformations as tr
@@ -37,7 +37,7 @@ LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
 THRESH = 0.001
-BIG_THRESH = 0.004
+BIG_THRESH = 0.005
 BAD_ITERS = 10
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
 CLAMP_VALUE = 0.0
@@ -217,8 +217,10 @@ def createVelocity(vels):
         vels *=  MAX_VEL
     
     v = JointVelocities()
+    ts = rospy.Time()
     for i in range(5):
         v.velocities.append(JointValue())
+        v.velocities[i].timeStamp = ts
         v.velocities[i].joint_uri = arm_names[i]
         v.velocities[i].unit = unit
         v.velocities[i].value = float(vels[i])
@@ -229,7 +231,10 @@ def stop():
     pub.publish(v)
 
 #start_config = np.array([2.9499957785497077, 1.334502240891718, -1.2181996753192461, 1.789004272867827, 2.9234068314087893]) - offset #outright
+#start_config = np.array([2.9499957785497077, 1.44502240891718, -1.2181996753192461, 2.6, 2.9234068314087893]) - offset #angled
 start_config = np.array([2.9499957785497077, 1.44502240891718, -1.2181996753192461, 2.6, 2.9234068314087893]) - offset #angled
+
+
 #start_config = np.array([2.9499957785497077, 1.24502240891718, -1.2181996753192461, 3.2, 2.9234068314087893]) - offset #upright
 #start_config = np.array([2.9499957785497077, 0.84502240891718, -0.8181996753192461, 2.6, 2.9234068314087893]) - offset #angled different
 
@@ -459,8 +464,9 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         print sub_target
         sol = yik.FindIKSolutions(robot, sub_target) #convert it back to the global frame and find IK solutions in global frame
         if not sol:
-            break
             print "COULD NOT REACH TARGET"
+            break
+            
         closest_arm = GetClosestArm(current_arm, sol)
         
         """
