@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  12 MAY 2015 10:44
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  12 MAY 2015 10:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -484,17 +484,19 @@ LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 162.
  [2] (./template.bbl)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 278.
- [3]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 278.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 275.
+ [3
+
+]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 275.
  (./template.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 278.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 278.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 278.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 275.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 275.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 275.
  ) 
 Here is how much of TeX's memory you used:
- 7748 strings out of 493481
- 115903 string characters out of 3143392
+ 7747 strings out of 493481
+ 115893 string characters out of 3143392
  220892 words of memory out of 3000000
  10914 multiletter control sequences out of 15000+200000
  30951 words of font info for 60 fonts, out of 3000000 for 9000
@@ -514,10 +516,10 @@ sy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive
 /texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fon
 ts/type1/urw/times/utmri8a.pfb>
-Output written on template.pdf (3 pages, 347198 bytes).
+Output written on template.pdf (3 pages, 347123 bytes).
 PDF statistics:
- 118 PDF objects out of 1000 (max. 8388607)
- 97 compressed objects within 1 object stream
- 34 named destinations out of 1000 (max. 500000)
+ 117 PDF objects out of 1000 (max. 8388607)
+ 96 compressed objects within 1 object stream
+ 33 named destinations out of 1000 (max. 500000)
  16 words of extra memory for PDF output out of 10000 (max. 10000000)
 
