@@ -171,7 +171,9 @@ Given this setup, we present an algorithm in Figure (TODO) for transforming this
 \end{algorithmic}
 \end{algorithm}
 
-We say a spline $a$ is supported by a spline $b$ if $b$ connects to the lowest connection point on $a$.
+We say a spline $a$ is supported by a spline $b$ if $b$'s lowest connection point is on $a$.
+
+As an additional constraint, we require that for any two connected splines, they do not support each other.  This is something we eventually hope to be enforced by the GUI.
 
 \begin{theorem}
 Any traversal from a root to a connected leaf in the forest output by Algorithm \ref{alg:graphtoforest} will not lead to fabricating a spline before its support.
@@ -180,10 +182,13 @@ Any traversal from a root to a connected leaf in the forest output by Algorithm 
 
 
 \begin{proof}
-TODO: prove this!
+TODO: Is this good?
 Proof by Induction.
 Base case: We will always add a root node first, and since they intersect at $z=0$, they require no support.
-Inductive case: Assume that through step $k$, no node has been added before its support.  Now, assume that at step $k+1$, we want to add a new spline $v_{k+1}$, that's connected to one of the existing splines in $F$.  We prove here that this must choose a spline that is supported by $F$.  Assume for contradiction's sake that $v_{k+1}$ is \emph{not} supported by any spline currently in $F$.  Then that must mean that it is supported by a spline that has not yet been added.  Call that spline $v'$.  But then, if $v'$ has not yet been added, its lowest connection point must be higher, because otherwise it would have been 
+Inductive case: Assume that through step $k$, no node has been added before its support.  Now, assume that at step $k+1$, we want to add a new spline $v_{k+1}$, that's connected to one of the existing splines in $F$.  We prove here that this must choose a spline that is supported by $F$.  Assume for contradiction's sake that $v_{k+1}$ is \emph{not} supported by the spline it is being attached to.  If that's the case, then it must be supported by a different spline $v'$ with a lower connect point which is not added yet.  But the only way that this spline could not be added yet is if it or some other spline on the path from the root  too $v'$ has a higher support point.  If this is the case though, it will have to be that either $v'$ and $v_{k+1}$ support each other or two splines on the path support each other (TODO: be more explicit here), which is not allowed.  Thus, we have a contradiction.
+
+
+%any spline currently in $F$.  Then that must mean that it is supported by a spline that has not yet been added.  Call that spline $v'$.  But then, if $v'$ has not yet been added, its lowest connection point so far must be higher than that of $v_{k+1}$, because otherwise it would have been added.  
 
 \end{proof}
 
@@ -191,6 +196,8 @@ Note that the way in which we "break cycles" here may not be unique, which may l
 
 
 \subsection{Heuristic Ordering}
+In order to 
+
 
 \subsection{Polyline Conversion}
 
