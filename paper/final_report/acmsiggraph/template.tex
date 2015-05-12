@@ -125,7 +125,9 @@ In this section, we first explain how we transform a graph representing the spli
 
 \subsection{Constraint Generation}
 
-Consider a graph $G = (V, E)$ where $V$ corresponds to the set of splines and there exists an edge $E$ between two nodes in $V$ when their corresponding splines are connected (for each connection).  With each edge $e_i \in E$ associate the minimum connection height of all points in which those two splines connect, $e_i^z$, and with each node $v_j \in V$, associate the height of the minimum $e_i^z$ among all edges $e_i$ connected to $v_j$ as $e_{min_z}$.  Let $R \subseteq V$ be the root nodes of this graph, which correspond to splines which intersect the plane $z=0$.
+Consider a graph $G = (V, E)$ where $V$ corresponds to the set of splines and there exists an edge $E$ between two nodes in $V$ when their corresponding splines are connected (for each connection).  With each edge $e_{ij} \in E$ connecting nodes $v_i$ and $v_j$ associate the minimum connection height of all points in which those two splines connect, $e_{ij}^z$
+%$, and with each node $v_j \in V$, associate the height of %the minimum $e_i^z$ among all edges $e_i$ connected to %$v_j$ as $e_{min_z}$
+.  Let $R \subseteq V$ be the root nodes of this graph, which correspond to splines which intersect the plane $z=0$.
 
 TODO: clean up all this terminology to match algorithm.
 
@@ -206,7 +208,7 @@ TODO: Should I put an algorithm?
 \subsection{Polyline Conversion}
 Since fabricating continuous splines is difficult, we simplify the problem by approximating splines as polylines.  This process is comprised of three steps.
 
-The first step is, for each polyline in our ordering, we choose a threshold value $V$ (which will correspond to the resolution of our polyline, i.e. the length of each segment) and calculate a threshold $T$ which satisfies $\forall t_{max} > t > t' > 0, |t' - t| < T \leftarrow ||v(t') - v(t)||_2 < V$ (PythonOCC provides functionality for calculating this value).  We then sample $v$ at increments of $T$. to create a list of candidate points $C$ for our polyline.  
+The first step is, for each polyline in our ordering, we choose a threshold value $V$ (which will correspond to the resolution of our polyline, i.e. the length of each segment) and calculate a threshold $T$ which satisfies $\forall t_{max} > t > t' > 0, |t' - t| < T \rightarrow ||v(t') - v(t)||_2 < V$ (PythonOCC provides functionality for calculating this value).  We then sample $v$ at increments of $T$. to create a list of candidate points $C$ for our polyline.  
 
 Next, we scale and center our points in $C$ (analogous to a normalizing procedure, but uniformly among all dimensions) in order to fit the drawing within a predetermined print volume.  In practice, we set the $x$ and $y$ ranges to 10~cm, the $z$ range to 4~cm, and centered the output drawing at $(0, 0, 0)$.
 
