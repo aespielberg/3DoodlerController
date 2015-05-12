@@ -57,8 +57,7 @@
 
 TODO: awesome abstract!
 
-Citations can be done this way~\cite{Jobs95} or this more concise 
-way~\shortcite{Jobs95}, depending upon the application.
+%Citations can be done this way~\cite{Jobs95} or this more concise  way~\shortcite{Jobs95}, depending upon the application.
 
 
 
@@ -96,8 +95,14 @@ TODO: talk about previous work, what we hope to do different and why we're the b
 
 
 \section{System Overview}
-TODO: annotate this with the figure steps and sections.
-Our system pipeline consists of several interworking components, which we illustrate in figure (TODO).  A general workflow id described as follows.  Users interact with our GUI in order to draw a set of splines, which represent the structure that they want the robot to draw.  When the user is satisfied with their drawing, she may choose to output it to a file readable to the robot fabrication.  In this output process, paths are ordered in a way that guarantees supports are generated before the splines which rest upon them while heuristically attempting to reduce potential for collisions.  In this process, the splines are also resized to a scale that fits a reasonably sized workspace for the robot, and approximated as a set of polylines, which make robot control easier.  The robot, a Kuka YouBot which is equipped with a 3Doodler on its end-effector, then reads in this file one polyline at a time.  For each polyline, it plans to achieve an initial configuration which is collision-free with the currently fabricated structure (which we call the working structure), and iteratively fabricates the polyline segment-wise using our robot control algorithm.  3Doodler interfacing is achieved through an Arduino control module, and we equip the robot with a spool of 2.85~mm PLA plastic so that the 3Doodler does not have to be re-filled.
+Our system pipeline consists of several interworking components, which we illustrate in figure \ref{fig:systemarchitecture}.  A general workflow is described as follows.  Users interact with our GUI in order to draw a set of splines, which represent the structure that they want the robot to draw.  When the user is satisfied with their drawing, she may choose to output it to a file readable to the robot fabrication.  In this output process, paths are ordered in a way that guarantees supports are generated before the splines which rest upon them while heuristically attempting to reduce potential for collisions.  In this process, the splines are also resized to a scale that fits a reasonably sized workspace for the robot, and approximated as a set of polylines, which make robot control easier.  The robot, a Kuka YouBot which is equipped with a 3Doodler on its end-effector, then reads in this file one polyline at a time.  For each polyline, it plans to achieve an initial configuration which is collision-free with the currently fabricated structure (which we call the working structure), and iteratively fabricates the polyline segment-wise using our robot control algorithm.  3Doodler interfacing is achieved through an Arduino control module, and we equip the robot with a spool of 2.85~mm PLA plastic so that the 3Doodler does not have to be re-filled.
+
+\begin{figure}[t]{3.0in}
+\centering
+\includegraphics[width=3.0in]{images/system_arch.png}
+\caption{A diagram of our 3Doodler pipeline.}
+\label{fig:systemarchitecture}
+\end{figure}
 
 Our UI is built on top of PythonOCC \cite{PythonOCC}, an open source API for developing Computer-Aided Deisgn (CAD) software, which includes both visualization and geometric computing tools.  Our robotics infrastructure is built upon the Robot Operating System (ROS) \cite{ROS}.  OpenRAVE \cite{OpenRAVE} is used as a platform for computing inverse kinematics of the robot arm, as well as performing robot planning.
 
