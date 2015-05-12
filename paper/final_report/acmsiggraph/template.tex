@@ -200,8 +200,19 @@ We wish to avoid moving the 3Doodler nozzle "inward," which could increase the d
 
 In other words, define the heurstic function of a spline $h(v) = -d(c, \min_t(v(t))$, where $c$ is the centroid of the drawing's AABB and $v(t)$ is the value of spline $v$ at parameter point $t$.  We perform a depth-first traversal of our forest, choosing the lowest heuristic function as it's available.  This generates our path ordering.
 
+TODO: Should I put an algorithm?
+
 
 \subsection{Polyline Conversion}
+Since fabricating continuous splines is difficult, we simplify the problem by approximating splines as polylines.  This process is comprised of three steps.
+
+The first step is, for each polyline in our ordering, we choose a threshold value $V$ (which will correspond to the resolution of our polyline, i.e. the length of each segment) and calculate a threshold $T$ which satisfies $\forall t_{max} > t > t' > 0, |t' - t| < T \leftarrow ||v(t') - v(t)||_2 < V$ (PythonOCC provides functionality for calculating this value).  We then sample $v$ at increments of $T$. to create a list of candidate points $C$ for our polyline.  
+
+Next, we scale and center our points in $C$ (analogous to a normalizing procedure, but uniformly among all dimensions) in order to fit the drawing within a predetermined print volume.  In practice, we set the $x$ and $y$ ranges to 10~cm, the $z$ range to 4~cm, and centered the output drawing at $(0, 0, 0)$.
+
+For each point in $C$ we then greedily add to an output list $C'$ the next point when its distance from the previously added point is at least $V$ (PythonOCC does not provide functionality for arclength, and rather than attempt to write code to approximate it, we assume that for splines with sufficiently small curvature and small $V$ that using this distance should not destroy much information about the polyline).  We also add to $C'$ the closest point to each connection point, which should be helpful for making sure the material is at the connection point (we should add the connection point itself but it's not yet clear to us how to determine where in $C'$ it should be inserted).  In practice, we keep $V$ relatively small, at 1~cm.
+
+
 
 \section{YouBot Control}
 

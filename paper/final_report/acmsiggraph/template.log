@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  11 MAY 2015 21:56
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  11 MAY 2015 22:15
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -463,19 +463,24 @@ LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 135.
 
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [2]
 No file template.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 233.
-[2]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 233.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 244.
+[3
+
+]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 244.
  (./template.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 233.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 233.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 233.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 244.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 244.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 244.
  ) 
 Here is how much of TeX's memory you used:
- 7637 strings out of 493481
- 114100 string characters out of 3143392
- 214150 words of memory out of 3000000
+ 7638 strings out of 493481
+ 114106 string characters out of 3143392
+ 217150 words of memory out of 3000000
  10825 multiletter control sequences out of 15000+200000
  27641 words of font info for 56 fonts, out of 3000000 for 9000
  965 hyphenation exceptions out of 8191
@@ -495,10 +500,10 @@ sy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb
 /texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-
 dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type
 1/urw/times/utmri8a.pfb>
-Output written on template.pdf (2 pages, 133563 bytes).
+Output written on template.pdf (3 pages, 137587 bytes).
 PDF statistics:
- 92 PDF objects out of 1000 (max. 8388607)
- 75 compressed objects within 1 object stream
- 24 named destinations out of 1000 (max. 500000)
+ 97 PDF objects out of 1000 (max. 8388607)
+ 79 compressed objects within 1 object stream
+ 25 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
