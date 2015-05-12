@@ -196,7 +196,9 @@ Note that the way in which we "break cycles" here may not be unique, which may l
 
 
 \subsection{Heuristic Ordering}
-In order to 
+We wish to avoid moving the 3Doodler nozzle "inward," which could increase the difficulty of finding collision-free motion paths.  The resulting forest from the previous step provides the constraints on which order splines can be drawn (no spline on a tree can be drawn before its ancestor) but we are otherwise free to traverse the forest in any order that we wish, starting from the set of root nodes.  Here, we provide a heuristic for doing so in a way that reduces the odds of moving significantly "inward" in our drawing.  Define a point $a$ and being more inner than $b$ if $a$ is closer than $b$ to the centroid axis-aligned bounding box (AABB) of our spline set.  Observe that the only way we could move our 3Doodler nozzle monotonically outward is if we order our splines by increasing distance to the centroid of their innermost point (although, also note that such an ordering does not \emph{guarantee} that we can move monotonically outward as such an ordering typically does not exist; the intuition however is that such a phenomenon may roughly occur several times as we move upward in $z$).
+
+In other words, define the heurstic function of a spline $h(v) = -d(c, \min_t(v(t))$, where $c$ is the centroid of the drawing's AABB and $v(t)$ is the value of spline $v$ at parameter point $t$.  We perform a depth-first traversal of our forest, choosing the lowest heuristic function as it's available.  This generates our path ordering.
 
 
 \subsection{Polyline Conversion}
