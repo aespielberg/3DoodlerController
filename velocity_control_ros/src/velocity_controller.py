@@ -37,7 +37,7 @@ LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
 THRESH = 0.001
-BIG_THRESH = 0.005
+BIG_THRESH = 0.004
 BAD_ITERS = 10
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
 CLAMP_VALUE = 0.0
@@ -50,7 +50,8 @@ kp = 1.
 #ki = 1.6
 #kd = 0.0002 #Been finding this really bad, maybe get rid of it
 ki = 0.5
-#kd = 0.125
+#kd = -10.
+#kd = 0.0125
 
 
 
@@ -344,7 +345,7 @@ def move(xx, yy, theta):
     target_y = tr_pose.pose.position.y
     target_theta = target_euler[2]
     
-    
+    IPython.embed()
     arm_feedback_wrapper(target_x, target_y, target_theta - np.pi, pos_acc, ang_acc, False, '/map')
     
     
@@ -529,8 +530,8 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         
         loop_count += 1
         print loop_count
-        vel_fac = np.min([velocity_factor, velocity_factor * loop_count / 200.])
-        
+        #vel_fac = np.min([velocity_factor, velocity_factor * loop_count / 200.])
+        vel_fac = velocity_factor
         print 'vel fac is '
         print vel_fac
         
@@ -544,6 +545,7 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
 
     stop()
     stopExtruding()
+    #rospy.sleep(30.0)
     print 'finished segment'
     
 
@@ -606,8 +608,15 @@ def file_to_commands(filename):
                 robot_dir_self = [1., 0.]
                 xy1 = robot_dir
                 xy2 = point[0:-1] - prev_point[0:-1]
+                
+                
                 angle = np.arccos( np.dot(xy1, xy2) / (np.linalg.norm(xy1, 2) * np.linalg.norm(xy2, 2)) )
-                move(0., 0., angle)
+                print 'tilt!'
+                IPython.embed()
+                #move(0., 0., angle)
+                yaw = np.arctan2(xy2[1],xy2[0])
+                MoveBaseTo(robot,np.array([point[0], point[1], yaw]),planners[r],skip_waypoints=False)
+                
                 
                 angle2 = np.arccos( np.dot(robot_dir_self, xy2) / (np.linalg.norm(robot_dir_self, 2) * np.linalg.norm(xy2, 2)) )
                 
@@ -630,8 +639,9 @@ def file_to_commands(filename):
                 dist = np.linalg.norm(point - prev_point, 2)
                 
                 
-                
-                move(-dist, 0., 0.) #finally, back up
+                tar = dist * xy2 + robot_pos
+                MoveBaseTo(robot,np.array([tar[0], tar[1], yaw]),planners[r],skip_waypoints=False)
+                #move(-dist, 0., 0.) #finally, back up
                 
                 #Arm back into correct x position:
                 
