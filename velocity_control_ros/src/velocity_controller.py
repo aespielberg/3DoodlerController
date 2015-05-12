@@ -612,7 +612,7 @@ def file_to_commands(filename):
                 
                 angle = np.arccos( np.dot(xy1, xy2) / (np.linalg.norm(xy1, 2) * np.linalg.norm(xy2, 2)) )
                 print 'tilt!'
-                IPython.embed()
+
                 #move(0., 0., angle)
                 yaw = np.arctan2(xy2[1],xy2[0])
                 MoveBaseTo(robot,np.array([point[0], point[1], yaw]),planners[r],skip_waypoints=False)
