@@ -23,7 +23,7 @@ import copy
 import tfplugin
 from brics_actuator.msg import JointVelocities, JointValue
 from geometry_msgs.msg import Vector3 as Vector3_g
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Time
 import sys
 from assembly_common.srv import BasePose,ArmCommand
 import tf.transformations as tr
@@ -50,7 +50,8 @@ kp = 1.
 #ki = 1.6
 #kd = 0.0002 #Been finding this really bad, maybe get rid of it
 ki = 0.5
-#kd = 0.125
+#kd = -10.
+#kd = 0.0125
 
 
 
@@ -217,8 +218,10 @@ def createVelocity(vels):
         vels *=  MAX_VEL
     
     v = JointVelocities()
+    ts = rospy.Time()
     for i in range(5):
         v.velocities.append(JointValue())
+        v.velocities[i].timeStamp = ts
         v.velocities[i].joint_uri = arm_names[i]
         v.velocities[i].unit = unit
         v.velocities[i].value = float(vels[i])
@@ -229,7 +232,10 @@ def stop():
     pub.publish(v)
 
 #start_config = np.array([2.9499957785497077, 1.334502240891718, -1.2181996753192461, 1.789004272867827, 2.9234068314087893]) - offset #outright
+#start_config = np.array([2.9499957785497077, 1.44502240891718, -1.2181996753192461, 2.6, 2.9234068314087893]) - offset #angled
 start_config = np.array([2.9499957785497077, 1.44502240891718, -1.2181996753192461, 2.6, 2.9234068314087893]) - offset #angled
+
+
 #start_config = np.array([2.9499957785497077, 1.24502240891718, -1.2181996753192461, 3.2, 2.9234068314087893]) - offset #upright
 #start_config = np.array([2.9499957785497077, 0.84502240891718, -0.8181996753192461, 2.6, 2.9234068314087893]) - offset #angled different
 
@@ -339,7 +345,7 @@ def move(xx, yy, theta):
     target_y = tr_pose.pose.position.y
     target_theta = target_euler[2]
     
-    
+    IPython.embed()
     arm_feedback_wrapper(target_x, target_y, target_theta - np.pi, pos_acc, ang_acc, False, '/map')
     
     
@@ -459,8 +465,9 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         print sub_target
         sol = yik.FindIKSolutions(robot, sub_target) #convert it back to the global frame and find IK solutions in global frame
         if not sol:
-            break
             print "COULD NOT REACH TARGET"
+            break
+            
         closest_arm = GetClosestArm(current_arm, sol)
         
         """
@@ -523,8 +530,8 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         
         loop_count += 1
         print loop_count
-        vel_fac = np.min([velocity_factor, velocity_factor * loop_count / 200.])
-        
+        #vel_fac = np.min([velocity_factor, velocity_factor * loop_count / 200.])
+        vel_fac = velocity_factor
         print 'vel fac is '
         print vel_fac
         
@@ -538,6 +545,7 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
 
     stop()
     stopExtruding()
+    #rospy.sleep(30.0)
     print 'finished segment'
     
 
@@ -600,8 +608,15 @@ def file_to_commands(filename):
                 robot_dir_self = [1., 0.]
                 xy1 = robot_dir
                 xy2 = point[0:-1] - prev_point[0:-1]
+                
+                
                 angle = np.arccos( np.dot(xy1, xy2) / (np.linalg.norm(xy1, 2) * np.linalg.norm(xy2, 2)) )
-                move(0., 0., angle)
+                print 'tilt!'
+
+                #move(0., 0., angle)
+                yaw = np.arctan2(xy2[1],xy2[0])
+                MoveBaseTo(robot,np.array([point[0], point[1], yaw]),planners[r],skip_waypoints=False)
+                
                 
                 angle2 = np.arccos( np.dot(robot_dir_self, xy2) / (np.linalg.norm(robot_dir_self, 2) * np.linalg.norm(xy2, 2)) )
                 
@@ -624,8 +639,9 @@ def file_to_commands(filename):
                 dist = np.linalg.norm(point - prev_point, 2)
                 
                 
-                
-                move(-dist, 0., 0.) #finally, back up
+                tar = dist * xy2 + robot_pos
+                MoveBaseTo(robot,np.array([tar[0], tar[1], yaw]),planners[r],skip_waypoints=False)
+                #move(-dist, 0., 0.) #finally, back up
                 
                 #Arm back into correct x position:
                 
