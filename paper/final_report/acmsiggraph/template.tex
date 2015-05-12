@@ -29,6 +29,9 @@
 \usepackage{amsthm}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
+\usepackage{caption}
+\usepackage{subcaption}
+%\usepackage[subfigure]{ccaption}
 
 \makeatletter
 \def\BState{\State\hskip-\ALG@thistlm}
@@ -98,15 +101,33 @@ Our system pipeline consists of several interworking components, which we illust
 
 Our UI is built on top of PythonOCC (TODO: cite), an open source API for developing Computer-Aided Deisgn (CAD) software, which includes both visualization and geometric computing tools.  Our robotics infrastructure is built upon the Robot Operating System (ROS) (TODO: cite).  OpenRAVE (TODO: Cite) is used as a platform for computing inverse kinematics of the robot arm, as well as performing robot planning.
 
-%\begin{figure}[ht]
-%  \centering
-%  \includegraphics[width=1.5in]{images/samplefigure}
-%  \caption{Sample illustration.}
-%\end{figure}
+
 
 
 \section{Clamp Design}
-Inspired by the idea of interchangeable tools for the YouBot, (TODO: cite IkeaBot) we developed a 3Doodler attachment which fits on the fingers of the YouBot as a glove.  The rings of the 3Doodler were tightly fitted to the form factor of the 3Doodler and away from its center where the 3Doodler is widest, so as to lock it firmly in place (TODO: it can still rotate though.  Address this). The clamp was 3D printed and coated in TangoBlack+ (TODO: cite Objet) to increase friction with the fingers and 3Doodler and decrease translational and rotational slip.  The design of a clamp half (a single finger) is shown in figure (TODO) and the printed version, complete with 3Doodler, can be found in figure (TODO).  
+Inspired by the idea of interchangeable tools for the YouBot, (TODO: cite IkeaBot) we developed a 3Doodler attachment which fits on the fingers of the YouBot as a glove.  The rings of the 3Doodler were tightly fitted to the form factor of the 3Doodler and away from its center where the 3Doodler is widest, so as to lock it firmly in place (TODO: it can still rotate though.  Address this). The clamp was 3D printed and coated in TangoBlack+ (TODO: cite Objet) to increase friction with the fingers and 3Doodler and decrease translational and rotational slip.  The design of a clamp half (a single finger) is shown in Fig. \ref{fig:halfclamp} and the printed version, complete with 3Doodler, can be found in Fig. \ref{fig:printedclamp}.  
+
+\begin{figure}[t!]
+\centering
+
+\begin{subfigure}[t]{1.5in}
+\centering
+\includegraphics[width=1.5in]{images/clamp.png}
+\caption{The OpenSCAD model of the Clamp for a single YouBot finger.}
+\label{fig:halfclamp}
+\end{subfigure}
+~
+\begin{subfigure}[t]{1.5in}
+\centering
+\includegraphics[width=1.5in]{images/clamp_printed.jpg}
+\caption{The printed clamp with 3Doodler, affixed to the YouBot hand.}
+\label{fig:printedclamp}
+\end{subfigure}
+\caption{The 3Doodler Clamp.}
+\end{figure}
+
+
+
 
 TODO: talk about total load of YouBot and mass of clamp + doodler?
 

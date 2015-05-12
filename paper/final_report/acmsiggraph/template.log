@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  11 MAY 2015 22:55
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  12 MAY 2015 08:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -341,41 +341,46 @@ Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
 \ALG@tmplength=\skip57
 )
 Document Style - pseudocode environments for use with the `algorithmicx' style
+) (/usr/share/texlive/texmf-dist/tex/latex/caption/subcaption.sty
+Package: subcaption 2012/01/12 v1.1d Sub-captions (AR)
+\c@subfigure=\count126
+\c@subtable=\count127
 )
-\c@theorem=\count126
- (./template.aux)
+\c@theorem=\count128
+
+(./template.aux)
 \openout1 = `template.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Try loading font information for OT1+ptm on input line 44.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 47.
+LaTeX Font Info:    ... okay on input line 47.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 47.
+LaTeX Font Info:    ... okay on input line 47.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 47.
+LaTeX Font Info:    ... okay on input line 47.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 47.
+LaTeX Font Info:    ... okay on input line 47.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 47.
+LaTeX Font Info:    ... okay on input line 47.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 47.
+LaTeX Font Info:    ... okay on input line 47.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 47.
+LaTeX Font Info:    ... okay on input line 47.
+LaTeX Font Info:    Try loading font information for OT1+ptm on input line 47.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
 (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count127
+\scratchcounter=\count129
 \scratchdimen=\dimen128
 \scratchbox=\box31
-\nofMPsegments=\count128
-\nofMParguments=\count129
+\nofMPsegments=\count130
+\nofMParguments=\count131
 \everyMPshowfont=\toks31
-\MPscratchCnt=\count130
+\MPscratchCnt=\count132
 \MPscratchDim=\dimen129
-\MPnumerator=\count131
-\makeMPintoPDFobject=\count132
+\MPnumerator=\count133
+\makeMPintoPDFobject=\count134
 \everyMPtoPDFconversion=\toks32
 ) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
@@ -406,7 +411,7 @@ File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
 Package color Info: Driver file: pdftex.def on input line 130.
 )
-Package hyperref Info: Link coloring ON on input line 44.
+Package hyperref Info: Link coloring ON on input line 47.
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2010/04/30 v2.40 Cross-referencing by name of section
@@ -414,74 +419,93 @@ Package: nameref 2010/04/30 v2.40 Cross-referencing by name of section
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
-\c@section@level=\count133
+\c@section@level=\count135
 )
-LaTeX Info: Redefining \ref on input line 44.
-LaTeX Info: Redefining \pageref on input line 44.
-LaTeX Info: Redefining \nameref on input line 44.
-LaTeX Font Info:    Try loading font information for OT1+phv on input line 51.
+LaTeX Info: Redefining \ref on input line 47.
+LaTeX Info: Redefining \pageref on input line 47.
+LaTeX Info: Redefining \nameref on input line 47.
+LaTeX Font Info:    Try loading font information for OT1+phv on input line 54.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1phv.fd
 File: ot1phv.fd 2001/06/04 scalable font definitions for OT1/phv.
 )
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 13.24796pt on input line 51.
+(Font)              scaled to size 13.24796pt on input line 54.
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 51.
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 54.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 13.24796pt on input line 51.
+(Font)              scaled to size 13.24796pt on input line 54.
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 11.03998pt on input line 53.
+(Font)              scaled to size 11.03998pt on input line 56.
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <12> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 53.
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 56.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 11.03998pt on input line 53.
+(Font)              scaled to size 11.03998pt on input line 56.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 57.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 60.
 
 
-LaTeX Warning: Citation 'Jobs95' on page 1 undefined on input line 57.
+LaTeX Warning: Citation 'Jobs95' on page 1 undefined on input line 60.
 
 
-LaTeX Warning: Citation 'Jobs95' on page 1 undefined on input line 58.
+LaTeX Warning: Citation 'Jobs95' on page 1 undefined on input line 61.
 
 
 Underfull \vbox (badness 1688) has occurred while \output is active []
 
+
+<images/clamp.png, id=6, 564.60938pt x 535.2497pt>
+File: images/clamp.png Graphic file (type png)
+ <use images/clamp.png>
+Package pdftex.def Info: images/clamp.png used on input line 115.
+(pdftex.def)             Requested size: 108.405pt x 102.7684pt.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 116.
+
+Underfull \hbox (badness 3525) in paragraph at lines 116--116
+[]\OT1/ptm/b/n/7 (a) |\OT1/ptm/m/it/7 The Open-SCAD model of the
+ []
+
+<images/clamp_printed.jpg, id=7, 1532.72626pt x 862.22125pt>
+File: images/clamp_printed.jpg Graphic file (type jpg)
+
+<use images/clamp_printed.jpg>
+Package pdftex.def Info: images/clamp_printed.jpg used on input line 122.
+(pdftex.def)             Requested size: 108.405pt x 60.98pt.
 Missing character: There is no Ã in font ptmr7t!
 Missing character: There is no ¯ in font ptmr7t!
-LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 9.19998pt on input line 126.
-LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <10> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 126.
-LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 9.19998pt on input line 126.
  [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 
-]
+ <./images/clamp.png> <./images/clamp_printed.jpg>]
+LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
+(Font)              scaled to size 9.19998pt on input line 147.
+LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <10> not available
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 147.
+LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
+(Font)              scaled to size 9.19998pt on input line 147.
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 137.
+put line 158.
  [2]
 No file template.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 248.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 269.
 [3
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 248.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 269.
  (./template.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 248.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 248.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 248.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 269.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 269.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 269.
  ) 
 Here is how much of TeX's memory you used:
- 7638 strings out of 493481
- 114106 string characters out of 3143392
- 217150 words of memory out of 3000000
- 10825 multiletter control sequences out of 15000+200000
- 27641 words of font info for 56 fonts, out of 3000000 for 9000
+ 7727 strings out of 493481
+ 115581 string characters out of 3143392
+ 220892 words of memory out of 3000000
+ 10904 multiletter control sequences out of 15000+200000
+ 30951 words of font info for 60 fonts, out of 3000000 for 9000
  965 hyphenation exceptions out of 8191
- 43i,15n,40p,1359b,390s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,15n,40p,1359b,498s stack positions out of 5000i,500n,10000p,200000b,50000s
 pdfTeX warning (dest): name{algorithm.1} has been referenced but does not exi
 st, replaced by a fixed one
 
@@ -496,10 +520,10 @@ sy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive
 /texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fon
 ts/type1/urw/times/utmri8a.pfb>
-Output written on template.pdf (3 pages, 130581 bytes).
+Output written on template.pdf (3 pages, 205608 bytes).
 PDF statistics:
- 93 PDF objects out of 1000 (max. 8388607)
- 76 compressed objects within 1 object stream
- 25 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 98 PDF objects out of 1000 (max. 8388607)
+ 79 compressed objects within 1 object stream
+ 26 named destinations out of 1000 (max. 500000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
