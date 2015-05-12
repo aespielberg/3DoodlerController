@@ -218,6 +218,8 @@ For each point in $C$ we then greedily add to an output list $C'$ the next point
 
 \section{YouBot Control}
 
+In this section we detail the algorithm used for controlling the algorithm and extruding material.  We note that \emph{arm control} and \emph{base control} are used exclusively; the arm and base are never moving simultaneously.  This simplifies our problem by avoiding the difficulty of having to synchronize arm and base movement.  Further, arm motions are used exclusively for drawing line segments of the polylines, while base movements are used to move the YouBot in order to prepare for the next segment.
+
 \subsection{Arm Control}
 
 \subsection{Base Control}
