@@ -1,0 +1,224 @@
+%%% template.tex
+%%%
+%%% This LaTeX source document can be used as the basis for your technical
+%%% paper or abstract. Intentionally stripped of annotation, the parameters
+%%% and commands should be adjusted for your particular paper - title, 
+%%% author, article DOI, etc.
+%%% The accompanying ``template.annotated.tex'' provides copious annotation
+%%% for the commands and parameters found in the source document. (The code
+%%% is identical in ``template.tex'' and ``template.annotated.tex.'')
+
+\documentclass[conference]{acmsiggraph}
+
+\TOGonlineid{45678}
+\TOGvolume{0}
+\TOGnumber{0}
+\TOGarticleDOI{1111111.2222222}
+\TOGprojectURL{}
+\TOGvideoURL{}
+\TOGdataURL{}
+\TOGcodeURL{}
+
+\title{3D Printing for Mobile Robots}
+
+\author{Andrew Spielberg\thanks{e-mail:aespielberg@csail.mit.edu} \and Vicki Crosson\thanks{e-mail:viccro.mit@gmail.com}}
+\pdfauthor{Andrew Spielberg and Vicki Crosson}
+
+\keywords{3D Printing, Robotics, 3Doodler, Trajectory Controller}
+
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+
+
+\begin{document}
+
+%% \teaser{
+%%   \includegraphics[height=1.5in]{images/sampleteaser}
+%%   \caption{Spring Training 2009, Peoria, AZ.}
+%% }
+
+\maketitle
+
+\begin{abstract}
+
+TODO: awesome abstract!
+
+Citations can be done this way~\cite{Jobs95} or this more concise 
+way~\shortcite{Jobs95}, depending upon the application.
+
+
+
+\end{abstract}
+
+%\begin{CRcatlist}
+%  \CRcat{I.3.3}{Computer Graphics}{Three-Dimensional %Graphics and Realism}{Display Algorithms}
+%  \CRcat{I.3.7}{Computer Graphics}{Three-Dimensional %Graphics and Realism}{Radiosity};
+%\end{CRcatlist}
+
+\keywordlist
+
+%% Use this only if you're preparing a technical paper to be published in the 
+%% ACM 'Transactions on Graphics' journal.
+
+\TOGlinkslist
+
+%% Required for all content. 
+
+\copyrightspace
+
+\section{Introduction}
+
+
+%\begin{equation}
+% \sum_{j=1}^{z} j = \frac{z(z+1)}{2}
+%\end{equation}
+
+%\begin{eqnarray}
+%x & \ll & y_{1} + \cdots + y_{n} \\
+%  & \leq & z
+%\end{eqnarray}
+
+TODO: talk about previous work, what we hope to do different and why we're the best, and goals.
+
+
+\section{System Overview}
+TODO: annotate this with the figure steps and sections.
+Our system pipeline consists of several interworking components, which we illustrate in figure (TODO).  A general workflow id described as follows.  Users interact with our GUI in order to draw a set of splines, which represent the structure that they want the robot to draw.  When the user is satisfied with their drawing, she may choose to output it to a file readable to the robot fabrication.  In this output process, paths are ordered in a way that guarantees supports are generated before the splines which rest upon them while heuristically attempting to reduce potential for collisions.  In this process, the splines are also resized to a scale that fits a reasonably sized workspace for the robot, and approximated as a set of polylines, which make robot control easier.  The robot, a Kuka YouBot which is equipped with a 3Doodler on its end-effector, then reads in this file one polyline at a time.  For each polyline, it plans to achieve an initial configuration which is collision-free with the currently fabricated structure (which we call the working structure), and iteratively fabricates the polyline segment-wise using our robot control algorithm.  3Doodler interfacing is achieved through an Arduino control module, and we equip the robot with a spool of 2.85~mm PLA plastic so that the 3Doodler does not have to be re-filled.
+
+Our UI is built on top of PythonOCC (TODO: cite), an open source API for developing Computer-Aided Deisgn (CAD) software, which includes both visualization and geometric computing tools.  Our robotics infrastructure is built upon the Robot Operating System (ROS) (TODO: cite).  OpenRAVE (TODO: Cite) is used as a platform for computing inverse kinematics of the robot arm, as well as performing robot planning.
+
+%\begin{figure}[ht]
+%  \centering
+%  \includegraphics[width=1.5in]{images/samplefigure}
+%  \caption{Sample illustration.}
+%\end{figure}
+
+
+\section{Clamp Design}
+Inspired by the idea of interchangeable tools for the YouBot, (TODO: cite IkeaBot) we developed a 3Doodler attachment which fits on the fingers of the YouBot as a glove.  The rings of the 3Doodler were tightly fitted to the form factor of the 3Doodler and away from its center where the 3Doodler is widest, so as to lock it firmly in place (TODO: it can still rotate though.  Address this). The clamp was 3D printed and coated in TangoBlack+ (TODO: cite Objet) to increase friction with the fingers and 3Doodler and decrease translational and rotational slip.  The design of a clamp half (a single finger) is shown in figure (TODO) and the printed version, complete with 3Doodler, can be found in figure (TODO).  
+
+TODO: talk about total load of YouBot and mass of clamp + doodler?
+
+\section{Arduino Interface}
+TODO: Vicki - describe interfacing, slow extrusion, fast extrusion, ROS interface, on/off sensing (if we have it), isReady detection, and a circuit diagram, if possible.
+
+
+\section{UI Design}
+TODO: Vicki
+Note that we use cubic splines.
+
+\section{Path Generation Algorithm}
+In this section, we detail how our system converts our collection of B-Splines to ordered polylines for the YouBot to fabricate.  While the need to convert B-Splines into polylines is necessary for our algorithm, it may be tempting to simply order them for fabrication in the same order that they were drawn in the GUI.  This, however, is naïve for several reasons.  First, some splines may be unfabricable - splines which users draw suspended in mid-air, unattached to the ground or any other spline obviously cannot exist in the real world.  Further, consider Figure (TODO: make a good drawing).  Obviously, splines (TODO) cannot be fabricated before splines (TODO) which support them.  Further, for those splines which do not require support (e.g. those that lie on the ground), fabricating them outwardly will require no extra planning as the 3Doodler tool will never intersect with any of its pre-fabricated splines at any step.  However, fabricating them inwardly would require maneuvering the 3Doodler tool around the pre-fabricated splines to avoid collision.
+
+In this section, we first explain how we transform a graph representing the splines and their connections into a tree in which any traversal, starting from the root, will never lead to fabricating a spline before its support.  Next, we describe a heuristic for traversing that tree in a way that hopes to simplify the collision-free motion planning problem.  Finally, we describe how we sample the splines and scale them to fit to a reasonable print volume.
+
+\subsection{Constraint Generation}
+
+Consider a graph $G = (V, E)$ where $V$ corresponds to the set of splines and there exists an edge $E$ between two nodes in $V$ when their corresponding splines are connected (for each connection).  With each edge $e_i \in E$ associate the minimum connection height of all points in which those two splines connect, $e_i^z$, and with each node $v_j \in V$, associate the height of the minimum $e_i^z$ among all edges $e_i$ connected to $v_j$ as $e_{min_z}$.  Let $R \subseteq V$ be the root nodes of this graph, which correspond to splines which intersect the plane $z=0$.
+
+TODO: clean up all this terminology to match algorithm.
+
+Given this setup, we present an algorithm in Figure (TODO) for transforming this graph into a forest such that the fabrication of splines in any path from any root to a connected leaf guarantees that any spline's support will be built before it.  Note that as a limitation, this only considers geometric feasibility, and does not perform any sort of physical simulation to verify the stability of such a fabrication order.
+
+\begin{algorithm}
+\caption{Graph To Forest}\label{alg:graphtoforest}
+\begin{algorithmic}[1]
+\Procedure{GraphToForest}{}
+\BState \textbf{Input:} $G$
+\BState $pq \gets \textit{PriorityQueue()}$
+\BState $F \gets \textit{Graph()}$ \Comment{We will build the output graph as $F$}.
+\BState For each $r_i \in R$:
+\State $F \gets F \cup \{r_i\}$
+\State For each $e_{ij}$ connected to $r_i$
+\State \hspace{\algorithmicindent} $pq.put( (r_i, e_{ij}), e_{ij}^z)$.
+
+\BState While $pq \neq \emptyset$: \Comment{While the priority queue still has nodes}
+\State $(v_i, e_{ij}^z) = pq.pop()$
+\State if $v_j \notin F$:
+\State \hspace{\algorithmicindent} $F \gets F \cup \{v_j\}$
+\State \hspace{\algorithmicindent} $F \gets F \cup \{e_ij\}$
+\State \hspace{\algorithmicindent} For each $e_{jk}$ connected to $v_j$
+\State \hspace{\algorithmicindent} \hspace{\algorithmicindent} $pq.put( (v_j, e_{jk}), e_{jk}^z)$.
+\BState \textbf{Output:} $F$
+
+%\State $\textit{stringlen} \gets \text{length of %}\textit{string}$
+%\State $i \gets \textit{patlen}$
+%\BState \emph{top}:
+%\If {$i > \textit{stringlen}$} \Return false
+%\EndIf
+%\State $j \gets \textit{patlen}$
+%\BState \emph{loop}:
+%\If {$\textit{string}(i) = \textit{path}(j)$}
+%\State $j \gets j-1$.
+%\State $i \gets i-1$.
+%\State \textbf{goto} \emph{loop}.
+%\State \textbf{close};
+%\EndIf
+%\State $i \gets i+\max(\textit{delta}_1(\textit{string}(i)),\textit{delta}_2(j))$.
+%\State \textbf{goto} \emph{top}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+We say a spline $a$ is supported by a spline $b$ if $b$ connects to the lowest connection point on $a$.
+
+\begin{theorem}
+Any traversal from a root to a connected leaf in the forest output by Algorithm \ref{alg:graphtoforest} will not lead to fabricating a spline before its support.
+\end{theorem}
+
+
+
+\begin{proof}
+TODO: prove this!
+Proof by Induction.
+Base case: We will always add a root node first, and since they intersect at $z=0$, they require no support.
+Inductive case: Assume that through step $k$, no node has been added before its support.  Now, assume that at step $k+1$, we want to add a new spline $v_{k+1}$, that's connected to one of the existing splines in $F$.  We prove here that this must choose a spline that is supported by $F$.  Assume for contradiction's sake that $v_{k+1}$ is \emph{not} supported by any spline currently in $F$.  Then that must mean that it is supported by a spline that has not yet been added.  Call that spline $v'$.  But then, if $v'$ has not yet been added, its lowest connection point must be higher, because otherwise it would have been 
+
+\end{proof}
+
+Note that the way in which we "break cycles" here may not be unique, which may lead to suboptimal orderings in the subsequent step.
+
+
+\subsection{Heuristic Ordering}
+
+\subsection{Polyline Conversion}
+
+\section{YouBot Control}
+
+\subsection{Arm Control}
+
+\subsection{Base Control}
+
+\section{YouBot Planning and Collision Avoidance}
+
+\section{Results}
+
+\section{Conclusion}
+
+\subsection{Future Work}
+
+
+
+\section*{Acknowledgements}
+
+Mehmet Dogar and Robert Katzschmann, for suggestions for fixing the YouBot arm control when it wasn't working, which still didn't work.
+
+\section{References}
+To Cite:
+Ikeabot for example for hand tools for the YouBot.
+
+
+\bibliographystyle{acmsiggraph}
+\bibliography{template}
+\end{document}
