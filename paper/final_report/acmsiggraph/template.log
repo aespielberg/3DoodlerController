@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  12 MAY 2015 10:46
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  12 MAY 2015 11:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -484,15 +484,15 @@ LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 162.
  [2] (./template.bbl)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 275.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 274.
  [3
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 275.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 274.
  (./template.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 275.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 275.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 275.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 274.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 274.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 274.
  ) 
 Here is how much of TeX's memory you used:
  7747 strings out of 493481
@@ -516,7 +516,7 @@ sy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive
 /texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fon
 ts/type1/urw/times/utmri8a.pfb>
-Output written on template.pdf (3 pages, 347123 bytes).
+Output written on template.pdf (3 pages, 347179 bytes).
 PDF statistics:
  117 PDF objects out of 1000 (max. 8388607)
  96 compressed objects within 1 object stream

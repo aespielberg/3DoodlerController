@@ -168,13 +168,12 @@ Given this setup, we present an algorithm in Figure (TODO) for transforming this
 \BState For each $r_i \in R$:
 \State $F \gets F \cup \{r_i\}$
 \State For each $e_{ij}$ connected to $r_i$
-\State \hspace{\algorithmicindent} $pq.put( (r_i, e_{ij}), e_{ij}^z)$.
+\State \hspace{\algorithmicindent} $pq.put( (r_i, e_{ij}), e_{ij}^z)$ \Comment{Put $(c_i, e_{ij}$ into the priority queue with priority $e_{ij}^z$.}
 
 \BState While $pq \neq \emptyset$: \Comment{While the priority queue still has nodes}
 \State $(v_i, e_{ij}^z) = pq.pop()$
 \State if $v_j \notin F$:
-\State \hspace{\algorithmicindent} $F \gets F \cup \{v_j\}$
-\State \hspace{\algorithmicindent} $F \gets F \cup \{e_ij\}$
+\State \hspace{\algorithmicindent} $F \gets F \cup \{v_j, e_ij\}$
 \State \hspace{\algorithmicindent} For each $e_{jk}$ connected to $v_j$
 \State \hspace{\algorithmicindent} \hspace{\algorithmicindent} $pq.put( (v_j, e_{jk}), e_{jk}^z)$.
 \BState \textbf{Output:} $F$
