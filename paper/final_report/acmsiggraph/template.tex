@@ -54,8 +54,9 @@
 \maketitle
 
 \begin{abstract}
+We present a pipeline for translating user-specified 3D spline-based drawings to physical, 3D printed objects.  Our contributions are five-fold.  First, we present a graphical user interface in which users can easily draw B-Splines which can be fabricated.  Second, we provide an algorithm for generating a fabrication order of these splines which are consistent with support-based constraints, as well as a heuristic for ordering the splines and downsampling them to fabricable polylines.  Third, we provide inexpensive hardware specifications for providing a Kuka YouBot with a 3Doodler end-effector tool which interfaces with ROS.  Fourth, we provide a planning algorithm which enable the YouBots to plan collision-free paths with a working structure.  Finally, we provide an attempt at smooth velocity control which works for a variety of starting configurations and target trajectories, to mixed results.  We demonstrate our current results through simulation and by fabricating a few simple primitives.
 
-TODO: awesome abstract!
+TODO: Results
 
 %Citations can be done this way~\cite{Jobs95} or this more concise  way~\shortcite{Jobs95}, depending upon the application.
 
@@ -237,8 +238,6 @@ The first step is, for each polyline in our ordering, we choose a threshold valu
 Next, we scale and center our points in $C$ (analogous to a normalizing procedure, but uniformly among all dimensions) in order to fit the drawing within a predetermined print volume.  In practice, we set the $x$ and $y$ ranges to 10~cm, the $z$ range to 4~cm, and centered the output drawing at $(0, 0, 0)$.
 
 For each point in $C$ we then greedily add to an output list $C'$ the next point when its distance from the previously added point is at least $V$ (PythonOCC does not provide functionality for arclength, and rather than attempt to write code to approximate it, we assume that for splines with sufficiently small curvature and small $V$ that using this distance should not destroy much information about the polyline).  We also add to $C'$ the closest point to each connection point, which should be helpful for making sure the material is at the connection point (we should add the connection point itself but it's not yet clear to us how to determine where in $C'$ it should be inserted).  In practice, we keep $V$ relatively small, at 1~cm.
-
-
 
 \section{YouBot Control}
 
