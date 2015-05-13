@@ -49,6 +49,7 @@
  \teaser{
    \includegraphics[height=1.5in]{images/fullrobot.jpg}
   \caption{Our 3Doodler robot in the real-world and in simulation. }
+  \label{fig:teaser}
  }
  
 
@@ -105,7 +106,7 @@ In this project, we seek to add a plastic extruder (namely, the 3Doodler) to the
 \section{System Overview}
 Our system pipeline consists of several interworking components, which we illustrate in figure \ref{fig:systemarchitecture}.  A general workflow is described as follows.  Users interact with our GUI in order to draw a set of splines, which represent the structure that they want the robot to draw.  When the user is satisfied with their drawing, she may choose to output it to a file readable to the robot fabrication.  In this output process, paths are ordered in a way that guarantees supports are generated before the splines which rest upon them while heuristically attempting to reduce potential for collisions.  In this process, the splines are also resized to a scale that fits a reasonably sized workspace for the robot, and approximated as a set of polylines, which make robot control easier.  The robot, a Kuka YouBot \cite{YouBot} which is equipped with a 3Doodler on its end-effector, then reads in this file one polyline at a time.  For each polyline, it plans to achieve an initial configuration which is collision-free with the currently fabricated structure (which we call the working structure), and iteratively fabricates the polyline segment-wise using our robot control algorithm.  3Doodler interfacing is achieved through an Arduino control module, and we equip the robot with a spool of 2.85~mm PLA plastic so that the 3Doodler does not have to be re-filled.
 
-\begin{figure}[t]{3.0in}
+\begin{figure}[t]
 \centering
 \includegraphics[width=3.0in]{images/system_arch.png}
 \caption{A diagram of our 3Doodler pipeline.}
@@ -248,9 +249,14 @@ For each point in $C$ we then greedily add to an output list $C'$ the next point
 
 \section{YouBot Control}
 
-In this section we detail the algorithm used for controlling the algorithm and extruding material.  We note that \emph{arm control} and \emph{base control} are used exclusively; the arm and base are never moving simultaneously.  This simplifies our problem by avoiding the difficulty of having to synchronize arm and base movement.  Further, arm motions are used exclusively for drawing line segments of the polylines, while base movements are used to move the YouBot in order to prepare for the next segment.
+In this section we detail the algorithm used for controlling the algorithm and extruding material.  We note that \emph{arm control} and \emph{base control} are used exclusively; the arm and base are never moving simultaneously.  This simplifies our problem by avoiding the difficulty of having to synchronize arm and base movement.  Further, arm motions are used exclusively for drawing line segments of the polylines, while base movements are used to move the YouBot in order to prepare for the next segment.  
+
+Call the forward direction of the robot's frame $r^x$ direction, the vertical direction $r^z$, and the remaining orthogonal direction $r^y$.  Because preliminary experiments showed that printing by moving the arm straight forward is problematic (the print head tends to interfere with the newly extruded material), and that movement in $r^y$ is difficult, we keep the arm on the $r^x$-$r^z$ plane and only move it within the second quadrant (considering the end effector's starting position as the origin).  Thus, we are bringing the arm backward (and possibly up) for each stroke.
+
+Because experiments also showed that material extruded best when the 3Doodler was pointed away from the direction in which it moved (as in Fig. \ref{fig:teaser}), we point the 3Doodler away from the direction of motion and solve for arm joint angles which keep the 3Doodler angle \emph{fixed} through motion.
 
 \subsection{Arm Control}
+
 
 \subsection{Base Control}
 
