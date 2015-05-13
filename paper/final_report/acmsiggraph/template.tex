@@ -282,8 +282,43 @@ Although base control was not implemented for this project (it was implemented b
 \section{YouBot Planning and Collision Avoidance}
 TODO: put an algorithm here for our general workflow: get into position, move arm, back up, put arm back in position with file read.
 
+\begin{algorithm}
+\caption{SamplesToFab}\label{alg:samplestofab}
+\begin{algorithmic}[1]
+\Procedure{SamplesToFab}{}
+\BState \textbf{Input:} $\mathcal{S} = [S_1, S_2, ..., S_n]$ \Comment{Each $S_i$ is a list of waypoints on a polyline}
+\BState For each $S_i \in \mathcal{S}$:
+\State For each waypoint $w_j \in S_i, j > 1$:
+\State \hspace{\algorithmicindent} Move YouBot to $w_{j-1}$ aligned along $w{j-1} - w_{j}$ vector in $x$-$y$ plane.\\
+\State \hspace{\algorithmicindent} Calculate line segment $(m_{j-1}, m_{j}) = w{j-1} - w_{j}$ representation in $r$ frame's $r^x$-$r^z$ plane.
+\State \hspace{\algorithmicindent} Move YouBot arm smoothly from $m_{j-1}$ to $m_{j}$.
+\State \hspace{\algorithmicindent} Move YouBot base backwards by $(m_{j-1} - m_{j})_x$ \Comment{This happens before arm re-positioning to avoid collisions with freshly extruded material}
+\State \hspace{\algorithmicindent} Move end-effector to $w{j}$, maintaining 3Doodler angle.
 
-A key requirement for this project is collision avoidance.  After material is extruded, we must be careful not to touch it with the robot so as not to ruin our fabricated structure.
+
+%\BState \textbf{Output:} $F$
+
+%\State $\textit{stringlen} \gets \text{length of %}\textit{string}$
+%\State $i \gets \textit{patlen}$
+%\BState \emph{top}:
+%\If {$i > \textit{stringlen}$} \Return false
+%\EndIf
+%\State $j \gets \textit{patlen}$
+%\BState \emph{loop}:
+%\If {$\textit{string}(i) = \textit{path}(j)$}
+%\State $j \gets j-1$.
+%\State $i \gets i-1$.
+%\State \textbf{goto} \emph{loop}.
+%\State \textbf{close};
+%\EndIf
+%\State $i \gets i+\max(\textit{delta}_1(\textit{string}(i)),\textit{delta}_2(j))$.
+%\State \textbf{goto} \emph{top}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+Our algorithm for fabricating our polylines can be seen in \ref{alg:samplestofab}.  A key requirement for this project is collision avoidance.  After material is extruded, we must be careful not to touch it with the robot so as not to ruin our fabricated structure.
 
 In order to do this, we augmente our model of our environment whenever we extrude material.  Since we assume segments are extruded straight, we add rigid, static kinematic thin rectangular prism bodies (to simulate the thin material strands) into our OpenRAVE environment which extend from the starting point to the end point of each extruding arm movement.
 
