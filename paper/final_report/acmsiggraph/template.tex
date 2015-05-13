@@ -31,6 +31,7 @@
 \usepackage[noend]{algpseudocode}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{amssymb}
 %\usepackage[subfigure]{ccaption}
 
 \makeatletter
@@ -256,6 +257,19 @@ Call the forward direction of the robot's frame $r^x$ direction, the vertical di
 Because experiments also showed that material extruded best when the 3Doodler was pointed away from the direction in which it moved (as in Fig. \ref{fig:teaser}), we point the 3Doodler away from the direction of motion and solve for arm joint angles which keep the 3Doodler angle \emph{fixed} through motion.
 
 \subsection{Arm Control}
+Given a starting position $S \in \mathbb{R}^3$ and a goal position $G$, we seek to generate smooth, constant velocity trajectories between the two points.  Because we are only using 3 joints of our arm for the in-plane arm movements, inverse kinematics can be solved in an almost trivial amount of time.  Call the arm configuration at pose $p$ $A_p$, that is, the three-dimensional array corresponding to the current joint angles of joints 2, 3, and 4 on the YouBot.
+
+We loop until our end-effector reaches its 3D goal within a desired tolerance (1~mm).  Let $T_i$ refer to the position for the end-effector of the robot at step $i$.  At each step, we calculate a subgoal position, $g_i = T_i + \Delta(G - T_i)$, where $\Delta$ is a small step size.  In practice, we set this value to be 1~cm.  We then solve for $A_{g_i}$ using inverse kinematics, keeping our desired rotation fixed and equal to the starting rotation of the 3Doodler.  Because $A_{g_i}$ could potentially yield two solutions, we choose the one which is closest to our robot arm's current configuration in $L_{\inf}$ distance, which prevents large jumps.  Because we are only moving over short distances in practice, hitting the robot joint limits is not a problem as long as we do not start too high (this can be guaranteed when we set our print workspace in the file output step).  We calculate $A_{\Delta_i} = A_{g_i} - A_{T_i}$ and set our arm velocities proportional to this difference by normalizing this vector and multiplying it by some velocity factor.  In practice, the total velocity of the arm in 3D is virtually static despite us only fixing the rotational velocities' norm.
+
+We perform a number of "common sense" refinements to this basic algorithm, which we detail below.
+
+Because sometimes our arm may not reach its desired goal within the desired 1~mm threshold, we set a second, sort of "good enough" threshold, at 4~mm.  At each step $i$ we keep track of the best distance $d_{{best}_i} = ||G - A_{T_i}||_2$ seen so far.  If we are then farther than this distance for some number of consecutive steps (in practice $10$ after step $i$, we assume we've done the best we can and will only make backwards progress at this point, at which point we break our loop.
+
+In order to prevent large instantaneous jumps in velocity at any of the arms which can lead to large errors, we slowly accelerate from any rest configuration.
+
+In order to combat drift in the arm, which can occur over some larger distances, at each step we also project $T_{i}$ onto the ray created by $S - G$ before calculating $g_i$. (TODO: verify this)
+
+Finally, we employ a PID controller, where $A_{\Delta_i}$ represents the $P$ term at each step, and the $I$ term at step $k$ is calculated as $A_{\int_i} = \sum_{k=1}^{t} (A_{T_i} - A_G)(t_k - t_{k-1})$.  In practice, we then command our velocities as proportional a normalized $A_{{PID}_i} = PA_{\Delta_i} + IA_{\int_i}$.  $A_{\int_i}$ is reset to $0$ before each arm motion.
 
 
 \subsection{Base Control}
