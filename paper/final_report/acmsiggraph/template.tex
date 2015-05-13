@@ -273,6 +273,7 @@ Finally, we employ a PID controller, where $A_{\Delta_i}$ represents the $P$ ter
 
 
 \subsection{Base Control}
+Although base control was not implemented for this project (it was implemented by A. Spielberg at a previous date), it is worth describing for completeness.  Base control is handled by a simple proportional controller in $x, y,$ and $yaw$.   The YouBot base is outfitted with Mecanum wheels, providing it omnidirectional motion.  Our $x$ and $y$ thresholds in the base position are set to 1~mm and our $yaw$ threshold is set to 0.05~rad.  Velocity in this process proportional to the remaining distance in $x$ and $y$ as well as in $yaw$.
 
 \section{YouBot Planning and Collision Avoidance}
 
