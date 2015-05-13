@@ -156,7 +156,14 @@ TODO: Vicki
 Note that we use cubic splines.
 
 \section{Path Generation Algorithm}
-In this section, we detail how our system converts our collection of B-Splines to ordered polylines for the YouBot to fabricate.  While the need to convert B-Splines into polylines is necessary for our algorithm, it may be tempting to simply order them for fabrication in the same order that they were drawn in the GUI.  This, however, is naïve for several reasons.  First, some splines may be unfabricable - splines which users draw suspended in mid-air, unattached to the ground or any other spline obviously cannot exist in the real world.  Further, consider Figure (TODO: make a good drawing).  Obviously, splines (TODO) cannot be fabricated before splines (TODO) which support them, except for splines which lie on the ground (TODO), which do not need to be supported.  Further, for those splines which do not require support (e.g. those that lie on the ground), fabricating them outwardly will require no extra planning as the 3Doodler tool will never intersect with any of its pre-fabricated splines at any step.  However, fabricating them inwardly would require maneuvering the 3Doodler tool around the pre-fabricated splines to avoid collision.
+In this section, we detail how our system converts our collection of B-Splines to ordered polylines for the YouBot to fabricate.  While the need to convert B-Splines into polylines is necessary for our algorithm, it may be tempting to simply order them for fabrication in the same order that they were drawn in the GUI.  This, however, is naïve for several reasons.  First, some splines may be unfabricable - splines which users draw suspended in mid-air, unattached to the ground or any other spline obviously cannot exist in the real world.  Further, consider Fig. \ref{fig:splines}.  Obviously, a spline such as the one in orange cannot be fabricated before splines which support them (the one in green), except for splines which lie on the ground (red and blue), which do not need to be supported.  Further, fabricating splines outwardly will require no extra planning as the 3Doodler tool will never intersect with any of its pre-fabricated splines at any step.  However, fabricating them inwardly would require maneuvering the 3Doodler tool around the pre-fabricated splines to avoid collision.  In Fig. \ref{fig:splines} is much harder to fabricate the blue spline after the red spline as the 3Doodler tip may intersect the red spline while moving into position to start that spline's fabrication sequence.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=3.0in]{images/Splines.png}
+\caption{A cartoon of a working drawing.}
+\label{fig:splines}
+\end{figure}
 
 In this section, we first explain how we transform a graph representing the splines and their connections into a tree in which any traversal, starting from the root, will never lead to fabricating a spline before its support.  Next, we describe a heuristic for traversing that tree in a way that hopes to simplify the collision-free motion planning problem.  Finally, we describe how we sample the splines and scale them to fit to a reasonable print volume.
 
