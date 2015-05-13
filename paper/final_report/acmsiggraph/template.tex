@@ -3,7 +3,7 @@
 %%% This LaTeX source document can be used as the basis for your technical
 %%% paper or abstract. Intentionally stripped of annotation, the parameters
 %%% and commands should be adjusted for your particular paper - title, 
-%%% author, article DOI, etc.
+%%% author, article DOI, etc.1
 %%% The accompanying ``template.annotated.tex'' provides copious annotation
 %%% for the commands and parameters found in the source document. (The code
 %%% is identical in ``template.tex'' and ``template.annotated.tex.'')
@@ -324,7 +324,7 @@ Our algorithm for fabricating our polylines can be seen in \ref{alg:samplestofab
 
 In order to do this, we augmente our model of our environment whenever we extrude material.  Since we assume segments are extruded straight, we add rigid, static kinematic thin rectangular prism bodies (to simulate the thin material strands) into our OpenRAVE environment which extend from the starting point to the end point of each extruding arm movement.
 
-we run a rapidly exploring random tree (RRT) (TODO: cite) algorithm (specifically, biRRT (TODO: cite) whenever we need to move the base and whenever we need to move the arm into a position while not extruding.  We set the size of each step of kinematic motion in the RRT algorithm as 0.5~mm.  Since our extruded material is $\geq 1mm$ in diameter, this makes it unlikely that RRT, which is evaluated would ever find a solution which the arm or base "tunnels" through extruded material.
+we run a rapidly exploring random tree (RRT) \cite{RRT} algorithm (specifically, the bidirectional RRT \cite{biRRT} whenever we need to move the base and whenever we need to move the arm into a position while not extruding.  We set the size of each step of kinematic motion in the RRT algorithm as 0.5~mm.  Since our extruded material is $\geq 1mm$ in diameter, this makes it unlikely that RRT, which is evaluated would ever find a solution which the arm or base "tunnels" through extruded material.
 
 Note that there are three drawbacks of this approach. First, because our fabrication order is fixed before this step, it is possible that our system may fail to find a collision-free path, but a collision-free path may exist if the splines were fabricated in a different order.  Second, we do not check for collisions while the arm is extruding, and assume that these small motions will necessarily be collision free.  In the future, detecting whether or not this motion will be collision free, and potentially changing our drawing angle if it is not collision free remains a desirable goal.  Finally, we treat the base and arm as separate entities moving only one at a time, so there may be solutions which avoid collisions which require moving the base and arm simultaneously.  Again, this is something we hope to solve in the future by searching over the combined kinematic object.
 
