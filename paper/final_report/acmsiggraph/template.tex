@@ -46,12 +46,16 @@
 
 \begin{document}
 
-%% \teaser{
-%%   \includegraphics[height=1.5in]{images/sampleteaser}
-%%   \caption{Spring Training 2009, Peoria, AZ.}
-%% }
+ \teaser{
+   \includegraphics[height=1.5in]{images/fullrobot.jpg}
+  \caption{Our 3Doodler robot in the real-world and in simulation. }
+ }
+ 
+
 
 \maketitle
+
+ TODO: simulation picture
 
 \begin{abstract}
 We present a pipeline for translating user-specified 3D spline-based drawings to physical, 3D printed objects.  Our contributions are five-fold.  First, we present a graphical user interface in which users can easily draw B-Splines which can be fabricated.  Second, we provide an algorithm for generating a fabrication order of these splines which are consistent with support-based constraints, as well as a heuristic for ordering the splines and downsampling them to fabricable polylines.  Third, we provide inexpensive hardware specifications for providing a Kuka YouBot with a 3Doodler end-effector tool which interfaces with ROS.  Fourth, we provide a planning algorithm which enable the YouBots to plan collision-free paths with a working structure.  Finally, we provide an attempt at smooth velocity control which works for a variety of starting configurations and target trajectories, to mixed results.  We demonstrate our current results through simulation and by fabricating a few simple primitives.
@@ -92,11 +96,14 @@ TODO: Results
 %  & \leq & z
 %\end{eqnarray}
 
-TODO: talk about previous work, what we hope to do different and why we're the best, and goals.
+3D printing has for some time been touted as a potential tool for mobile robots both for applications in manufacturing and environmental manipulation.  Despite this, there have been few papers in which mobile 3D printing is executed in a way that is fast, precise, and solves some pressing challenge at hand for the robot.  3D printing of plastics is typically layered, and therefore slow.  3D printing of expansive foams \shortcite{AirFoam, RampFoam} is fast, but very low fidelity and potentially destructive to surrounding objects, and typically only useful for making coarse structures.  We are interested in the fabrication of high fidelity 3-D objects on a mobile platform with quick turnaround time.
 
+Certain aspects of this problem has been explored by previous work, with several limitations.  \cite{WirePrint} explored the rapid 3D printing of wireframes, but was limited to the fabrication of triangular wireframes and surfaces.  Further, this work was limited to the print area of the printer, and only used a 3-DOF manipulator.  \cite{ArmFab} explored additive manufacturing by mobile manipulators in the context of building construction, but there were no end-to-end demonstrations provided and the focus was more on developing a sophisticated robotic platform rather than demonstrating a complete pipeline.  \cite{ArchFab} explored large-scale wireframe printing, but like \cite{WirePrint}, was also limited to triangular meshes.  \cite{Mataerial} has provided a 5-DOF arm for additive fabrication, but it is unclear from their website the full capabilities of their tool and how robust it is.
+
+In this project, we seek to add a plastic extruder (namely, the 3Doodler) to the end of a 5-DOF mobile manipulator arm (which is 6-DOF when including mobility of the base) in order to enable the rapid prototyping of useful, minimalistic structures.  We see potential applications in manufacturing, self-modification (the fabrication of grippers or tools), construction of temporary environmental structures such as bridges, and even potentially in fabricating linkage-based robots which can be deployed \emph{in situ}.  We demonstrate a pipeline for users which accepts GUI-based user design of spline-based structures, and outputs planning and control algorithms by which a Kuka YouBot can fabricate this drawing without collisions.  We also provide the necessary hardware modifications to provide YouBots with autonomous 3Doodler control.  We mostly demonstrate our results in simulation, but also spend perform a few simple real-world tests. (TODO: hint at results here).
 
 \section{System Overview}
-Our system pipeline consists of several interworking components, which we illustrate in figure \ref{fig:systemarchitecture}.  A general workflow is described as follows.  Users interact with our GUI in order to draw a set of splines, which represent the structure that they want the robot to draw.  When the user is satisfied with their drawing, she may choose to output it to a file readable to the robot fabrication.  In this output process, paths are ordered in a way that guarantees supports are generated before the splines which rest upon them while heuristically attempting to reduce potential for collisions.  In this process, the splines are also resized to a scale that fits a reasonably sized workspace for the robot, and approximated as a set of polylines, which make robot control easier.  The robot, a Kuka YouBot which is equipped with a 3Doodler on its end-effector, then reads in this file one polyline at a time.  For each polyline, it plans to achieve an initial configuration which is collision-free with the currently fabricated structure (which we call the working structure), and iteratively fabricates the polyline segment-wise using our robot control algorithm.  3Doodler interfacing is achieved through an Arduino control module, and we equip the robot with a spool of 2.85~mm PLA plastic so that the 3Doodler does not have to be re-filled.
+Our system pipeline consists of several interworking components, which we illustrate in figure \ref{fig:systemarchitecture}.  A general workflow is described as follows.  Users interact with our GUI in order to draw a set of splines, which represent the structure that they want the robot to draw.  When the user is satisfied with their drawing, she may choose to output it to a file readable to the robot fabrication.  In this output process, paths are ordered in a way that guarantees supports are generated before the splines which rest upon them while heuristically attempting to reduce potential for collisions.  In this process, the splines are also resized to a scale that fits a reasonably sized workspace for the robot, and approximated as a set of polylines, which make robot control easier.  The robot, a Kuka YouBot \cite{YouBot} which is equipped with a 3Doodler on its end-effector, then reads in this file one polyline at a time.  For each polyline, it plans to achieve an initial configuration which is collision-free with the currently fabricated structure (which we call the working structure), and iteratively fabricates the polyline segment-wise using our robot control algorithm.  3Doodler interfacing is achieved through an Arduino control module, and we equip the robot with a spool of 2.85~mm PLA plastic so that the 3Doodler does not have to be re-filled.
 
 \begin{figure}[t]{3.0in}
 \centering
@@ -145,7 +152,7 @@ TODO: Vicki
 Note that we use cubic splines.
 
 \section{Path Generation Algorithm}
-In this section, we detail how our system converts our collection of B-Splines to ordered polylines for the YouBot to fabricate.  While the need to convert B-Splines into polylines is necessary for our algorithm, it may be tempting to simply order them for fabrication in the same order that they were drawn in the GUI.  This, however, is naïve for several reasons.  First, some splines may be unfabricable - splines which users draw suspended in mid-air, unattached to the ground or any other spline obviously cannot exist in the real world.  Further, consider Figure (TODO: make a good drawing).  Obviously, splines (TODO) cannot be fabricated before splines (TODO) which support them.  Further, for those splines which do not require support (e.g. those that lie on the ground), fabricating them outwardly will require no extra planning as the 3Doodler tool will never intersect with any of its pre-fabricated splines at any step.  However, fabricating them inwardly would require maneuvering the 3Doodler tool around the pre-fabricated splines to avoid collision.
+In this section, we detail how our system converts our collection of B-Splines to ordered polylines for the YouBot to fabricate.  While the need to convert B-Splines into polylines is necessary for our algorithm, it may be tempting to simply order them for fabrication in the same order that they were drawn in the GUI.  This, however, is naïve for several reasons.  First, some splines may be unfabricable - splines which users draw suspended in mid-air, unattached to the ground or any other spline obviously cannot exist in the real world.  Further, consider Figure (TODO: make a good drawing).  Obviously, splines (TODO) cannot be fabricated before splines (TODO) which support them, except for splines which lie on the ground (TODO), which do not need to be supported.  Further, for those splines which do not require support (e.g. those that lie on the ground), fabricating them outwardly will require no extra planning as the 3Doodler tool will never intersect with any of its pre-fabricated splines at any step.  However, fabricating them inwardly would require maneuvering the 3Doodler tool around the pre-fabricated splines to avoid collision.
 
 In this section, we first explain how we transform a graph representing the splines and their connections into a tree in which any traversal, starting from the root, will never lead to fabricating a spline before its support.  Next, we describe a heuristic for traversing that tree in a way that hopes to simplify the collision-free motion planning problem.  Finally, we describe how we sample the splines and scale them to fit to a reasonable print volume.
 
@@ -259,14 +266,14 @@ In this section we detail the algorithm used for controlling the algorithm and e
 
 \section*{Acknowledgements}
 
-Mehmet Dogar and Robert Katzschmann, for suggestions for fixing the YouBot arm control when it wasn't working, which still didn't work.
+We thank Mehmet Dogar and Robert Katzschmann for suggestions for fixing the YouBot arm control when it wasn't working, which still didn't work.
 
 
 
 \bibliographystyle{acmsiggraph}
 \bibliography{template}
 
-
+TODO: fix the fact that url's are not appearing.
 
 
 
