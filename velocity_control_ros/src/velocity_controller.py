@@ -57,7 +57,12 @@ ki = 0.5
 
 
 
-sim = False
+#sim = False
+sim = True
+if sim:
+    THRESH = 0.0001
+
+
 use_vicon_for_start_poses = True
 
 arm_names = []
@@ -151,7 +156,7 @@ def MoveBaseTo(robot,xyyaw,planner,skip_waypoints=False):
             return 
         with env:
             robot.SetActiveDOFs([],orpy.DOFAffine.X|orpy.DOFAffine.Y|orpy.DOFAffine.RotationAxis,[0,0,1])
-            traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.15,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.01)
+            traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.001,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.00025)
             if skip_waypoints:
                 traj.Remove(1,traj.GetNumWaypoints()-1)
             robot.GetController().SetPath(traj)
@@ -271,14 +276,31 @@ def addGeometryToEnvironment(endpoint1, endpoint2):
         points_diff = (endpoint2 - endpoint1)[:-1, 3] #difference vector
         offset = endpoint1[:-1, 3]
         norm = np.linalg.norm(points_diff, 2)
-        prism.InitFromBoxes(np.array([[0., 0., 0., radius*2., radius*2., norm]]), True)
+        #prism.InitFromBoxes(np.array([[0., 0., 0., radius*2., radius*2., norm]]), True)
+        prism.InitFromBoxes(np.array([[-radius, -radius, 0., radius, radius, norm/2.]]), True)
         z = np.array([0., 0., norm])
         cross = np.cross(z, points_diff)
         angle = np.arccos(np.dot(z, points_diff) / (norm * norm) )
         tr_matrix = tr.rotation_matrix(angle, cross)
-        tr_matrix[:-1, 3] = endpoint1[:-1, 3]
+        tr_matrix[:-1, 3] = (endpoint1[:-1, 3] + endpoint2[:-1, 3])/2.
         env.Add(prism, True)
         prism.SetTransform(tr_matrix)
+        
+def addSpheresToEnvironment(endpoint1, endpoint2):
+    #TODO: How do we add in the doodler?
+    radius = 0.0005
+    with env:
+        sphere = orpy.RaveCreateKinBody(env, '')
+        sphere.SetName(str(np.random.rand())) #give it a random name - we'll never reference it
+        sphere.InitFromSpheres(np.array([[endpoint1[0, 3], endpoint1[1, 3], endpoint1[2, 3], 0.002]]), True)
+        sphere.Enable(False)
+        env.Add(sphere, True)
+    with env:
+        sphere = orpy.RaveCreateKinBody(env, '')
+        sphere.SetName(str(np.random.rand())) #give it a random name - we'll never reference it
+        sphere.InitFromSpheres(np.array([[endpoint2[0, 3], endpoint2[1, 3], endpoint2[2, 3], 0.002]]), True)
+        sphere.Enable(False)
+        env.Add(sphere, True)
         
 
 #FOR TESTING
@@ -466,9 +488,12 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         sol = yik.FindIKSolutions(robot, sub_target) #convert it back to the global frame and find IK solutions in global frame
         if not sol:
             print "COULD NOT REACH TARGET"
+            IPython.embed()
             break
             
         closest_arm = GetClosestArm(current_arm, sol)
+        
+        
         
         """
         MoveArmTo(robot,closest_arm,planners[r])
@@ -494,6 +519,13 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         
         
         dt = time.time() - timestamp
+        
+        
+        if sim:
+            MoveArmTo(robot, current_arm + diff*dt, planners[r])
+            rospy.sleep(0.01)
+            continue
+        
         print 'dt'
         print dt
         
@@ -548,8 +580,10 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     #rospy.sleep(30.0)
     print 'finished segment'
     
-
+    addSpheresToEnvironment(transform, getEndEffector())
     addGeometryToEnvironment(transform, getEndEffector())
+    
+    
     
     rospy.sleep(0.5)
     
@@ -610,20 +644,36 @@ def file_to_commands(filename):
                 xy2 = point[0:-1] - prev_point[0:-1]
                 
                 
-                angle = np.arccos( np.dot(xy1, xy2) / (np.linalg.norm(xy1, 2) * np.linalg.norm(xy2, 2)) )
+                #angle = np.arccos( np.dot(xy1, xy2) / (np.linalg.norm(xy1, 2) * np.linalg.norm(xy2, 2)) )
                 print 'tilt!'
 
                 #move(0., 0., angle)
-                yaw = np.arctan2(xy2[1],xy2[0])
-                MoveBaseTo(robot,np.array([point[0], point[1], yaw]),planners[r],skip_waypoints=False)
+                yaw = np.arctan2(xy2[1],-xy2[0]) #not sure I understand the geometry but x should be negative here
+                
+                #this offset is needed because we're rotating around the base now, not the hand.
+                htb = (getEndEffector() - robot.GetTransform())[:-2, -1]
+                htb_dist = np.linalg.norm(htb, 2)
+                #current_angle = np.arctan2(robot_dir[1], robot_dir[0])
+                #angle_diff = -robot_pos - (-yaw)
+                offset_x = np.cos(-yaw) * htb_dist
+                offset_y = np.sin(-yaw) * htb_dist
+                #IPython.embed()
+                
+
+                MoveBaseTo(robot,np.array([prev_point[0] - offset_x, prev_point[1] - offset_y, -yaw]),planners[r],skip_waypoints=False)
                 
                 
-                angle2 = np.arccos( np.dot(robot_dir_self, xy2) / (np.linalg.norm(robot_dir_self, 2) * np.linalg.norm(xy2, 2)) )
+                #angle2 = np.arccos( np.dot(robot_dir_self, xy2) / (np.linalg.norm(robot_dir_self, 2) * np.linalg.norm(xy2, 2)) )
                 
                 #now we need to rotate this onto the xz plane
+                robot_dir = robot.GetTransform()[0:2, 0]
+                angle2 = np.arctan2(robot_dir[1], robot_dir[0])
+                
+                
+                #rot_mat = tr.rotation_matrix(angle2, np.array([0., 0., 1.]))[:-1, :-1] #just get the rotation part
                 rot_mat = tr.rotation_matrix(angle2, np.array([0., 0., 1.]))[:-1, :-1] #just get the rotation part
                 
-                xz_diff = rot_mat.dot(point - prev_point)
+                xz_diff = rot_mat.dot(prev_point - point)
                 
                 print xz_diff
                 
@@ -632,27 +682,34 @@ def file_to_commands(filename):
                 
                 #And now move the arm by this amount
                 
+
                 MoveStraight(0.3, xz_diff)
                 
                 
                 #Back up by the amount we moved and move the arm back into position
                 dist = np.linalg.norm(point - prev_point, 2)
                 
+                robot_pos = robot.GetTransform()[0:2, -1]
+                tar = -dist * robot_dir + robot_pos
                 
-                tar = dist * xy2 + robot_pos
-                MoveBaseTo(robot,np.array([tar[0], tar[1], yaw]),planners[r],skip_waypoints=False)
+                
+                #IPython.embed()
+
+                MoveBaseTo(robot,np.array([tar[0], tar[1], -yaw]),planners[r],skip_waypoints=False)
                 #move(-dist, 0., 0.) #finally, back up
                 
                 #Arm back into correct x position:
                 
-                current_pose = get_relative_pose(getEndEffector())
-                current_pose[0, 3] += dist
-                sols = yik.FindIKSolutions(robot, get_global_pose(current_pose))
+                current_pose = getEndEffector()
+                current_pose[0, 0:2] +=dist * robot_dir #keep the height but move it back
+                sols = yik.FindIKSolutions(robot, current_pose)
                 current_arm = robot.GetDOFValues()[0:5]
                 sol = GetClosestArm(start_config, sols)
     
+                #IPython.embed()
+
                 MoveArmTo(robot, sol, planners[r])
-                
+
                 
                 
             prev_point = point #bookkeeping
