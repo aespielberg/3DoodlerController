@@ -358,9 +358,35 @@ Note that there are four drawbacks of this approach which make our search incomp
 
 \section{Results}
 
-A video of our complete pipeline working in simulation can be seen at \url{https://youtu.be/f8muS50Pp_A}.
+We have been able to successfully demonstrate the entirety of the pipeline from start to finish.  A video of our complete pipeline working in simulation can be seen at \url{https://youtu.be/f8muS50Pp_A}.  In simulation, precision is to 1~mm, and connection points are adequately aligned almost all of the time.
 
-A video of some simple 3Doodler primitives made via the YouBot can be seen at \url{http://youtu.be/gLuPqD9eVNw}.
+Physically, however, producing the splines that are drawn is not possible.  Precision in the real world is to 3~mm at best, and we've found in practice that we've had to typically tailor the controller specifically to certain directions of motion to get them to work consistently.  When not tailored, the arm motion is not smooth enough to create rigid line segments.  We were able to demonstrate vertical (Fig. TODO) and horizontal lines (Fig. TODO), and in one case where we decided to activate YouBot joint $1$, a square completely in plane with only the YouBot arm (Fig. TODO).  Video of some simple 3Doodler primitives made via the YouBot (horizontal and vertical lines) can be seen at \url{http://youtu.be/gLuPqD9eVNw}.
+
+\begin{figure*}[t!]
+\centering
+
+\begin{subfigure}[t]{2.0in}
+\centering
+\includegraphics[width=2.0in, keepaspectratio]{images/vertical.jpg}
+\caption{A vertical line.}
+\label{fig:vertical}
+\end{subfigure}
+~
+\begin{subfigure}[t]{2.0in}
+\centering
+\includegraphics[width=2.0in, keepaspectratio]{images/line.jpg}
+\caption{A horizontal line.  The thinning sections are due to imperfections of extrusion with the thick 3Doodler nozzle with which we were experimenting.}
+\label{fig:horizontal}
+\end{subfigure}
+~
+\begin{subfigure}[t]{2.0in}
+\centering
+\includegraphics[width=2.0in, keepaspectratio]{images/toast.jpg}
+\caption{A square.  Curvature is caused due to the slightly circular motion of rotating joint 1 on the YouBot.}
+\label{fig:toast}
+\end{subfigure}
+
+\end{figure*}
 
 \section{Conclusion}
 

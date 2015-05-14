@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  14 MAY 2015 14:28
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  14 MAY 2015 14:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -561,11 +561,30 @@ Underfull \hbox (badness 10000) in paragraph at lines 248--250
 
  []
 
-[3 <./images/GUI.png> <./images/Splines.png>] [4] (./template.bbl
+[3 <./images/GUI.png> <./images/Splines.png>] [4]
+<images/vertical.jpg, id=112, 3276.24pt x 2457.18pt>
+File: images/vertical.jpg Graphic file (type jpg)
+ <use images/vertical.jpg>
+Package pdftex.def Info: images/vertical.jpg used on input line 370.
+(pdftex.def)             Requested size: 144.54pt x 108.3937pt.
+
+<images/line.jpg, id=113, 3276.24pt x 2457.18pt>
+File: images/line.jpg Graphic file (type jpg)
+ <use images/line.jpg>
+Package pdftex.def Info: images/line.jpg used on input line 377.
+(pdftex.def)             Requested size: 144.54pt x 108.3937pt.
+
+<images/toast.jpg, id=114, 960.58875pt x 739.76375pt>
+File: images/toast.jpg Graphic file (type jpg)
+ <use images/toast.jpg>
+Package pdftex.def Info: images/toast.jpg used on input line 384.
+(pdftex.def)             Requested size: 144.54pt x 111.3097pt.
+
+(./template.bbl [5]
 Missing character: There is no â in font ptmri7t!
 Missing character: There is no € in font ptmri7t!
 Missing character: There is no ™ in font ptmri7t!
- [5]
+
 Underfull \hbox (badness 3965) in paragraph at lines 51--55
 []\OT1/ptm/m/sc/9 Kuka\OT1/ptm/m/n/9 .  Youbot de-tailed spec-i-fi-ca-tions.  [
 ][]$\OT1/pcr/m/n/9 http : / / www .
@@ -582,21 +601,22 @@ Underfull \hbox (badness 10000) in paragraph at lines 94--98
  []
 
 )
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 382.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 408.
  [6
 
-]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 382.
- (./template.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 382.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 382.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 382.
+ <./images/vertical.jpg> <./images/line.jpg> <./images/toast.jpg>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 408.
+
+(./template.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 408.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 408.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 408.
  ) 
 Here is how much of TeX's memory you used:
- 8129 strings out of 493481
- 120479 string characters out of 3143392
- 219975 words of memory out of 3000000
- 11250 multiletter control sequences out of 15000+200000
+ 8150 strings out of 493481
+ 120871 string characters out of 3143392
+ 221688 words of memory out of 3000000
+ 11268 multiletter control sequences out of 15000+200000
  33946 words of font info for 74 fonts, out of 3000000 for 9000
  965 hyphenation exceptions out of 8191
  43i,15n,40p,1420b,499s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -622,10 +642,10 @@ ve/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dis
 t/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/u
 rw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8
 a.pfb>
-Output written on template.pdf (6 pages, 2932234 bytes).
+Output written on template.pdf (6 pages, 5877553 bytes).
 PDF statistics:
- 207 PDF objects out of 1000 (max. 8388607)
- 171 compressed objects within 2 object streams
- 50 named destinations out of 1000 (max. 500000)
- 41 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 212 PDF objects out of 1000 (max. 8388607)
+ 173 compressed objects within 2 object streams
+ 51 named destinations out of 1000 (max. 500000)
+ 56 words of extra memory for PDF output out of 10000 (max. 10000000)
 
