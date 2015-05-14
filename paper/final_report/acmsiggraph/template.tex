@@ -69,12 +69,8 @@
 
 \maketitle
 
- TODO: simulation picture
-
 \begin{abstract}
-We present a pipeline for translating user-specified 3D spline-based drawings to physical, 3D printed objects.  Our contributions are five-fold.  First, we present a graphical user interface in which users can easily draw B-Splines which can be fabricated.  Second, we provide an algorithm for generating a fabrication order of these splines which are consistent with support-based constraints, as well as a heuristic for ordering the splines and downsampling them to fabricable polylines.  Third, we provide inexpensive hardware specifications for providing a Kuka YouBot with a 3Doodler end-effector tool which interfaces with ROS.  Fourth, we provide a planning algorithm which enable the YouBots to plan collision-free paths with a working structure.  Finally, we provide an attempt at smooth velocity control which works for a variety of starting configurations and target trajectories, to mixed results.  We demonstrate our current results through simulation and by fabricating a few simple primitives.
-
-TODO: Results
+We present a pipeline for translating user-specified 3D spline-based drawings to physical, 3D printed objects.  Our contributions are five-fold.  First, we present a graphical user interface in which users can easily draw B-Splines which can be fabricated.  Second, we provide an algorithm for generating a fabrication order of these splines which are consistent with support-based constraints, as well as a heuristic for ordering the splines and downsampling them to fabricable polylines.  Third, we provide inexpensive hardware specifications for providing a Kuka YouBot with a 3Doodler end-effector tool which interfaces with ROS.  Fourth, we provide a planning algorithm which enable the YouBots to plan collision-free paths with a working structure.  Finally, we provide an attempt at smooth velocity control which works for a variety of starting configurations and target trajectories, to mixed results.  We demonstrate our current results through simulation (with which we can perform motions within around 1~mm of the segment endpoints) and by fabricating a few simple primitives in the real world (with which we can perform motions within around 3~mm of the segment endpoints).
 
 %Citations can be done this way~\cite{Jobs95} or this more concise  way~\shortcite{Jobs95}, depending upon the application.
 
@@ -114,7 +110,7 @@ TODO: Results
 
 Certain aspects of this problem has been explored by previous work, with several limitations.  \cite{WirePrint} explored the rapid 3D printing of wireframes, but was limited to the fabrication of triangular wireframes and surfaces.  Further, this work was limited to the print area of the printer, and only used a 3-DOF manipulator.  \cite{ArmFab} explored additive manufacturing by mobile manipulators in the context of building construction, but there were no end-to-end demonstrations provided and the focus was more on developing a sophisticated robotic platform rather than demonstrating a complete pipeline.  \cite{ArchFab} explored large-scale wireframe printing, but like \cite{WirePrint}, was also limited to triangular meshes.  \cite{Mataerial} has provided a 5-DOF arm for additive fabrication, but it is unclear from their website the full capabilities of their tool and how robust it is.
 
-In this project, we seek to add a plastic extruder (namely, the 3Doodler) to the end of a 5-DOF mobile manipulator arm (which is 6-DOF when including mobility of the base) in order to enable the rapid prototyping of useful, minimalistic structures.  We see potential applications in manufacturing, self-modification (the fabrication of grippers or tools), construction of temporary environmental structures such as bridges, and even potentially in fabricating linkage-based robots which can be deployed \emph{in situ}.  We demonstrate a pipeline for users which accepts GUI-based user design of spline-based structures, and outputs planning and control algorithms by which a Kuka YouBot can fabricate this drawing without collisions.  We also provide the necessary hardware modifications to provide YouBots with autonomous 3Doodler control.  We mostly demonstrate our results in simulation, but also spend perform a few simple real-world tests. (TODO: hint at results here).
+In this project, we seek to add a plastic extruder (namely, the 3Doodler) to the end of a 5-DOF mobile manipulator arm (which is 6-DOF when including mobility of the base) in order to enable the rapid prototyping of useful, minimalistic structures.  We see potential applications in manufacturing, self-modification (the fabrication of grippers or tools), construction of temporary environmental structures such as bridges, and even potentially in fabricating linkage-based robots which can be deployed \emph{in situ}.  We demonstrate a pipeline for users which accepts GUI-based user design of spline-based structures, and outputs planning and control algorithms by which a Kuka YouBot can fabricate this drawing without collisions.  We also provide the necessary hardware modifications to provide YouBots with autonomous 3Doodler control.  We mostly demonstrate our results in simulation, but also spend perform a few simple real-world tests, with which we demonstrate fabricating a few simple primitives.
 
 \section{System Overview}
 Our system pipeline consists of several interworking components, which we illustrate in figure \ref{fig:systemarchitecture}.  A general workflow is described as follows.  Users interact with our GUI in order to draw a set of splines, which represent the structure that they want the robot to draw.  When the user is satisfied with their drawing, she may choose to output it to a file readable to the robot fabrication.  In this output process, paths are ordered in a way that guarantees supports are generated before the splines which rest upon them while heuristically attempting to reduce potential for collisions.  In this process, the splines are also resized to a scale that fits a reasonably sized workspace for the robot, and approximated as a set of polylines, which make robot control easier.  The robot, a Kuka YouBot \cite{YouBot} which is equipped with a 3Doodler on its end-effector, then reads in this file one polyline at a time.  For each polyline, it plans to achieve an initial configuration which is collision-free with the currently fabricated structure (which we call the working structure), and iteratively fabricates the polyline segment-wise using our robot control algorithm.  3Doodler interfacing is achieved through an Arduino control module, and we equip the robot with a spool of 2.85~mm PLA plastic so that the 3Doodler does not have to be re-filled.
@@ -134,7 +130,7 @@ Our code can be found at \url{https://github.com/aespielberg/3DoodlerController}
 
 
 \section{Clamp Design}
-Inspired by the idea of interchangeable tools for the YouBot \cite{Knepper13}, we developed a 3Doodler attachment which fits on the fingers of the YouBot as a glove.  The rings of the 3Doodler were tightly fitted to the form factor of the 3Doodler and away from its center where the 3Doodler is widest, so as to lock it firmly in place (TODO: it can still rotate though.  Address this). The clamp was 3D printed and coated in TangoBlack+ \cite{TangoBlack} to increase friction with the fingers and 3Doodler and decrease translational and rotational slip.  The design of a clamp half (a single finger) is shown in Fig. \ref{fig:halfclamp} and the printed version, complete with 3Doodler, can be found in Fig. \ref{fig:printedclamp}.  
+Inspired by the idea of interchangeable tools for the YouBot \cite{Knepper13}, we developed a 3Doodler attachment which fits on the fingers of the YouBot as a glove.  The rings of the 3Doodler were tightly fitted to the form factor of the 3Doodler and away from its center where the 3Doodler is widest, so as to lock it firmly in place (with some asymmetry added near the power port to prevent rotation).  The clamp was 3D printed and coated in TangoBlack+ \cite{TangoBlack} to increase friction with the fingers and 3Doodler and decrease translational and rotational slip.  The design of a clamp half (a single finger) is shown in Fig. \ref{fig:halfclamp} and the printed version, complete with 3Doodler, can be found in Fig. \ref{fig:printedclamp}.  
 
 \begin{figure}[t!]
 \centering
@@ -177,7 +173,7 @@ In this section, we detail how our system converts our collection of B-Splines t
 \label{fig:splines}
 \end{figure}
 
-In this section, we first explain how we transform a graph representing the splines and their connections into a tree in which any traversal, starting from the root, will never lead to fabricating a spline before its support.  Next, we describe a heuristic for traversing that tree in a way that hopes to simplify the collision-free motion planning problem.  Finally, we describe how we sample the splines and scale them to fit to a reasonable print volume.
+In this section, we first explain how we transform a graph representing the splines and their connections into a tree in which any traversal, starting from the root, will never lead to fabricating a spline before its support.  We say a spline $a$ is supported by a spline $b$ if $b$'s lowest connection point is on $a$.  Splines which intersect $z=0$ do not have nor need support.  Next, we describe a heuristic for traversing that tree in a way that hopes to simplify the collision-free motion planning problem.  Finally, we describe how we sample the splines and scale them to fit to a reasonable print volume.
 
 \subsection{Constraint Generation}
 
@@ -185,9 +181,9 @@ Consider a graph $G = (V, E)$ where $V$ corresponds to the set of splines and th
 %$, and with each node $v_j \in V$, associate the height of %the minimum $e_i^z$ among all edges $e_i$ connected to %$v_j$ as $e_{min_z}$
 .  Let $R \subseteq V$ be the root nodes of this graph, which correspond to splines which intersect the plane $z=0$.
 
-TODO: clean up all this terminology to match algorithm.
 
-Given this setup, we present an algorithm in Figure (TODO) for transforming this graph into a forest such that the fabrication of splines in any path from any root to a connected leaf guarantees that any spline's support will be built before it.  Note that as a limitation, this only considers geometric feasibility, and does not perform any sort of physical simulation to verify the stability of such a fabrication order.
+
+Given this setup, we present an algorithm in Alg. \ref{alg:graphtoforest} for transforming this graph into a forest such that the fabrication of splines in any path from any root to a connected leaf guarantees that any spline's support will be built before it.  Note that as a limitation, this only considers geometric feasibility, and does not perform any sort of physical simulation to verify the stability of such a fabrication order.
 
 \begin{algorithm}
 \caption{Graph To Forest}\label{alg:graphtoforest}
@@ -228,7 +224,6 @@ Given this setup, we present an algorithm in Figure (TODO) for transforming this
 \end{algorithmic}
 \end{algorithm}
 
-We say a spline $a$ is supported by a spline $b$ if $b$'s lowest connection point is on $a$.
 
 As an additional constraint, we require that for any two connected splines, they do not support each other.  This is something we eventually hope to be enforced by the GUI.
 
@@ -277,7 +272,7 @@ Call the forward direction of the robot's frame $r^x$ direction, the vertical di
 
 Because experiments also showed that material extruded best when the 3Doodler was pointed away from the direction in which it moved (as in Fig. \ref{fig:teaser}), we point the 3Doodler away from the direction of motion and solve for arm joint angles which keep the 3Doodler angle \emph{fixed} through motion.
 
-TODO: key assumption: material always sweeps out position of end effector when extruding, keeping it open loop
+Note that we are making a very key assumption here, that material always sweeps out the same curve as the end effector when extruding.  In this regard, our control problem is open loop.  We do not address how to fix problems caused by inconsistent or irregular extrusion here.
 
 \subsection{Arm Control}
 Given a starting position $S \in \mathbb{R}^3$ and a goal position $G$, we seek to generate smooth, constant velocity trajectories between the two points.  Because we are only using 3 joints of our arm for the in-plane arm movements, inverse kinematics can be solved in an almost trivial amount of time.  Call the arm configuration at pose $p$ $A_p$, that is, the three-dimensional array corresponding to the current joint angles of joints 2, 3, and 4 on the YouBot.
@@ -301,7 +296,6 @@ TODO: should I add an algorithm block here?
 Although base control was not implemented for this project (it was implemented by A. Spielberg at a previous date), it is worth describing for completeness.  Base control is handled by a simple proportional controller in $x, y,$ and $yaw$.   The YouBot base is outfitted with Mecanum wheels, providing it omnidirectional motion.  Our $x$ and $y$ thresholds in the base position are set to 1~mm and our $yaw$ threshold is set to 0.05~rad.  Velocity in this process proportional to the remaining distance in $x$ and $y$ as well as in $yaw$.
 
 \section{YouBot Planning and Collision Avoidance}
-TODO: put an algorithm here for our general workflow: get into position, move arm, back up, put arm back in position with file read.
 
 \begin{algorithm}
 \caption{SamplesToFab}\label{alg:samplestofab}
