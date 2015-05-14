@@ -22,7 +22,7 @@ import CollisionConstraints
 import copy
 import tfplugin
 from brics_actuator.msg import JointVelocities, JointValue
-from geometry_msgs.msg import Vector3 as Vector3_g
+from geometry_msgs.msg import Vector3 as Vector3_g, Twist
 from std_msgs.msg import Bool, Time
 import sys
 from assembly_common.srv import BasePose,ArmCommand
@@ -37,7 +37,7 @@ LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
 THRESH = 0.001
-BIG_THRESH = 0.004
+BIG_THRESH = 0.005
 BAD_ITERS = 10
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
 CLAMP_VALUE = 0.0
@@ -57,7 +57,7 @@ ki = 0.5
 
 
 
-#sim = False
+sim = False
 sim = True
 if sim:
     THRESH = 0.0001
@@ -349,6 +349,7 @@ def arm_feedback_wrapper(xx, yy, theta, pos_acc, ang_acc, base_offset, frame):
             rospy.sleep(0.5)
             
 def move(xx, yy, theta):
+    #DEPRECATAED
     pose = PoseStamped()
     pose.header.frame_id = '/drc1_arm'
     pose.pose.position.x = -xx
@@ -377,6 +378,52 @@ def projectPoint(p, line, point):
     dem = np.dot(line, line)
     return num / dem * line + point
     
+    
+
+def move_line(pub, x, y, z, time, extrude=True):
+    t = Twist()
+    if extrude:
+        startExtruding(False)
+    rospy.sleep(1.0)
+    t.linear.x = x
+    t.linear.y = y
+    t.linear.z = z
+    pub.publish(t)
+    rospy.sleep(time)
+    t = Twist()
+    rospy.sleep(1.0)
+    t.linear.x = 0.
+    t.linear.y = 0.
+    t.linear.z = 0.
+    pub.publish(t)
+    stopExtruding()
+    
+    
+    
+
+def DrawSquare():
+    base_pub = rospy.Publisher('/' + all_robot_names[0] + '/cmd_vel', Twist, queue_size=1)
+    move_line(base_pub, -0.02, 0, 0., 2.0)
+    move_line(base_pub, 0., -0.02, 0.0, 4.0)
+    move_line(base_pub, 0.02, 0, 0., 2.0)
+    move_line(base_pub, 0., 0.02, 0.0, 4.0)
+    
+def WriteMIT():
+    base_pub = rospy.Publisher('/' + all_robot_names[0] + '/cmd_vel', Twist, queue_size=1)
+    move_line(base_pub, 0.01, 0, 0., 2.0)
+    move_line(base_pub, -0.01, -0.01, 0.0, 2.0)
+    move_line(base_pub, 0.01, 0.01, 0., 2.0)
+    move_line(base_pub, -0.01, 0., 0.0, 2.0)
+    
+    move_line(base_pub, 0.0, 0.01, 0., 2.0, extrude=False)
+    move_line(base_pub, 0.01, -0.01, 0.0, 2.0)
+    
+    move_line(base_pub, 0.0, 0.01, 0., 2.0, extrude=False)
+    move_line(base_pub, 0.0, 0.01, 0.0, 2.0)
+    move_line(base_pub, 0.0, -0.005, 0.0, 2.0, extrude=False)
+    move_line(base_pub, -0.01, 0., 0.0, 2.0)
+    
+
     
 
 def MoveStraight(velocity_factor, rel_diff, horiz=True):
@@ -598,7 +645,7 @@ def file_to_commands(filename):
     with open(filename) as f:
         for line in f:
             idx += 1
-            if line == '-':
+            if line == '-\n':
                 #End of spline
                 idx = 0
                 continue
@@ -609,15 +656,17 @@ def file_to_commands(filename):
                 #TODO: Raise arm
                 MoveArmTo(robot, np.array([0., 0., 0., 0., 0.]), planners[r])
                 
+                
                 #TODO: who cares about theta?
+                """
                 current = robot.GetTransform()
                 
                 yaw = np.arctan2(current[1,0],current[0,0])
                 
-                
                 MoveBaseTo(robot,np.array([point[0], point[1], yaw]),planners[r],skip_waypoints=False)
                 
                 #lower_arm
+                """
                 MoveArmTo(robot,start_config,planners[r])
                 
                 #Finally, move the arm to the appropriate height
@@ -678,11 +727,13 @@ def file_to_commands(filename):
                 print xz_diff
                 
                 xz_diff[1] = 0. #clamp away numerical error
-                
+                xz_diff[2] *= -1
+                if xz_diff[0] > 0:
+                    xz_diff[0] *= -1 #make suer it's negative
                 
                 #And now move the arm by this amount
                 
-
+                #IPython.embed()
                 MoveStraight(0.3, xz_diff)
                 
                 
@@ -718,7 +769,7 @@ def file_to_commands(filename):
 #move(0.0, 0., np.pi)
 
 IPython.embed()
-file_to_commands('output.txt')
+file_to_commands('output_multi.txt')
 
 
 #MoveStraight(0.3, np.array([0., 0., 0.02]), horiz=False)
