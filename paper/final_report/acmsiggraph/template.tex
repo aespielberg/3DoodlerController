@@ -3,7 +3,7 @@
 %%% This LaTeX source document can be used as the basis for your technical
 %%% paper or abstract. Intentionally stripped of annotation, the parameters
 %%% and commands should be adjusted for your particular paper - title, 
-%%% author, article DOI, etc.
+%%% author, article DOI, etc.1
 %%% The accompanying ``template.annotated.tex'' provides copious annotation
 %%% for the commands and parameters found in the source document. (The code
 %%% is identical in ``template.tex'' and ``template.annotated.tex.'')
@@ -31,6 +31,7 @@
 \usepackage[noend]{algpseudocode}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{amssymb}
 %\usepackage[subfigure]{ccaption}
 
 \makeatletter
@@ -46,16 +47,22 @@
 
 \begin{document}
 
-%% \teaser{
-%%   \includegraphics[height=1.5in]{images/sampleteaser}
-%%   \caption{Spring Training 2009, Peoria, AZ.}
-%% }
+ \teaser{
+   \includegraphics[height=1.5in]{images/fullrobot.jpg}
+  \caption{Our 3Doodler robot in the real-world and in simulation. }
+  \label{fig:teaser}
+ }
+ 
+
 
 \maketitle
 
-\begin{abstract}
+ TODO: simulation picture
 
-TODO: awesome abstract!
+\begin{abstract}
+We present a pipeline for translating user-specified 3D spline-based drawings to physical, 3D printed objects.  Our contributions are five-fold.  First, we present a graphical user interface in which users can easily draw B-Splines which can be fabricated.  Second, we provide an algorithm for generating a fabrication order of these splines which are consistent with support-based constraints, as well as a heuristic for ordering the splines and downsampling them to fabricable polylines.  Third, we provide inexpensive hardware specifications for providing a Kuka YouBot with a 3Doodler end-effector tool which interfaces with ROS.  Fourth, we provide a planning algorithm which enable the YouBots to plan collision-free paths with a working structure.  Finally, we provide an attempt at smooth velocity control which works for a variety of starting configurations and target trajectories, to mixed results.  We demonstrate our current results through simulation and by fabricating a few simple primitives.
+
+TODO: Results
 
 %Citations can be done this way~\cite{Jobs95} or this more concise  way~\shortcite{Jobs95}, depending upon the application.
 
@@ -91,13 +98,16 @@ TODO: awesome abstract!
 %  & \leq & z
 %\end{eqnarray}
 
-TODO: talk about previous work, what we hope to do different and why we're the best, and goals.
+3D printing has for some time been touted as a potential tool for mobile robots both for applications in manufacturing and environmental manipulation.  Despite this, there have been few papers in which mobile 3D printing is executed in a way that is fast, precise, and solves some pressing challenge at hand for the robot.  3D printing of plastics is typically layered, and therefore slow.  3D printing of expansive foams \shortcite{AirFoam, RampFoam} is fast, but very low fidelity and potentially destructive to surrounding objects, and typically only useful for making coarse structures.  We are interested in the fabrication of high fidelity 3-D objects on a mobile platform with quick turnaround time.
 
+Certain aspects of this problem has been explored by previous work, with several limitations.  \cite{WirePrint} explored the rapid 3D printing of wireframes, but was limited to the fabrication of triangular wireframes and surfaces.  Further, this work was limited to the print area of the printer, and only used a 3-DOF manipulator.  \cite{ArmFab} explored additive manufacturing by mobile manipulators in the context of building construction, but there were no end-to-end demonstrations provided and the focus was more on developing a sophisticated robotic platform rather than demonstrating a complete pipeline.  \cite{ArchFab} explored large-scale wireframe printing, but like \cite{WirePrint}, was also limited to triangular meshes.  \cite{Mataerial} has provided a 5-DOF arm for additive fabrication, but it is unclear from their website the full capabilities of their tool and how robust it is.
+
+In this project, we seek to add a plastic extruder (namely, the 3Doodler) to the end of a 5-DOF mobile manipulator arm (which is 6-DOF when including mobility of the base) in order to enable the rapid prototyping of useful, minimalistic structures.  We see potential applications in manufacturing, self-modification (the fabrication of grippers or tools), construction of temporary environmental structures such as bridges, and even potentially in fabricating linkage-based robots which can be deployed \emph{in situ}.  We demonstrate a pipeline for users which accepts GUI-based user design of spline-based structures, and outputs planning and control algorithms by which a Kuka YouBot can fabricate this drawing without collisions.  We also provide the necessary hardware modifications to provide YouBots with autonomous 3Doodler control.  We mostly demonstrate our results in simulation, but also spend perform a few simple real-world tests. (TODO: hint at results here).
 
 \section{System Overview}
-Our system pipeline consists of several interworking components, which we illustrate in figure \ref{fig:systemarchitecture}.  A general workflow is described as follows.  Users interact with our GUI in order to draw a set of splines, which represent the structure that they want the robot to draw.  When the user is satisfied with their drawing, she may choose to output it to a file readable to the robot fabrication.  In this output process, paths are ordered in a way that guarantees supports are generated before the splines which rest upon them while heuristically attempting to reduce potential for collisions.  In this process, the splines are also resized to a scale that fits a reasonably sized workspace for the robot, and approximated as a set of polylines, which make robot control easier.  The robot, a Kuka YouBot which is equipped with a 3Doodler on its end-effector, then reads in this file one polyline at a time.  For each polyline, it plans to achieve an initial configuration which is collision-free with the currently fabricated structure (which we call the working structure), and iteratively fabricates the polyline segment-wise using our robot control algorithm.  3Doodler interfacing is achieved through an Arduino control module, and we equip the robot with a spool of 2.85~mm PLA plastic so that the 3Doodler does not have to be re-filled.
+Our system pipeline consists of several interworking components, which we illustrate in figure \ref{fig:systemarchitecture}.  A general workflow is described as follows.  Users interact with our GUI in order to draw a set of splines, which represent the structure that they want the robot to draw.  When the user is satisfied with their drawing, she may choose to output it to a file readable to the robot fabrication.  In this output process, paths are ordered in a way that guarantees supports are generated before the splines which rest upon them while heuristically attempting to reduce potential for collisions.  In this process, the splines are also resized to a scale that fits a reasonably sized workspace for the robot, and approximated as a set of polylines, which make robot control easier.  The robot, a Kuka YouBot \cite{YouBot} which is equipped with a 3Doodler on its end-effector, then reads in this file one polyline at a time.  For each polyline, it plans to achieve an initial configuration which is collision-free with the currently fabricated structure (which we call the working structure), and iteratively fabricates the polyline segment-wise using our robot control algorithm.  3Doodler interfacing is achieved through an Arduino control module, and we equip the robot with a spool of 2.85~mm PLA plastic so that the 3Doodler does not have to be re-filled.
 
-\begin{figure}[t]{3.0in}
+\begin{figure}[t]
 \centering
 \includegraphics[width=3.0in]{images/system_arch.png}
 \caption{A diagram of our 3Doodler pipeline.}
@@ -105,6 +115,8 @@ Our system pipeline consists of several interworking components, which we illust
 \end{figure}
 
 Our UI is built on top of PythonOCC \cite{PythonOCC}, an open source API for developing Computer-Aided Deisgn (CAD) software, which includes both visualization and geometric computing tools.  Our robotics infrastructure is built upon the Robot Operating System (ROS) \cite{ROS}.  OpenRAVE \cite{OpenRAVE} is used as a platform for computing inverse kinematics of the robot arm, as well as performing robot planning.
+
+Our code can be found at \url{https://github.com/aespielberg/3DoodlerController}.
 
 
 
@@ -144,7 +156,14 @@ TODO: Vicki
 Note that we use cubic splines.
 
 \section{Path Generation Algorithm}
-In this section, we detail how our system converts our collection of B-Splines to ordered polylines for the YouBot to fabricate.  While the need to convert B-Splines into polylines is necessary for our algorithm, it may be tempting to simply order them for fabrication in the same order that they were drawn in the GUI.  This, however, is naïve for several reasons.  First, some splines may be unfabricable - splines which users draw suspended in mid-air, unattached to the ground or any other spline obviously cannot exist in the real world.  Further, consider Figure (TODO: make a good drawing).  Obviously, splines (TODO) cannot be fabricated before splines (TODO) which support them.  Further, for those splines which do not require support (e.g. those that lie on the ground), fabricating them outwardly will require no extra planning as the 3Doodler tool will never intersect with any of its pre-fabricated splines at any step.  However, fabricating them inwardly would require maneuvering the 3Doodler tool around the pre-fabricated splines to avoid collision.
+In this section, we detail how our system converts our collection of B-Splines to ordered polylines for the YouBot to fabricate.  While the need to convert B-Splines into polylines is necessary for our algorithm, it may be tempting to simply order them for fabrication in the same order that they were drawn in the GUI.  This, however, is naïve for several reasons.  First, some splines may be unfabricable - splines which users draw suspended in mid-air, unattached to the ground or any other spline obviously cannot exist in the real world.  Further, consider Fig. \ref{fig:splines}.  Obviously, a spline such as the one in orange cannot be fabricated before splines which support them (the one in green), except for splines which lie on the ground (red and blue), which do not need to be supported.  Further, fabricating splines outwardly will require no extra planning as the 3Doodler tool will never intersect with any of its pre-fabricated splines at any step.  However, fabricating them inwardly would require maneuvering the 3Doodler tool around the pre-fabricated splines to avoid collision.  In Fig. \ref{fig:splines} is much harder to fabricate the blue spline after the red spline as the 3Doodler tip may intersect the red spline while moving into position to start that spline's fabrication sequence.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=3.0in]{images/Splines.png}
+\caption{A cartoon of a working drawing.}
+\label{fig:splines}
+\end{figure}
 
 In this section, we first explain how we transform a graph representing the splines and their connections into a tree in which any traversal, starting from the root, will never lead to fabricating a spline before its support.  Next, we describe a heuristic for traversing that tree in a way that hopes to simplify the collision-free motion planning problem.  Finally, we describe how we sample the splines and scale them to fit to a reasonable print volume.
 
@@ -238,17 +257,83 @@ Next, we scale and center our points in $C$ (analogous to a normalizing procedur
 
 For each point in $C$ we then greedily add to an output list $C'$ the next point when its distance from the previously added point is at least $V$ (PythonOCC does not provide functionality for arclength, and rather than attempt to write code to approximate it, we assume that for splines with sufficiently small curvature and small $V$ that using this distance should not destroy much information about the polyline).  We also add to $C'$ the closest point to each connection point, which should be helpful for making sure the material is at the connection point (we should add the connection point itself but it's not yet clear to us how to determine where in $C'$ it should be inserted).  In practice, we keep $V$ relatively small, at 1~cm.
 
-
-
 \section{YouBot Control}
 
-In this section we detail the algorithm used for controlling the algorithm and extruding material.  We note that \emph{arm control} and \emph{base control} are used exclusively; the arm and base are never moving simultaneously.  This simplifies our problem by avoiding the difficulty of having to synchronize arm and base movement.  Further, arm motions are used exclusively for drawing line segments of the polylines, while base movements are used to move the YouBot in order to prepare for the next segment.
+In this section we detail the algorithm used for controlling the algorithm and extruding material.  We note that \emph{arm control} and \emph{base control} are used exclusively; the arm and base are never moving simultaneously.  This simplifies our problem by avoiding the difficulty of having to synchronize arm and base movement.  Further, arm motions are used exclusively for drawing line segments of the polylines, while base movements are used to move the YouBot in order to prepare for the next segment.  
+
+Call the forward direction of the robot's frame $r^x$ direction, the vertical direction $r^z$, and the remaining orthogonal direction $r^y$.  Because preliminary experiments showed that printing by moving the arm straight forward is problematic (the print head tends to interfere with the newly extruded material), and that movement in $r^y$ is difficult, we keep the arm on the $r^x$-$r^z$ plane and only move it within the second quadrant (considering the end effector's starting position as the origin).  Thus, we are bringing the arm backward (and possibly up) for each stroke.
+
+Because experiments also showed that material extruded best when the 3Doodler was pointed away from the direction in which it moved (as in Fig. \ref{fig:teaser}), we point the 3Doodler away from the direction of motion and solve for arm joint angles which keep the 3Doodler angle \emph{fixed} through motion.
+
+TODO: key assumption: material always sweeps out position of end effector when extruding, keeping it open loop
 
 \subsection{Arm Control}
+Given a starting position $S \in \mathbb{R}^3$ and a goal position $G$, we seek to generate smooth, constant velocity trajectories between the two points.  Because we are only using 3 joints of our arm for the in-plane arm movements, inverse kinematics can be solved in an almost trivial amount of time.  Call the arm configuration at pose $p$ $A_p$, that is, the three-dimensional array corresponding to the current joint angles of joints 2, 3, and 4 on the YouBot.
+
+We loop until our end-effector reaches its 3D goal within a desired tolerance (1~mm).  Let $T_i$ refer to the position for the end-effector of the robot at step $i$.  At each step, we calculate a subgoal position, $g_i = T_i + \Delta(G - T_i)$, where $\Delta$ is a small step size.  In practice, we set this value to be 1~cm.  We then solve for $A_{g_i}$ using inverse kinematics, keeping our desired rotation fixed and equal to the starting rotation of the 3Doodler.  Because $A_{g_i}$ could potentially yield two solutions, we choose the one which is closest to our robot arm's current configuration in $L_{\inf}$ distance, which prevents large jumps.  Because we are only moving over short distances in practice, hitting the robot joint limits is not a problem as long as we do not start too high (this can be guaranteed when we set our print workspace in the file output step).  We calculate $A_{\Delta_i} = A_{g_i} - A_{T_i}$ and set our arm velocities proportional to this difference by normalizing this vector and multiplying it by some velocity factor.  In practice, the total velocity of the arm in 3D is virtually static despite us only fixing the rotational velocities' norm.
+
+We perform a number of "common sense" refinements to this basic algorithm, which we detail below.
+
+Because sometimes our arm may not reach its desired goal within the desired 1~mm threshold, we set a second, sort of "good enough" threshold, at 4~mm.  At each step $i$ we keep track of the best distance $d_{{best}_i} = ||G - A_{T_i}||_2$ seen so far.  If we are then farther than this distance for some number of consecutive steps (in practice $10$ after step $i$, we assume we've done the best we can and will only make backwards progress at this point, at which point we break our loop.
+
+In order to prevent large instantaneous jumps in velocity at any of the arms which can lead to large errors, we slowly accelerate from any rest configuration.
+
+In order to combat drift in the arm, which can occur over some larger distances, at each step we also project $T_{i}$ onto the ray created by $S - G$ before calculating $g_i$. (TODO: verify this)
+
+Finally, we employ a PID controller, where $A_{\Delta_i}$ represents the $P$ term at each step, and the $I$ term at step $k$ is calculated as $A_{\int_i} = \sum_{k=1}^{t} (A_{T_i} - A_G)(t_k - t_{k-1})$.  In practice, we then command our velocities as proportional a normalized $A_{{PID}_i} = PA_{\Delta_i} + IA_{\int_i}$.  $A_{\int_i}$ is reset to $0$ before each arm motion.
+
+TODO: should I add an algorithm block here?
+
 
 \subsection{Base Control}
+Although base control was not implemented for this project (it was implemented by A. Spielberg at a previous date), it is worth describing for completeness.  Base control is handled by a simple proportional controller in $x, y,$ and $yaw$.   The YouBot base is outfitted with Mecanum wheels, providing it omnidirectional motion.  Our $x$ and $y$ thresholds in the base position are set to 1~mm and our $yaw$ threshold is set to 0.05~rad.  Velocity in this process proportional to the remaining distance in $x$ and $y$ as well as in $yaw$.
 
 \section{YouBot Planning and Collision Avoidance}
+TODO: put an algorithm here for our general workflow: get into position, move arm, back up, put arm back in position with file read.
+
+\begin{algorithm}
+\caption{SamplesToFab}\label{alg:samplestofab}
+\begin{algorithmic}[1]
+\Procedure{SamplesToFab}{}
+\BState \textbf{Input:} $\mathcal{S} = [S_1, S_2, ..., S_n]$ \Comment{Each $S_i$ is a list of waypoints on a polyline}
+\BState For each $S_i \in \mathcal{S}$:
+\State For each waypoint $w_j \in S_i, j > 1$:
+\State \hspace{\algorithmicindent} Move YouBot to $w_{j-1}$ aligned along $w{j-1} - w_{j}$ vector in $x$-$y$ plane.\\
+\State \hspace{\algorithmicindent} Calculate line segment $(m_{j-1}, m_{j}) = w{j-1} - w_{j}$ representation in $r$ frame's $r^x$-$r^z$ plane.
+\State \hspace{\algorithmicindent} Move YouBot arm smoothly from $m_{j-1}$ to $m_{j}$.
+\State \hspace{\algorithmicindent} Move YouBot base backwards by $(m_{j-1} - m_{j})_x$ \Comment{This happens before arm re-positioning to avoid collisions with freshly extruded material}
+\State \hspace{\algorithmicindent} Move end-effector to $w{j}$, maintaining 3Doodler angle.
+
+
+%\BState \textbf{Output:} $F$
+
+%\State $\textit{stringlen} \gets \text{length of %}\textit{string}$
+%\State $i \gets \textit{patlen}$
+%\BState \emph{top}:
+%\If {$i > \textit{stringlen}$} \Return false
+%\EndIf
+%\State $j \gets \textit{patlen}$
+%\BState \emph{loop}:
+%\If {$\textit{string}(i) = \textit{path}(j)$}
+%\State $j \gets j-1$.
+%\State $i \gets i-1$.
+%\State \textbf{goto} \emph{loop}.
+%\State \textbf{close};
+%\EndIf
+%\State $i \gets i+\max(\textit{delta}_1(\textit{string}(i)),\textit{delta}_2(j))$.
+%\State \textbf{goto} \emph{top}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+Our algorithm for fabricating our polylines can be seen in \ref{alg:samplestofab}.  A key requirement for this project is collision avoidance.  After material is extruded, we must be careful not to touch it with the robot so as not to ruin our fabricated structure.
+
+In order to do this, we augmente our model of our environment whenever we extrude material.  Since we assume segments are extruded straight, we add rigid, static kinematic thin rectangular prism bodies (to simulate the thin material strands) into our OpenRAVE environment which extend from the starting point to the end point of each extruding arm movement.
+
+we run a rapidly exploring random tree (RRT) \cite{RRT} algorithm (specifically, the bidirectional RRT \cite{biRRT} whenever we need to move the base and whenever we need to move the arm into a position while not extruding.  We set the size of each step of kinematic motion in the RRT algorithm as 0.5~mm.  Since our extruded material is $\geq 1mm$ in diameter, this makes it unlikely that RRT, which is evaluated would ever find a solution which the arm or base "tunnels" through extruded material.
+
+Note that there are three drawbacks of this approach. First, because our fabrication order is fixed before this step, it is possible that our system may fail to find a collision-free path, but a collision-free path may exist if the splines were fabricated in a different order.  Second, we do not check for collisions while the arm is extruding, and assume that these small motions will necessarily be collision free.  In the future, detecting whether or not this motion will be collision free, and potentially changing our drawing angle if it is not collision free remains a desirable goal.  Finally, we treat the base and arm as separate entities moving only one at a time, so there may be solutions which avoid collisions which require moving the base and arm simultaneously.  Again, this is something we hope to solve in the future by searching over the combined kinematic object.
 
 \section{Results}
 
@@ -260,14 +345,14 @@ In this section we detail the algorithm used for controlling the algorithm and e
 
 \section*{Acknowledgements}
 
-Mehmet Dogar and Robert Katzschmann, for suggestions for fixing the YouBot arm control when it wasn't working, which still didn't work.
+We thank Mehmet Dogar and Robert Katzschmann for suggestions for fixing the YouBot arm control when it wasn't working, which still didn't work.
 
 
 
 \bibliographystyle{acmsiggraph}
 \bibliography{template}
 
-
+TODO: fix the fact that url's are not appearing.
 
 
 
