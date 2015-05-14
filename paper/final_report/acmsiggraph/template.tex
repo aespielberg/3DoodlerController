@@ -156,12 +156,30 @@ Inspired by the idea of interchangeable tools for the YouBot \cite{Knepper13}, w
 %TODO: talk about total load of YouBot and mass of clamp + doodler?
 
 \section{Arduino Interface}
-TODO: Vicki - describe interfacing, slow extrusion, fast extrusion, ROS interface, on/off sensing (if we have it), isReady detection, and a circuit diagram, if possible.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=3.0in]{images/3doodlerCircuitry.jpg}
+\caption{Hardware modifications to the 3Doodler.}
+\label{fig:circuitry}
+\end{figure}
+
+In order to remotely control the 3Doodler pen, a hardware inter-ace was required. The 3Doodler was modified in order to interface with an Arduino Uno, a microcontroller board with USB interface, as can be seen in \ref{fig:circuitry}. Wires were run from the control buttons on the circuit board of the 3Doodler to external switching circuitry, which allows users to toggle the fast and slow extrusion settings on and off. The 3Doodler pauses intermittently to reheat internally, stopping all extrusion for some variable amount of time. Additional circuitry was needed to identify whether the heater was actively running, so that the robot does not attempt to draw during this reheating period. A 5V buck-boost converter was used to regulate this signal before reading it with the Arduino. The Arduino was programmed to directly publish and subscribe to ROS messages used by the robot controller, using the rosserial
+package and roslib Arduino library, in particular broadcasting when the 3Doodler is ready for printing and accepting signals for fast and slow extrusion. This allows for direct communication between hardware and software components.
+
 
 
 \section{UI Design}
-TODO: Vicki
-Note that we use cubic splines.
+Our user interface (Fig. \ref{fig:GUI}) was designed in order to allow users to easily draw arbitrary splines. The GUI allows for B-spline creation via cube interpolation over a series of knot points, which are created on click. Individual splines can be deleted by selecting them and hitting the delete key.  Finally, since doodled structures
+must be supported, we added two features. First, when adding a knot point, if a spline is currently selected, the added knot will snap to that spline by taking the projection to the curve. Secondly, the first spline is always completely in the z = 0 plane, giving future splines a reliable base to build upon. In order to make adding knot points easier when not snapping them to existing splines (since a point on a 2D screen can correspond to an infinite number of locations along a ray in 3D), we add knot points beyond the first point of a spline to the plane uniquely defined by the first point and the camera ray as the plane’s normal.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=3.0in]{images/GUI.png}
+\caption{The graphical user interface with two splines drawn.}
+\label{fig:GUI}
+\end{figure}
+
 
 \section{Path Generation Algorithm}
 In this section, we detail how our system converts our collection of B-Splines to ordered polylines for the YouBot to fabricate.  While the need to convert B-Splines into polylines is necessary for our algorithm, it may be tempting to simply order them for fabrication in the same order that they were drawn in the GUI.  This, however, is na{\"i}ve for several reasons.  First, some splines may be unfabricable - splines which users draw suspended in mid-air, unattached to the ground or any other spline obviously cannot exist in the real world.  Further, consider Fig. \ref{fig:splines}.  Obviously, a spline such as the one in orange cannot be fabricated before splines which support them (the one in green), except for splines which lie on the ground (red and blue), which do not need to be supported.  Further, fabricating splines outwardly will require no extra planning as the 3Doodler tool will never intersect with any of its pre-fabricated splines at any step.  However, fabricating them inwardly would require maneuvering the 3Doodler tool around the pre-fabricated splines to avoid collision.  In Fig. \ref{fig:splines} it is much harder to fabricate the blue spline after the red spline as the 3Doodler tip may intersect the red spline while moving into position to start that spline's fabrication sequence.
@@ -236,10 +254,9 @@ Any traversal from a root to a connected leaf in the forest output by Algorithm 
 
 
 \begin{proof}
-TODO: Is this good?
 Proof by Induction.
 Base case: We will always add a root node first, and since they intersect at $z=0$, they require no support.
-Inductive case: Assume that through step $k$, no node has been added before its support.  Now, assume that at step $k+1$, we want to add a new spline $v_{k+1}$, that's connected to one of the existing splines in $F$.  We prove here that this must choose a spline that is supported by $F$.  Assume for contradiction's sake that $v_{k+1}$ is \emph{not} supported by the spline it is being attached to.  If that's the case, then it must be supported by a different spline $v'$ with a lower connect point which is not added yet.  But the only way that this spline could not be added yet is if it or some other spline on the path from the root  too $v'$ has a higher support point.  If this is the case though, it will have to be that either $v'$ and $v_{k+1}$ support each other or two splines on the path support each other (TODO: be more explicit here), which is not allowed.  Thus, we have a contradiction.
+Inductive case: Assume that through step $k$, no node has been added before its support.  Now, assume that at step $k+1$, we want to add a new spline $v_{k+1}$, that's connected to one of the existing splines in $F$.  We prove here that this must choose a spline that is supported by $F$.  Assume for contradiction's sake that $v_{k+1}$ is \emph{not} supported by the spline it is being attached to.  If that's the case, then it must be supported by a different spline $v'$ with a lower connection point which is not added yet.  But the only way that this spline could not be added yet is if it or some other spline on the path from the root  too $v'$ has a higher support point.  If this is the case though, it will have to be that either $v'$ and $v_{k+1}$ support each other or two splines on the path support each other, which is not allowed.  Thus, we have a contradiction.
 
 
 %any spline currently in $F$.  Then that must mean that it is supported by a spline that has not yet been added.  Call that spline $v'$.  But then, if $v'$ has not yet been added, its lowest connection point so far must be higher than that of $v_{k+1}$, because otherwise it would have been added.  
@@ -253,8 +270,6 @@ Note that the way in which we "break cycles" here may not be unique, which may l
 We wish to avoid moving the 3Doodler nozzle "inward," which could increase the difficulty of finding collision-free motion paths.  The resulting forest from the previous step provides the constraints on which order splines can be drawn (no spline on a tree can be drawn before its ancestor) but we are otherwise free to traverse the forest in any order that we wish, starting from the set of root nodes.  Here, we provide a heuristic for doing so in a way that reduces the odds of moving significantly "inward" in our drawing.  Define a point $a$ and being more inner than $b$ if $a$ is closer than $b$ to the axis-aligned bounding box (AABB) of our spline set, centered at the set's median.  Observe that the only way we could move our 3Doodler nozzle monotonically outward (necessary condition) is if we order our splines by increasing distance to the median of their innermost point (although, also note that such an ordering does not \emph{guarantee} that we can move monotonically outward as it is not a sufficient condition, since two splines can each be more "inward" than each other at different radial angles about the median; the intuition however is that such a phenomenon may roughly occur several times as we move upward in $z$).
 
 In other words, define the heuristic function of a spline $v$ as $h(v) = d(c, \min_t(v(t))$, where $c$ is the median of the drawing's AABB and $v(t)$ is the value of spline $v$ at parameter point $t$.  We perform a depth-first traversal of our forest, choosing the smallest heuristic function as it's available.  This generates our path ordering.
-
-TODO: Should I put an algorithm?
 
 
 \subsection{Polyline Conversion}
@@ -287,11 +302,9 @@ Because sometimes our arm may not reach its desired goal within the desired 1~mm
 
 In order to prevent large instantaneous jumps in velocity at any of the arms which can lead to large errors, we slowly accelerate from any rest configuration.
 
-In order to combat drift in the arm, which can occur over some larger distances, at each step we also project $T_{i}$ onto the ray created by $S - G$ before calculating $g_i$. (TODO: verify this)
+In order to combat drift in the arm, which can occur over some larger distances, at each step we also project $T_{i}$ onto the ray created by $S - G$ before calculating $g_i$.
 
 Finally, we employ a PID controller, where $A_{\Delta_i}$ represents the $P$ term at each step, and the $I$ term at step $i$ is calculated as $A_{\int_i} = \sum_{k=1}^{i} (A_{T_k} - A_G)(t_k - t_{k-1})$.  In practice, we then command our velocities as proportional to a normalized $A_{{PID}_i} = PA_{\Delta_i} + IA_{\int_i}$.  $A_{\int_i}$ is reset to $0$ before each arm motion.
-
-TODO: should I add an algorithm block here?
 
 
 \subsection{Base Control}
@@ -344,6 +357,10 @@ we run a rapidly exploring random tree (RRT) \cite{RRT} algorithm (specifically,
 Note that there are four drawbacks of this approach which make our search incomplete given our problem. First, because our fabrication order is fixed before this step, it is possible that our system may fail to find a collision-free path, but a collision-free path may exist if the splines were fabricated in a different order.  Second, we do not check for collisions while the arm is extruding, and assume that these small motions will necessarily be collision free.  In the future, detecting whether or not this motion will be collision free, and potentially changing our drawing angle if it is not collision free remains a desirable goal.  Third, we treat the base and arm as separate entities moving only one at a time, so there may be solutions which avoid collisions which require moving the base and arm simultaneously.  Fourth, because we keep YouBot joint 1 fixed at an angle of $0$, we may not be able to find a solution to our planning problem although one in fact exists with rotating joint 1.  Again, these last two items are something we hope to solve in the future by searching over the combined kinematic object and eventually moving the first YouBot joint.
 
 \section{Results}
+
+A video of our complete pipeline working in simulation can be seen at \url{https://youtu.be/f8muS50Pp_A}.
+
+A video of some simple 3Doodler primitives made via the YouBot can be seen at \url{http://youtu.be/gLuPqD9eVNw}.
 
 \section{Conclusion}
 
