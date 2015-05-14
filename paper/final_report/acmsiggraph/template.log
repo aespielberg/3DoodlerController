@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  14 MAY 2015 10:20
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  14 MAY 2015 10:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -550,14 +550,30 @@ put line 189.
 Missing character: There is no â in font ptmri7t!
 Missing character: There is no € in font ptmri7t!
 Missing character: There is no ™ in font ptmri7t!
+
+Underfull \hbox (badness 3965) in paragraph at lines 46--50
+[]\OT1/ptm/m/sc/9 Kuka\OT1/ptm/m/n/9 .  Youbot de-tailed spec-i-fi-ca-tions.  [
+][]$\OT1/pcr/m/n/9 http : / / www .
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--50
+\OT1/pcr/m/n/9 youbot-[]store . com / wiki / index . php ? title =
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 83--87
+\OT1/pcr/m/n/9 com / wp-[]content / uploads / 2011 / 08 / polyjet _
+ []
+
 )
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 366.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 365.
  [5]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 366.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 365.
  (./template.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 366.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 366.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 366.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 365.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 365.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 365.
  ) 
 Here is how much of TeX's memory you used:
  8110 strings out of 493481
@@ -589,10 +605,10 @@ ve/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dis
 t/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/u
 rw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8
 a.pfb>
-Output written on template.pdf (5 pages, 2707187 bytes).
+Output written on template.pdf (5 pages, 2710451 bytes).
 PDF statistics:
- 181 PDF objects out of 1000 (max. 8388607)
- 148 compressed objects within 2 object streams
+ 189 PDF objects out of 1000 (max. 8388607)
+ 156 compressed objects within 2 object streams
  45 named destinations out of 1000 (max. 500000)
  31 words of extra memory for PDF output out of 10000 (max. 10000000)
 
