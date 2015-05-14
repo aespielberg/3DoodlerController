@@ -2,8 +2,8 @@
 
 dir
 1639
-svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models/objects
-svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models/objects
+svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 
@@ -25,151 +25,6 @@ aespielberg
 
 
 c4b41905-7492-43aa-9acf-8b5ffadedbda
-
-rack.kinbody.xml
-file
-
-
-
-
-2014-01-21T00:22:44.000000Z
-667fa035735b2a1528661f6188584701
-2013-11-26T17:45:15.337595Z
-1136
-mdogar
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-1905
-
-array
-dir
-
-sundvik
-dir
-
-picture_frame
-dir
-
-wingskin.kinbody.xml
-file
-
-
-
-
-2014-08-21T13:41:18.000000Z
-3d3b1bb2a156484a28be72225ecceaad
-2014-03-06T23:17:13.159049Z
-1382
-mdogar
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-563
-
-ladder.kinbody.xml
-file
-
-
-
-
-2014-01-21T00:22:44.000000Z
-1b61e84fece7cd0f5f1cfd67f1fcb815
-2013-11-26T18:15:23.606100Z
-1137
-mdogar
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-398
-
-chairside.kinbody.xml
-file
-
-
-
-
-2014-09-29T01:23:32.297609Z
-94848aa9dced10c65516ee1096abc65e
-2014-09-29T02:17:00.609236Z
-1557
-aespielberg
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-1134
 
 measuringcup.kinbody.xml
 file
@@ -273,40 +128,6 @@ mdogar
 
 456
 
-fastener.kinbody.xml
-file
-
-
-
-
-2014-08-21T13:41:18.000000Z
-fb44d809f4785105cb3422e15eb945a8
-2014-06-09T18:56:58.237548Z
-1453
-mdogar
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-715
-
 chairback.kinbody.xml
 file
 
@@ -340,6 +161,40 @@ aespielberg
 
 
 449
+
+fastener.kinbody.xml
+file
+
+
+
+
+2014-08-21T13:41:18.000000Z
+fb44d809f4785105cb3422e15eb945a8
+2014-06-09T18:56:58.237548Z
+1453
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+715
 
 espressocup.kinbody.xml
 file
@@ -442,4 +297,149 @@ mdogar
 
 
 2203
+
+rack.kinbody.xml
+file
+
+
+
+
+2014-01-21T00:22:44.000000Z
+667fa035735b2a1528661f6188584701
+2013-11-26T17:45:15.337595Z
+1136
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1905
+
+array
+dir
+
+sundvik
+dir
+
+picture_frame
+dir
+
+wingskin.kinbody.xml
+file
+
+
+
+
+2014-08-21T13:41:18.000000Z
+3d3b1bb2a156484a28be72225ecceaad
+2014-03-06T23:17:13.159049Z
+1382
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+563
+
+chairside.kinbody.xml
+file
+
+
+
+
+2014-09-29T01:23:32.297609Z
+94848aa9dced10c65516ee1096abc65e
+2014-09-29T02:17:00.609236Z
+1557
+aespielberg
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1134
+
+ladder.kinbody.xml
+file
+
+
+
+
+2014-01-21T00:22:44.000000Z
+1b61e84fece7cd0f5f1cfd67f1fcb815
+2013-11-26T18:15:23.606100Z
+1137
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+398
 

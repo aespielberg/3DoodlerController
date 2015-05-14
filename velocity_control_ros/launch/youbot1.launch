@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<launch>
+    <param name="robot_description" command="$(find xacro)/xacro.py '$(find youbot_description)/robots/youbot.urdf.xacro'"/>
+
+    <machine name="drc1" address="drc1" user="youbot" env-loader="/home/youbot/rosenv.sh" timeout="30" />
+
+    <rosparam param="/map_origin">[-5.0, -5.0, 0]</rosparam>
+
+    <param name="robot_model" type="string" value="youbot" />
+
+    <!--node name="diagnostic_monitor" pkg="diagnostic_monitor"
+          type="diagnostic_monitor.py" args="4" /-->
+
+    <node name="object_to_point_cloud" pkg="dyn_map_server"
+          type="object_to_point_cloud.py" >
+            <param name="obj_dim_path"
+                   value="$(find mbhp)/config/obj_dim_table.yaml" />
+    </node>
+
+
+    <node pkg="topic_tools" type="relay" name="relay1" args="/drc1/tf /rviz_tf" />
+    <node pkg="topic_tools" type="relay" name="relay5" args="/tf /rviz_tf" />
+
+
+
+
+
+    
+    <group ns="/drc1">
+
+        <param name="my_name" value="drc1" />
+        <param name="id" value="1" />
+
+        <node name="dyn_map_server" pkg="dyn_map_server"
+              machine="drc1"
+              args="/home/youbot/ros_stacks/drl-youbot/mbhp/maps/empty.pgm 0.05"
+              type="simpleDynMapServer"
+              respawn="false">
+                <remap from="object_points" to="/object_points" />
+                <remap from="/tf" to="/drc1/tf"/>
+              </node>
+              <!--
+              args="$(find mbhp)/maps/empty.pgm 0.05"
+              launch-prefix="xterm -e " 
+              launch-prefix="xterm -e gdb -ex run - -args"
+              -->
+
+        <node name="mbhp" pkg="mbhp"
+              machine="drc1"
+              type="mbhpExec" output="log" respawn="false" >
+              <!--
+              aunch-prefix="xterm -e gdb -ex run - -args"
+              launch-prefix="xterm -e " 
+              -->
+
+            <param name="empty_world" type="bool" value="true" />
+            <param name="odom_topic" type="string" value="odom" />
+            <param name="odom_frame" type="string" value="odom" />
+            <param name="map_frame" type="string" value="/map" />
+            <param name="visualize" type="bool" value="false" />
+            <remap from="/tf" to="/drc1/tf"/>
+        </node>
+
+        <node name="tf_republisher" pkg="mbhp" type="tf_republisher"
+              machine="drc1"
+              output="screen">
+              <remap from="/tf" to="/drc1/tf"/>
+        </node>
+
+        <node name="display_status" pkg="display_status"
+              args="drc1"
+              type="display_status" output="screen" />
+
+        <node name="footprint_link_tf" pkg="tf"
+              args="0 0 0  0 0 0  base_footprint base_link 500"
+              type="static_transform_publisher" output="screen" />
+
+        <node machine="drc1" pkg="topic_tools" type="relay" name="relay" args="/tf /drc1/tf" />
+    </group>
+
+    
+
+
+</launch>

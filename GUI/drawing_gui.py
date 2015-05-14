@@ -62,9 +62,9 @@ QtCore, QtGui, QtOpenGL = get_qt_modules()
 SAVE_FILE = "test.txt"
 FIXED_FILE = "output.txt"
 
-X_VOL = 0.15
-Y_VOL = 0.15
-Z_VOL = 0.15
+X_VOL = 0.1
+Y_VOL = 0.1
+Z_VOL = 0.04
 
 
 try:
@@ -182,15 +182,37 @@ class GLWidget(qtViewer3d):
                 min_dist = dist
         return min_dist
         
+    def prune_lists(self, all_samples):
+        tol = 0.01
+        new_all_samples = []
+        for ii in range(len(all_samples)):
+            prevPoint = gp_Pnt(sys.float_info.max, sys.float_info.max, sys.float_info.max)
+            new_list = []
+            for jj in range(len(all_samples[ii])):
+                point = all_samples[ii][jj]
+                if point.Distance(prevPoint) > 0.01: #TODO: should probably be concerned about pathological, dense whirly curves
+                    new_list.append(point)
+                    prevPoint = point #otherwise keep it and continue
+            new_all_samples.append(new_list)
+        return new_all_samples
+        
     def sampleCurve(self, curve, res=10):
+        tol = 0.0015
+        uThresh = curve.Resolution(tol)
         sample = []
         last = curve.LastParameter()
         first = curve.FirstParameter()
-        for i in range(res):
+        
+        
+        res = (last - first) / uThresh
+        for i in range(int(res)):
             u = first + (last - first)/res * i
             point = curve.Value(u)
             sample.append(point)
             
+            
+        #Finally, add the last point:
+        sample.append(curve.Value(last))
         return sample
         
     def getCenter(self, res=10000):
@@ -262,11 +284,19 @@ class GLWidget(qtViewer3d):
         x_middle = (max_x + min_x) / 2
         y_middle = (max_y + min_y) / 2
                 
-        scale_x = X_VOL / x_range
-        scale_y = Y_VOL / y_range
-        scale_z = Z_VOL / z_range
+        if x_range > 0:
+            scale_x = X_VOL / x_range
+        else:
+            scale_x = 1.
+        if y_range > 0:
+            scale_y = Y_VOL / y_range
+        else:
+            scale_y = 1.
+        if z_range > 0:
+            scale_z = Z_VOL / z_range
+        else:
+            scale_z = 1.
         
-        print all_samples
         
         print X_VOL
         print Y_VOL
@@ -386,8 +416,11 @@ class GLWidget(qtViewer3d):
         #Third, sample
         all_samples = self.saveCurvesToFile(curves)
         
-        #Fourth and finally, convert to a reasonable print volume
+        #Fourth, convert to a reasonable print volume
         converted_samples = self.fit_to_volume(all_samples)
+        
+        #Finally, prune that list
+        pruned_samples = self.prune_lists(converted_samples)
         
         #TODO: refactor to share code with all the existing save files
         try:
@@ -396,7 +429,7 @@ class GLWidget(qtViewer3d):
             print 'nothing to remove again!'
             
         with open(FIXED_FILE, "a") as myfile:
-            for sample in converted_samples:
+            for sample in pruned_samples:
                 for point in sample:
                     myfile.write(str(point.X()) + " " + str(point.Y()) + " " + str(point.Z()) + "\n")   
                 myfile.write("-\n")    

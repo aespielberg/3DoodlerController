@@ -2,8 +2,8 @@
 
 dir
 1561
-svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave
-svn+ssh://spbaker@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave
+svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 
@@ -26,6 +26,15 @@ mdogar
 
 c4b41905-7492-43aa-9acf-8b5ffadedbda
 
+dummy_openrave_ros_pkg
+dir
+
+models
+dir
+
+youbotcontroller
+dir
+
 scripts
 dir
 
@@ -36,14 +45,5 @@ youbotpy
 dir
 
 assembly_grasp_planner
-dir
-
-dummy_openrave_ros_pkg
-dir
-
-models
-dir
-
-youbotcontroller
 dir
 
