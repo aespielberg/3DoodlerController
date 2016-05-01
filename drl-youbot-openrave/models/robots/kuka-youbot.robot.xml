@@ -230,7 +230,7 @@
     </KinBody>
 
     <Manipulator name="endeffector">
-        <Translation>0 0 0.07</Translation>
+        <Translation>0 0 0.19</Translation>
         <joints>jg1 jg2</joints>
         <closingdirection>-1 -1</closingdirection><!--??-->
         <direction>1 0 0</direction>

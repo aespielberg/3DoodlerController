@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+        
 # -*- coding: utf-8 -*-
 import roslib; roslib.load_manifest('velocity_control_ros')
 import rospy
@@ -16,9 +17,9 @@ import euclid
 import openravepy as orpy
 import youbotpy
 from youbotpy import youbotik as yik
-import GraspGenerator
-import AnytimePlanner
-import CollisionConstraints
+#import GraspGenerator
+#import AnytimePlanner
+#import CollisionConstraints
 import copy
 import tfplugin
 from brics_actuator.msg import JointVelocities, JointValue
@@ -30,15 +31,13 @@ import tf.transformations as tr
 
 from vicon_utils import *
 
-
-
 BACKUP_AMT = 0.05
 LIFT_AMT = 0.3
 MOVE_AMT = 0.1
 MAX_VEL = 0.1
-THRESH = 0.001
+THRESH = 0.005
 BIG_THRESH = 0.005
-BAD_ITERS = 10
+BAD_ITERS = 5
 SPEED_FACTOR = 0.25 #empirical guesstimate at transforming joint to cartesian speed
 CLAMP_VALUE = 0.0
 pos_acc = 0.005 #ideally 0.001
@@ -49,21 +48,15 @@ ki = 0.
 kp = 1.
 #ki = 1.6
 #kd = 0.0002 #Been finding this really bad, maybe get rid of it
-ki = 0.5
+#ki = 0.2
 #kd = -10.
 #kd = 0.0125
 
 
-
-
-
 sim = False
-#sim = True
 if sim:
-    THRESH = 0.0001
+    THRESH = 0.004
 
-
-use_vicon_for_start_poses = True
 
 arm_names = []
 for i in range(5):
@@ -73,10 +66,10 @@ unit = 's^-1 rad'
 
 all_robot_names = ['drc1']
 r = all_robot_names[0]
-envfile = 'environments/floor.env.xml'
+envfile = '/home/drl-mocap/git_scratch/3DoodlerController/drl-youbot-openrave/models/environments/floor.env.xml'
 
 youbotenv = youbotpy.YoubotEnv(sim=sim,viewer=True,env_xml=envfile, \
-                               youbot_names=all_robot_names, registered_objects=None, youbot_model='kuka-youbot-doodler.robot.xml')
+                               youbot_names=all_robot_names, registered_objects=None, youbot_model='kuka-youbot.robot.xml')
 
 env = youbotenv.env
 youbots = youbotenv.youbots
@@ -87,7 +80,6 @@ if sim:
 yik.init(youbots[youbots.keys()[0]]) #   does not matter which robot
                                      # we use to initialize since 
                                      # all youbots have same kinematics.
-grasp_generator = GraspGenerator.GraspGenerator(env)
 
 offset = np.array([2.950, 1.1345, -2.5482, 1.7890, 2.9234])
 
@@ -102,20 +94,28 @@ if not ikmodel.load():
     ikmodel.autogenerate()
 """
 
+def base_transform():
+    baseTransform=youbots[r].GetTransform()
+    bT=copy.deepcopy(baseTransform)
+#    bT[0:3, -1:]-=getEndEffector()[0:3, -1:]
+    return bT
 
-
+def joint_velocities(velocity):
+    jacobian=manip.CalculateJacobian()[:,1:4]
+    inverseJacobian=np.linalg.inv(jacobian)
+    vel=inverseJacobian.dot(velocity)
+    vel/=30*np.linalg.norm(vel)
+    return 1000*vel    
 
 robot_base_homes = {}
 for r in all_robot_names:
+    print "transforms"
+    print  youbots[r].GetTransform()
     robot_base_homes[r] = youbots[r].GetTransform()
-    
+    print "x"
 planners = {}
 for r in all_robot_names:
     planners[r] = orpy.interfaces.BaseManipulation(youbots[r],plannername='BiRRT')
-
-
-
-
 
 is_ready = False
 
@@ -146,6 +146,9 @@ def GetClosestArm(cur_arm, sol):
     return sol[ret_i]
     
 def MoveBaseTo(robot,xyyaw,planner,skip_waypoints=False):
+    print "move"
+    print robot
+    print xyyaw
     try:
         orpy.RaveSetDebugLevel(orpy.DebugLevel.Verbose)
         robot.GetEnv().GetKinBody('floor').Enable(False)
@@ -156,7 +159,9 @@ def MoveBaseTo(robot,xyyaw,planner,skip_waypoints=False):
             return 
         with env:
             robot.SetActiveDOFs([],orpy.DOFAffine.X|orpy.DOFAffine.Y|orpy.DOFAffine.RotationAxis,[0,0,1])
-            traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.00001,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.00025)
+            traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.001,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.00025)
+            print 'trajectory'
+            print traj
             if skip_waypoints:
                 traj.Remove(1,traj.GetNumWaypoints()-1)
             robot.GetController().SetPath(traj)
@@ -177,7 +182,7 @@ def MoveArmTo(robot,goal,planner):
         orpy.RaveSetDebugLevel(orpy.DebugLevel.Verbose)
         with env:
             robot.SetActiveDOFs(range(5))
-            traj = planner.MoveActiveJoints(goal=goal,maxiter=5000,steplength=0.00001,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.00025)
+            traj = planner.MoveActiveJoints(goal=goal,maxiter=5000,steplength=0.001,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.00025)
             robot.GetController().SetPath(traj)
         while not robot.GetController().IsDone():
             time.sleep(0.01)
@@ -189,12 +194,18 @@ def get_relative_pose(mat):
     pose.header.frame_id = '/map'
     pose.pose.position.x = mat[0, 3]
     pose.pose.position.y = mat[1, 3]
-    pose.pose.position.z = mat[2, 3]
-    tr_pose = transform_by_subjects(pose, '/' + all_robot_names[0])
+    pose.pose.position.z = mat[2, 3] 
     mat2 = copy.deepcopy(mat)
-    mat2[0, 3] = tr_pose.pose.position.x
-    mat2[1, 3] = tr_pose.pose.position.y
-    mat2[2, 3] = tr_pose.pose.position.z
+    if sim: 
+        tr=np.dot(mat,np.linalg.inv(base_transform()))
+        mat2[0, 3] = tr[0,3]
+        mat2[1, 3] = tr[1,3]
+        mat2[2, 3] = tr[2,3]
+    else:
+        tr_pose = transform_by_subjects(pose, '/' + all_robot_names[0])
+        mat2[0, 3] = tr_pose.pose.position.x
+        mat2[1, 3] = tr_pose.pose.position.y
+        mat2[2, 3] = tr_pose.pose.position.z
     return mat2
     
 def get_global_pose(mat):
@@ -203,11 +214,17 @@ def get_global_pose(mat):
     pose.pose.position.x = mat[0, 3]
     pose.pose.position.y = mat[1, 3]
     pose.pose.position.z = mat[2, 3]
-    tr_pose = transform_by_subjects(pose, '/map')
     mat2 = copy.deepcopy(mat)
-    mat2[0, 3] = tr_pose.pose.position.x
-    mat2[1, 3] = tr_pose.pose.position.y
-    mat2[2, 3] = tr_pose.pose.position.z
+    if sim: 
+        tr=np.dot(mat,base_transform())
+        mat2[0, 3] = tr[0,3]
+        mat2[1, 3] = tr[1,3]
+        mat2[2, 3] = tr[2,3]
+    else:
+        tr_pose = transform_by_subjects(pose, '/map')
+        mat2[0, 3] = tr_pose.pose.position.x
+        mat2[1, 3] = tr_pose.pose.position.y
+        mat2[2, 3] = tr_pose.pose.position.z
     return mat2
         
 def getEndEffector():
@@ -301,7 +318,17 @@ def addSpheresToEnvironment(endpoint1, endpoint2):
         sphere.InitFromSpheres(np.array([[endpoint2[0, 3], endpoint2[1, 3], endpoint2[2, 3], 0.002]]), True)
         sphere.Enable(False)
         env.Add(sphere, True)
-        
+
+def addSphereToEnvironment(endpoint1):
+    #TODO: How do we add in the doodler?
+    radius = 0.0005
+    with env:
+        sphere = orpy.RaveCreateKinBody(env, '')
+        sphere.SetName(str(np.random.rand())) #give it a random name - we'll never reference it
+        sphere.InitFromSpheres(np.array([[endpoint1[0, 3], endpoint1[1, 3], endpoint1[2, 3], 0.002]]), True)
+        sphere.Enable(False)
+        env.Add(sphere, True)
+ 
 
 #FOR TESTING
 def moveArmWrapper():
@@ -359,9 +386,7 @@ def move(xx, yy, theta):
     pose.pose.orientation.y = quat[1]
     pose.pose.orientation.z = quat[2]
     pose.pose.orientation.w = quat[3]
-    
     tr_pose = transform_by_subjects(pose, '/map')
-    
     target_euler = tr.euler_from_quaternion(np.array([tr_pose.pose.orientation.x, tr_pose.pose.orientation.y, tr_pose.pose.orientation.z, tr_pose.pose.orientation.w]), axes='sxyz')
     
     target_x = tr_pose.pose.position.x
@@ -424,9 +449,9 @@ def WriteMIT():
     move_line(base_pub, -0.01, 0., 0.0, 2.0)
     
 
-    
-
 def MoveStraight(velocity_factor, rel_diff, horiz=True):
+    print 'DIFF'
+    print rel_diff
     """
     Moves the end effector in a straight line.
     Velocity_factor - how fast to move the joints
@@ -435,12 +460,17 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     velocity_factor *= SPEED_FACTOR
     
     #transform is start
-    transform = getEndEffector()
+    transform = copy.deepcopy(getEndEffector())
     
     #For debugging with rqt_plot:
-    
+    print 'rel diff'
+    print rel_diff
+    start_pos=copy.deepcopy(getEndEffector())
+    end_pos=copy.deepcopy(getEndEffector())
+    end_pos[:-1,3]+=rel_diff
 
     step = robot.GetTransform()[:-1, :-1].dot(rel_diff)
+    print step
     """
     target_x = transform[0, 3] + rel_diff[0]
     target_y = transform[1, 3] + rel_diff[1]
@@ -455,7 +485,6 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     target[1, 3] = target_y
     target[2, 3] = target_z
     """
-    
     
     
     #line is between start and finish
@@ -473,19 +502,35 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     
     #waitForReady()
     startExtruding(fast=False)
-    rospy.sleep(2.0)
+    rospy.sleep(.1)
     loop_count = 0
+
+    sphereOffset=np.zeros([4,4])
+    sphereOffset[:3,3]=0.00001
+
+    #addSphereToEnvironment(getEndEffector())
+
     while np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2) > THRESH:
+        #print "ADDPSHERE"
+        print itera
+        print 'reldiff:'
+        print rel_diff
+        print 'current:'
+        print getEndEffector()[:-1,3]
+        #print start_pos
+        print 'end:'
+        print target[:-1, 3]
+
+        #addSphereToEnvironment(getEndEffector())
         
         timestamp = time.time()
-        
-        
-        
+   
         cart_dist = np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
         if cart_dist < best_distance:
             best_distance = cart_dist
         elif cart_dist < BIG_THRESH:
             itera += 1
+        print 'cart:', cart_dist, itera
         
         
         """
@@ -496,7 +541,7 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         """
         print 'dist is: '
         print np.linalg.norm(getEndEffector()[:-1, 3] - target[:-1, 3], 2)
-        
+
         
         current_arm = robot.GetDOFValues()[0:5]
         
@@ -529,9 +574,8 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         
         pos_pub_goal.publish(Vector3_g(x=sub_target[0, 3], y=sub_target[1, 3], z=sub_target[2, 3]))
 
-        
-        
-        print sub_target
+
+        """
         sol = yik.FindIKSolutions(robot, sub_target) #convert it back to the global frame and find IK solutions in global frame
         if not sol:
             print "COULD NOT REACH TARGET"
@@ -539,8 +583,8 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
             break
             
         closest_arm = GetClosestArm(current_arm, sol)
-        
-        
+        """        
+         
         
         """
         MoveArmTo(robot,closest_arm,planners[r])
@@ -555,26 +599,26 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         
         #P-Term in PID controller
         
-        diff = closest_arm - current_arm
-        
-        
-        
-        
-        
+        #diff = closest_arm - current_arm
+        velocities=(target-getEndEffector())[:-1,3]
+        velocities=velocities/np.linalg.norm(velocities)
+        print 'velocities:', velocities
+        cur_joint_velocities=np.zeros(5)
+        cur_joint_velocities[1:4]=joint_velocities(velocities)
+#	print 'joint velocities:',cur_joint_velocities
+        diff=cur_joint_velocities
+
         if itera > BAD_ITERS: #if we're getting worse than the best for BAD_ITERS consecutive cycles and not a million miles away
             break
         
         
         dt = time.time() - timestamp
-        
+        print 'dt:',dt
         
         if sim:
-            MoveArmTo(robot, current_arm + diff*dt, planners[r])
-            rospy.sleep(0.01)
+            MoveArmTo(robot, (current_arm + dt*diff), planners[r])
+            rospy.sleep(0.05)
             continue
-        
-        print 'dt'
-        print dt
         
         #I-Term in PID controller
         integ += diff * dt
@@ -613,11 +657,12 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
         vel_fac = velocity_factor
         print 'vel fac is '
         print vel_fac
-        
+        print 'vel'
+        print vel*vel_fac
         v = createVelocity(vel*vel_fac)
         #IPython.embed()
         pub.publish(v)
-        rospy.sleep(0.01)
+        rospy.sleep(0.001)
         
 
         #MoveArmTo(robot, closest_arm, planners[r])
@@ -626,11 +671,18 @@ def MoveStraight(velocity_factor, rel_diff, horiz=True):
     stopExtruding()
     #rospy.sleep(30.0)
     print 'finished segment'
-    
-    addSpheresToEnvironment(transform, getEndEffector())
-    addGeometryToEnvironment(transform, getEndEffector())
-    
-    
+    sphereOffset1=np.zeros([4,4])
+    sphereOffset2=np.zeros([4,4])
+    #if sim:
+        #sphereOffset1[:3,3:4]=(0.01375+0.0225)*transform[:3,2:3]
+        #sphereOffset2[:3,3:4]=(0.01375+0.0225)*getEndEffector()[:3,2:3]
+        #sphereOffset1[:3,3]=[0,0,-0.04]
+        #sphereOffset2=sphereOffset1
+    #print "spheres"
+    #print transform 
+    #print getEndEffector()
+    #addSpheresToEnvironment(transform+sphereOffset1, getEndEffector()+sphereOffset2)
+    #addGeometryToEnvironment(transform+sphereOffset1, getEndEffector()+sphereOffset2)    
     
     rospy.sleep(0.5)
     
@@ -644,6 +696,8 @@ def file_to_commands(filename):
     idx = 0
     with open(filename) as f:
         for line in f:
+            print 'idx', idx
+            IPython.embed()
             idx += 1
             if line == '-\n':
                 #End of spline
@@ -786,11 +840,11 @@ file_to_commands('output_multi.txt')
 
 MoveStraight(0.3, np.array([0., 0., 0.01]), horiz=False)
 
-move(0., -0.04, 0.)
+#move(0., -0.04, 0.)
 
 MoveStraight(0.3, np.array([0., 0., 0.01]), horiz=False)
 
-move(0., 0., np.pi/32.)
+#move(0., 0., np.pi/32.)
 
 MoveStraight(0.3, np.array([0., 0., 0.01]), horiz=False)
 
@@ -834,8 +888,13 @@ stopExtruding()
 #MoveStraight(speed, np.array([0., dist, 0]))
 
 
-
-
+def circle():
+    MoveBaseTo(robot,[-.4,0,0],planners[r])
+    for i in range(60):
+        x=math.pi*2*i/60.
+        MoveBaseTo(robot,[-.4+math.sin(x)*0.25,0,0],planners[r])
+        currentPos=getEndEffector()[:3,3]        
+        MoveStraight(1,[math.sin(x)*0.25,math.cos(x)*0.25,0.25]-currentPos,planners[r])
 
 """
 def MoveEEStraight(velocity_factor,target,step):
