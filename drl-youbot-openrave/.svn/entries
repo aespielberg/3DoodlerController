@@ -1,15 +1,15 @@
 10
 
 dir
-1561
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+1902
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 
-2014-09-30T16:29:46.116230Z
-1561
-mdogar
+2015-12-07T19:29:55.573272Z
+1902
+cchoi
 
 
 
@@ -26,9 +26,6 @@ mdogar
 
 c4b41905-7492-43aa-9acf-8b5ffadedbda
 
-dummy_openrave_ros_pkg
-dir
-
 models
 dir
 
@@ -41,9 +38,15 @@ dir
 tfplugin
 dir
 
+object_reorientation
+dir
+
 youbotpy
 dir
 
 assembly_grasp_planner
+dir
+
+dummy_openrave_ros_pkg
 dir
 

@@ -22,7 +22,7 @@ import NaiveOptimalPlanner
 #from pictureenv import *
 #experiment_name='pictureenv'
 from randomarrayenv import *
-experiment_name='randomarrayenv'
+experiment_name='randomarrayenv3'
 #from wingdemoenv import *
 #experiment_name='wingdemoenv'
 

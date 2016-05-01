@@ -37,6 +37,9 @@ public:
     bool Clear(std::ostream& sout, std::istream& sinput);
 
     bool UnregisterBodyHelper(std::string const &body_name);
+
+    OpenRAVE::Transform GetPlanarPose(const OpenRAVE::Transform & pose);
+
 private:
     std::string openrave_tf_frame_;
 
@@ -46,6 +49,7 @@ private:
     boost::mutex mutex_;
     std::map<std::string, std::string> bodies_;
     std::map<std::string, OpenRAVE::Transform> offsets_;
+    std::map<std::string, bool> planar_;
     std::map<std::string, std::string> hands_;
     bool paused_;
 

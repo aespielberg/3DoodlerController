@@ -36,12 +36,22 @@ TfPlugin::~TfPlugin(void) {
 void TfPlugin::Reset(void) {
     bodies_.clear();
     offsets_.clear();
+    planar_.clear();
     hands_.clear();
 }
 
 void TfPlugin::Destroy() {
     Reset();
     RAVELOG_INFO("module unloaded from environment\n");
+}
+
+OpenRAVE::Transform TfPlugin::GetPlanarPose(const OpenRAVE::Transform & pose) {
+    OpenRAVE::TransformMatrix m(pose);
+    double yaw = atan2(m.rot(1,0), m.rot(0,0)); 
+    OpenRAVE::Vector quat(quatFromAxisAngle(OpenRAVE::Vector(0.,0.,1.), yaw)); // setting roll and pitch to zero.
+    OpenRAVE::Vector translation(m.trans[0],m.trans[1],0.0); // Setting z to zero
+    OpenRAVE::Transform planar(quat, translation);
+    return planar;
 }
 
 bool TfPlugin::SimulationStep(OpenRAVE::dReal fTimeElapsed) {
@@ -69,9 +79,13 @@ bool TfPlugin::SimulationStep(OpenRAVE::dReal fTimeElapsed) {
                 ROS_ERROR("%s",ex.what());
                 continue;
             }
+            OpenRAVE::Transform pose = GetOrTransform(transform)*offsets_[it->first];
+            if (planar_[it->first]) {
+                pose = GetPlanarPose(pose);
+            }
             {
                 OpenRAVE::EnvironmentMutex::scoped_lock lockenv(GetEnv()->GetMutex()); 
-                body->SetTransform(GetOrTransform(transform)*offsets_[it->first]);
+                body->SetTransform(pose);
             }
         }
         for(it = hands_.begin(); it != hands_.end(); it++) {
@@ -103,13 +117,8 @@ bool TfPlugin::SimulationStep(OpenRAVE::dReal fTimeElapsed) {
                 OpenRAVE::Transform new_robot_in_world = new_hand_in_world*robot_in_hand; 
                 //robot->SetTransform(new_robot_in_world);
                 // Trying snapping
-                OpenRAVE::TransformMatrix m(new_robot_in_world);
-                double yaw = atan2(m.rot(1,0), m.rot(0,0)); 
-                OpenRAVE::Vector quat(quatFromAxisAngle(OpenRAVE::Vector(0.,0.,1.), yaw)); // setting roll and pitch to zero.
-                OpenRAVE::Vector translation(m.trans[0],m.trans[1],0.0); // Setting z to zero
-                OpenRAVE::Transform snapped(quat, translation);
+                OpenRAVE::Transform snapped = GetPlanarPose(new_robot_in_world);
                 robot->SetTransform(snapped);
-                //
             }
         }
 
@@ -135,11 +144,11 @@ bool TfPlugin::RegisterBody(std::ostream& sout, std::istream& sinput) {
         RAVELOG_ERROR("RegisterBody: Body name %s does not exist.\n",body_name.c_str());
         return false;
     }
-    std::string offset;
-    sinput >> offset;
+    std::string cmd;
+    sinput >> cmd;
     double x=0.,y=0.,z=0.,qw=1.,qx=0.,qy=0.,qz=0.;
     if (!sinput.fail()) {
-        if (offset == "openrave_frame_in_tf_frame") {
+        if (cmd == "openrave_frame_in_tf_frame") {
             RAVELOG_INFO("RegisterBody will use an offset for %s.\n",body_name.c_str());
             sinput >> x >> y >> z >> qw >> qx >> qy >> qz;
             if (sinput.fail()){
@@ -147,12 +156,24 @@ bool TfPlugin::RegisterBody(std::ostream& sout, std::istream& sinput) {
                 return false;
             }
         } else {
-            RAVELOG_ERROR("RegisterBody unknown command:%s.\n",offset.c_str());
+            RAVELOG_ERROR("RegisterBody unknown command:%s.\n",cmd.c_str());
             return false;
         }
     } 
+    sinput >> cmd;
+    bool planar_tracking = false;
+    if (!sinput.fail()) {
+        if (cmd == "planar_tracking") {
+            planar_tracking = true;
+        } else {
+            RAVELOG_ERROR("RegisterBody unknown command:%s.\n",cmd.c_str());
+            return false;
+        }
+    }
+
     bodies_[body_name] = tf_frame;
     offsets_[body_name] = OpenRAVE::Transform(OpenRAVE::Vector(qw,qx,qy,qz),OpenRAVE::Vector(x,y,z)); 
+    planar_[body_name] = planar_tracking;
     return true;
 }
 
@@ -187,6 +208,7 @@ bool TfPlugin::UnregisterBodyHelper(std::string const &body_name) {
     if (IsBodyRegistered(body_name)) {
         bodies_.erase(body_name);
         offsets_.erase(body_name);
+        planar_.erase(body_name);
         return true;
     }
     // TODO If it exists in both, this just removes from teh body list.

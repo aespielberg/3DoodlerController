@@ -16,6 +16,8 @@ import AssemblyConstraint
 import AssemblyGraspCSP
 import CollisionConstraints
 
+# STARTING IMPLEMENTATION OF THE PLANNER WITH SENSOR GEOMETRIES AND COSTS.
+
 class AssemblyPoseSaver(object):
     def __init__(self, assembly):
         self.assembly = assembly
@@ -49,15 +51,21 @@ class RobotGraspConfig(object):
 
 class AssemblyOperation(object):
 
-    def __init__(self,assembly_list, assembly_poses,assembly_robot_names,name,order,robot_count=1):
+    def __init__(self,assembly_list, assembly_poses,
+                 #post_assembly_poses,
+                 assembly_robot_names,sensor_robot_names,
+                 name,order,robot_count=1):
         self.assembly_op_list = assembly_list
         self.assembly_op_poses = assembly_poses
+        #self.post_assembly_poses = post_assembly_poses
         self.assembly_robot_names = assembly_robot_names
+        self.sensor_robot_names = sensor_robot_names
         self.constraint = None
         self.name = name
         self.robot_count = robot_count #TODO: instead, in the future, make this a list of regions.  Need to determine how to represent 3D regions.
         self.order = order
         self.h = []
+
 
     #def GetAssemblyConstraint(self,env,operation_pose,all_robot_names,all_object_names):
     #    part_names = []
@@ -183,6 +191,9 @@ class AssemblyOperation(object):
                 continue
             for grasp in part.grasps:
                 ee_pose = np.dot(operation_pose,np.dot(self.GetPartPoseInAssembly(part.name),grasp))
+                # XXX HACK FOR HUMAN HELPED GRASPS begins
+                #ee_pose[:3,3] -= ee_pose[:3,2]*0.04 # Use grasps that are 5cm backed up along palm normal.
+                # XXX HACK FOR HUMAN HELPED GRASPS ends
                 base_configs,arm_configs = self.SampleBaseAndArmGivenEEPose(env.GetRobot(robot_name),yik,ee_pose,returnfirst=False,rotationresolution=0.5,translationresolution=0.2,checkenvcollision=True)
                 #base_configs,arm_configs = self.SampleBaseAndArmGivenEEPose(env.GetRobot(robot_name),yik,ee_pose,returnfirst=False,rotationresolution=0.5,translationresolution=0.2)
                 if base_configs is not None:
@@ -202,7 +213,6 @@ class AssemblyOperation(object):
                             asm_op.SetTransform(np.dot(operation_pose,asm_op_pose))
                             for part in asm_op.GetPartList():
                                 if part.name == config.part_grasp.part_name:
-                                    #print 'Disabling gripper collision.'
                                     self.EnableGripperLinks(env,robot_name,False)
                                 collision = env.CheckCollision(env.GetRobot(robot_name),part.body)
                                 if part.name == config.part_grasp.part_name:
@@ -210,8 +220,28 @@ class AssemblyOperation(object):
                                 if collision:
                                     #print 'collision with ',part.name
                                     break
+                                # XXX HACK FOR HUMAN HELPED GRASPS begins
+                                #if part.name == config.part_grasp.part_name:
+                                #    orig_part_pose = part.body.GetTransform()
+                                #    in_hand_part_pose = orig_part_pose.copy()
+                                #    in_hand_part_pose[:3,3] = in_hand_part_pose[:3,3] - 0.04*env.GetRobot(robot_name).GetManipulators()[0].GetEndEffectorTransform()[:3,2]
+                                #    part.body.SetTransform(in_hand_part_pose)
+                                #    self.EnableGripperLinks(env,robot_name,False)
+                                #    collision = env.CheckCollision(env.GetRobot(robot_name),part.body)
+                                #    self.EnableGripperLinks(env,robot_name,True)
+                                #    part.body.SetTransform(orig_part_pose)
+                                #    if collision:
+                                #        #print 'collision with ',part.name
+                                #        break
+                                # XXX HACK FOR HUMAN HELPED GRASPS begins
                         if collision:
-                           break
+                            break
+                    if not collision: # Check collision with sensor robots. They are assumed to be at the right pose.
+                        for srn in self.sensor_robot_names:
+                            collision = env.CheckCollision(env.GetRobot(robot_name),env.GetRobot(srn))
+                            if collision:
+                                break
+                            # TODO Check collision with sensor geometry.
                 if not collision:
                     filtered_robot_grasp_configs.append(config)
         #print child_assembly_op.name,' has ',len(filtered_robot_grasp_configs),' configs after filtering.'
@@ -308,6 +338,8 @@ class AssemblyOperation(object):
         for assembly_op,assembly_op_pose in izip(self.assembly_op_list,self.assembly_op_poses):
             assembly_op.SetTransform(np.dot(pose,assembly_op_pose))
 
+    def DoesRequireSensing(self):
+        return len(self.sensor_robot_names)>0
 
 class PartGrasp(object):
     def __init__(self,part_name,grasp):
@@ -316,7 +348,7 @@ class PartGrasp(object):
 
 class Part(AssemblyOperation):
     def __init__(self,name,is_transferable=True,robot_count=1):
-        AssemblyOperation.__init__(self,[self],[np.eye(4)],[],name,[name],robot_count)
+        AssemblyOperation.__init__(self,[self],[np.eye(4)],[],[],name,[name],robot_count)
         self.name = name
         self.body = None
         self.grasps = None 

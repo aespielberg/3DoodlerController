@@ -8,31 +8,37 @@
         <ambientColor>0.6 0.6 0.6</ambientColor>
       </Geom-->
       <Geom type="box">
-        <extents>0.1 3.6 0.3</extents>
-        <translation>2.5 0.0 0.15</translation>
+        <extents>0.1 3.6 0.05</extents>
+        <translation>2.0 0.0 0.05</translation>
         <diffuseColor>.8 1 .8</diffuseColor>
         <ambientColor>0.6 0.6 0.6</ambientColor>
       </Geom>
       <Geom type="box">
-        <extents>0.1 3.6 0.3</extents>
-        <translation>-2.5 0.0 0.15</translation>
+        <extents>0.1 3.6 0.05</extents>
+        <translation>-2.0 0.0 0.05</translation>
         <diffuseColor>.8 1 .8</diffuseColor>
         <ambientColor>0.6 0.6 0.6</ambientColor>
       </Geom>
       <Geom type="box">
-        <extents>2.6 0.1 0.3</extents>
-        <translation>0.0 3.5 0.15</translation>
+        <extents>2.6 0.1 0.05</extents>
+        <translation>0.0 3.5 0.05</translation>
         <diffuseColor>.8 1 .8</diffuseColor>
         <ambientColor>0.6 0.6 0.6</ambientColor>
       </Geom>
       <Geom type="box">
-        <extents>2.6 0.1 0.3</extents>
-        <translation>0.0 -3.5 0.15</translation>
+        <extents>2.6 0.1 0.05</extents>
+        <translation>0.0 -3.5 0.05</translation>
         <diffuseColor>.8 1 .8</diffuseColor>
         <ambientColor>0.6 0.6 0.6</ambientColor>
       </Geom>
-    </Body>
-    <Translation>0.0 0.0 -0.01</Translation>
+<!--       <Geom type="box">
+        <extents>2.6 3.6 0.001</extents>
+        <translation>0.0 0.0 -0.001</translation>
+        <diffuseColor>.8 1 .8</diffuseColor>
+        <ambientColor>0.8 0.8 0.8</ambientColor>
+      </Geom>
+ -->    </Body>
+    <!-- <Translation>0.0 0.0 -0.01</Translation> -->
   </KinBody>
 
 

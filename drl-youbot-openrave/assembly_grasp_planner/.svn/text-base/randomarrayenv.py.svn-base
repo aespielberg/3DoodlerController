@@ -9,7 +9,7 @@ import IPython
 
 envfile = 'environments/random_array.env.xml'
 
-num_parts = 2
+num_parts = 3
 total_num = num_parts*num_parts*2
 
 vertical_parts = {}

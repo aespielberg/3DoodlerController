@@ -5,7 +5,7 @@
 import random
 import os
 
-num_elems = 2
+num_elems = 3
 size = 0.2
 os.remove('random_array.env.xml')
 f = open('random_array.env.xml','a')

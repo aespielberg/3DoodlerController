@@ -12,6 +12,7 @@
         <Geom type="trimesh">
             <Data>wing/wing_skin_upper_old.stl</Data>
             <Render>wing/wing_skin_upper_old.stl</Render>
+            <diffusecolor>0.8 0.2 0.2</diffusecolor>
         </Geom>
     </Body>
 </KinBody>

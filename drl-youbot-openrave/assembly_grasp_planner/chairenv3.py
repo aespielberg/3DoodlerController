@@ -40,7 +40,9 @@ rightside_and_back = AssemblyOperation(assembly_list        = [rightside,back,fa
                                                                          [  0.    ,   0.     ,   1.     ,  2.84104079e-01],
                                                                          [  0.    ,   0.     ,   0.     ,  1.            ]])],
                                        assembly_robot_names = ['drc1','drc2','drc3'],
+                                       sensor_robot_names   = [],
                                        name                 = 'rightside_and_back',
+                                       order                = ['rightside','back','fastener_rightside_to_back'],
                                        robot_count = 1)
 
 rightside_and_back_and_seat =  AssemblyOperation(assembly_list  = [rightside_and_back,seat,fastener_rightside_to_seat],
@@ -54,7 +56,9 @@ rightside_and_back_and_seat =  AssemblyOperation(assembly_list  = [rightside_and
                                                                                    [  0.    ,   0.     ,   1.    ,  1.41876787e-01],
                                                                                    [  0.    ,   0.     ,   0.    ,  1.            ]])],
                                                  assembly_robot_names = ['drc1','drc2','drc3'],
+                                                 sensor_robot_names   = [],
                                                  name                 = 'rightside_and_back_and_seat',
+                                                 order                = ['rightside_and_back','seat','fastener_rightside_to_seat'],
                                                  robot_count = 1)
 
 rightside_and_back_and_seat_and_leftside_and_fastener1 = AssemblyOperation(assembly_list        = [rightside_and_back_and_seat,leftside,fastener_leftside_to_seat],
@@ -68,7 +72,9 @@ rightside_and_back_and_seat_and_leftside_and_fastener1 = AssemblyOperation(assem
                                                                                                [  0.    ,   0.    ,  -1.    , 1.42406836e-01],
                                                                                                [  0.    ,   0.    ,   0.    , 1.            ]])],
                                                              assembly_robot_names = ['drc1','drc2','drc3', 'drc4'],
+                                                             sensor_robot_names   = [],
                                                              name                 = 'rightside_and_back_and_seat_and_leftside_and_fastener1',
+                                                             order                = ['rightside_and_back_and_seat','leftside','fastener_leftside_to_seat'],
                                                              robot_count = 1)
 
 chair = AssemblyOperation(assembly_list        = [rightside_and_back_and_seat_and_leftside_and_fastener1, fastener_leftside_to_back],
@@ -78,7 +84,9 @@ chair = AssemblyOperation(assembly_list        = [rightside_and_back_and_seat_an
                                                                                      [  0.    ,   0.    ,  -1.    ,  2.84831405e-01],
                                                                                      [  0.    ,   0.    ,   0.    ,  1.            ]])],
                                                   assembly_robot_names = ['drc1','drc2','drc3', 'drc4'],
+                                                  sensor_robot_names   = [],
                                                   name                 = 'chair',
+                                                  order                = ['rightside_and_back_and_seat_and_leftside_and_fastener1','fastener_leftside_to_back'],
                                                   robot_count = 1)
 
 assembly_operations = [rightside,                   # part grasp

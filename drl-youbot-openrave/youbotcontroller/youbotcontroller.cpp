@@ -10,9 +10,6 @@
 #include "brics_actuator/JointValue.h"
 #include "brics_actuator/JointPositions.h"
 
-#include "assembly_common/BasePose.h"
-#include "assembly_common/BaseCommand.h"
-
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/systems/si/plane_angle.hpp>
 #include <boost/units/systems/si/velocity.hpp>
@@ -46,7 +43,6 @@ class YoubotController : public ControllerBase
 
         RegisterCommand("MoveArm", boost::bind(&YoubotController::MoveArm, this, _1, _2), "moves the arm ");
         RegisterCommand("MoveGripper", boost::bind(&YoubotController::MoveGripper, this, _1, _2), "moves the gripper ");
-        RegisterCommand("MoveBaseMBHP", boost::bind(&YoubotController::MoveBaseMBHP, this, _1, _2), "moves the base ");
         RegisterCommand("Pause", boost::bind(&YoubotController::Pause, this, _1, _2), "Pauses the controller.");
         RegisterCommand("Resume", boost::bind(&YoubotController::Resume, this, _1, _2), "Resumes the controller.");
         RegisterCommand("SetHighPrecision", boost::bind(&YoubotController::SetHighPrecision, this, _1, _2), "Change goal precision.");
@@ -63,6 +59,7 @@ class YoubotController : public ControllerBase
 
         bool SetHighPrecision(ostream& sout, istream& sinput)
         {
+
             string cmd;
             sinput >> cmd;
             if (sinput.fail()) {
@@ -70,8 +67,10 @@ class YoubotController : public ControllerBase
                 return false;
             }
             if (cmd == "1") {
+                RAVELOG_INFO("SetHighPrecision is called to 1.\n");
                 _high_precision_goal = true;
             } else if(cmd == "0") {
+                RAVELOG_INFO("SetHighPrecision is called to 0.\n");
                 _high_precision_goal = false;
             } else {
                 RAVELOG_ERROR("SetHighPrecision unknown argument %s.\n",cmd.c_str());
@@ -208,34 +207,6 @@ class YoubotController : public ControllerBase
         }
 
 
-        bool MoveBaseMBHP(ostream& sout, istream& sinput)
-        {
-            // TODO this uses mbhp?
-            if (ros::ok() && !_paused)
-            {
-                assembly_common::BasePose srv;
-
-                std::string valuesString;
-                sinput >> valuesString;
-
-                ROS_INFO("input %s", valuesString.c_str());
-
-                vector<std::string> valuestokens;
-                boost::split(valuestokens, valuesString, boost::is_any_of("\t,"));
-
-                srv.request.x = boost::lexical_cast<double>(valuestokens[0]);
-                srv.request.y = boost::lexical_cast<double>(valuestokens[1]);
-                srv.request.theta = boost::lexical_cast<double>(valuestokens[2]);
-                srv.request.threshold = boost::lexical_cast<double>(valuestokens[3]);
-                srv.request.angle_threshold = boost::lexical_cast<double>(valuestokens[4]);
-                srv.request.arm_offset = std::strcmp(valuestokens[5].c_str(), "True");
-                srv.request.frame = valuestokens[6];
-                return client.call(srv);
-            }
-            sout << "True";
-            return false;
-        }
-
         bool MoveBaseTowards(Transform &goal, bool high_precision)
         {
             TransformMatrix target_in_frame = _probot->GetTransform().inverse() * goal;
@@ -354,6 +325,79 @@ class YoubotController : public ControllerBase
             return false;
         }
 
+        bool MoveBaseTowardsWithArmFeedbackGains(Transform &goal, bool high_precision)
+        {
+            double translation_x_gain = 0.5;
+            double translation_y_gain = 0.5;
+            double rotational_gain = 0.5;
+            double max_translational_speed = 0.25;
+            double max_rotational_speed = 0.6;
+            double translational_threshold = 0.0025;
+            double translational_threshold_sqr = translational_threshold*translational_threshold;
+            double rotational_threshold = 0.04;
+
+            double low_precision_multiplier = 10.0;
+            if (!high_precision) {
+                translational_threshold = translational_threshold * low_precision_multiplier;
+                translational_threshold_sqr = translational_threshold*translational_threshold;
+                rotational_threshold = rotational_threshold * low_precision_multiplier;
+            }
+
+            TransformMatrix target_in_frame = _probot->GetTransform().inverse() * goal;
+            double x_diff = target_in_frame.trans[0];
+            double y_diff = target_in_frame.trans[1];
+            double yaw_diff = atan2(target_in_frame.rot(1,0), target_in_frame.rot(0,0)); 
+            // atan2 already returns in the range -pi.+pi. So no need to wrap. Otherwise we would need to.
+
+            double vel_x = x_diff * translation_x_gain;
+            double vel_y = y_diff * translation_y_gain;
+            double vel_yaw = yaw_diff * rotational_gain;
+
+            if (std::fabs(vel_x) > max_translational_speed) {
+               vel_x = copysign(1.0,vel_x) * max_translational_speed;
+            }
+            if (std::fabs(vel_y) > max_translational_speed) {
+               vel_y = copysign(1.0,vel_y) * max_translational_speed;
+            }
+            if (std::fabs(vel_yaw) > max_rotational_speed) {
+               vel_yaw = copysign(1.0,vel_yaw) * max_rotational_speed;
+            }
+
+            if (x_diff*x_diff + y_diff*y_diff < translational_threshold_sqr && yaw_diff < rotational_threshold) {
+                // STOP
+                geometry_msgs::Twist command;
+                command.linear.x = 0.0;
+                command.linear.y = 0.0;
+                command.linear.z = 0.0;
+                command.angular.x = 0.0;
+                command.angular.y = 0.0;
+                command.angular.z = 0.0;
+                _move_base_pub.publish(command);
+                if (!high_precision) {
+                    return true; // We are at the goal
+                }
+                if (!_stop_commanded) {
+                    _time_stop_commanded = clock();
+                    _stop_commanded = true;
+                }
+                float wait_to_stop_window = 0.5;
+                if ((float(clock() - _time_stop_commanded)/CLOCKS_PER_SEC) > wait_to_stop_window) {
+                    return true; // We are at the goal
+                }
+            } else {
+                _stop_commanded = false;
+                geometry_msgs::Twist command;
+                command.linear.x = vel_x;
+                command.linear.y = vel_y;
+                command.linear.z = 0.0;
+                command.angular.x = 0.0;
+                command.angular.y = 0.0;
+                command.angular.z = vel_yaw;
+                _move_base_pub.publish(command);
+            }
+            return false;
+        }
+
         double IsSameArmConfig(vector<double> &config1, vector<double> &config2)
         {
             for (unsigned int i = 0; i < config1.size(); i++)
@@ -437,9 +481,6 @@ class YoubotController : public ControllerBase
             // create ros subscriber for joint messages.
             _joint_angles_sub = _pn->subscribe(("/" + string(_probot->GetName()) + "/joint_states").c_str(), 1, &YoubotController::JointStateCallback, this);
 
-            // start the move base client
-            client = _pn->serviceClient<assembly_common::BasePose>("move_base");
-
             _move_arm_pub = _pn->advertise<brics_actuator::JointPositions>(("/" + string(_probot->GetName()) + "/arm_1/arm_controller/position_command").c_str(), 1);
             _move_gripper_pub = _pn->advertise<brics_actuator::JointPositions>(("/" + string(_probot->GetName()) + "/arm_1/gripper_controller/position_command").c_str(), 1);
             _move_base_pub = _pn->advertise<geometry_msgs::Twist>(("/" + string(_probot->GetName()) + "/cmd_vel").c_str(), 1);
@@ -510,7 +551,7 @@ class YoubotController : public ControllerBase
                     if (_traj->GetNumWaypoints() == 1 && _high_precision_goal ) {
                         high_precision = true;
                     }
-                    base_at_waypoint = MoveBaseTowards(base_goal_transform, high_precision);
+                    base_at_waypoint = MoveBaseTowardsWithArmFeedbackGains(base_goal_transform, high_precision);
                 }
 
                 // Handle arm

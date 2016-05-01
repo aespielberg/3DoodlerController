@@ -2,35 +2,39 @@
 
 <KinBody name="hand">
         <Body name="link5" type="dynamic">
-            <Geom type="trimesh" modifiable="true">
+            <!--Geom type="trimesh" modifiable="true">
                 <data>../robots/models/youbot/arm5_convex.dae 1.0</data>
                 <Render>../robots/models/youbot/arm5_convex.dae 1.0</Render>
-                <rotationaxis>0 1 0 180</rotationaxis>
-                <!--Translation>0 0.0 -0.10792</Translation-->
-                <Translation>0 0.0 0.11167</Translation>
+                <Translation>0 0.0 -0.07875</Translation>
+                <Translation>0 0.0 -0.005</Translation>
+                <Translation>0 0.0 -0.0225</Translation>
                 <diffusecolor>0.737 0.1 0.1</diffusecolor>
-            </Geom>
+            </Geom-->
             <Geom type="trimesh" modifiable="true">
                 <data>../robots/models/youbot/palm.dae 1.0</data>
                 <Render>../robots/models/youbot/palm.dae 1.0</Render>
-                <rotationaxis>0 1 0 180</rotationaxis>
-                <Translation>0.003 0.0 0.07792</Translation>
+                <!--rotationaxis>0 1 0 180</rotationaxis-->
+                <!--Translation>0.003 0.0 0.07792</Translation-->
+                <Translation>-0.003 0.0 -0.045</Translation>
+                <Translation>0 0.0 -0.009</Translation>
                 <diffusecolor>0.737 0.1 0.1</diffusecolor>
             </Geom>
             <Geom type="trimesh" modifiable="false">
                 <data>../robots/models/youbot/finger.dae 1.0</data>
                 <Render>../robots/models/youbot/finger.dae 1.0</Render>
-                <rotationaxis>0 1 0 180</rotationaxis>
-                <Translation>0 0.0 0.03292</Translation>
+                <!--rotationaxis>0 1 0 180</rotationaxis-->
+                <!--Translation>0 0.0 0.03292</Translation-->
                 <Translation>0 -0.008 0</Translation>
+                <Translation>0 0.0 -0.009</Translation>
                 <diffusecolor>0.737 0.1 0.1</diffusecolor>
             </Geom>
             <Geom type="trimesh" modifiable="false">
                 <rotationaxis>0 0 1 180</rotationaxis>
                 <data>../robots/models/youbot/finger.dae 1.0</data>
                 <Render>../robots/models/youbot/finger.dae 1.0</Render>
-                <rotationaxis>0 1 0 180</rotationaxis>
-                <Translation>0 0.0 0.03292</Translation>
+                <!--rotationaxis>0 1 0 180</rotationaxis-->
+                <!--Translation>0 0.0 0.03292</Translation-->
+                <Translation>0 0.0 -0.009</Translation>
                 <Translation>0 0.008 0</Translation>
                 <diffusecolor>0.737 0.1 0.1</diffusecolor>
             </Geom>

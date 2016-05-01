@@ -1,15 +1,15 @@
 10
 
 dir
-1703
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/youbotpy
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+1902
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/youbotpy
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 
-2015-05-10T15:39:45.364796Z
-1703
-aespielberg
+2015-09-18T20:10:41.174472Z
+1879
+rosman
 
 
 
@@ -25,6 +25,9 @@ aespielberg
 
 
 c4b41905-7492-43aa-9acf-8b5ffadedbda
+
+examples
+dir
 
 manifest.xml
 file
@@ -164,7 +167,4 @@ dbanda
 
 
 41
-
-examples
-dir
 

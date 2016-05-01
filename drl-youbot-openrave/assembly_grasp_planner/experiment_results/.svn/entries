@@ -1,9 +1,9 @@
 10
 
 dir
-1597
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/assembly_grasp_planner/experiment_results
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+1915
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/assembly_grasp_planner/experiment_results
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 
@@ -32,7 +32,7 @@ file
 
 
 
-2014-10-02T01:45:17.946983Z
+2015-04-18T16:00:54.021596Z
 31eec406685ad526cefc2446c1a44d28
 2014-10-02T01:54:40.455690Z
 1564

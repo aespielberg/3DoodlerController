@@ -9,7 +9,7 @@ OpenRAVE ros package that uses the OpenRAVE Ubuntu installation.<br/>
   <license>Lesser GPL and Apache License, Version 2.0</license>
   <review status="3rdparty" notes=""/>
   <export>
-      <cpp lflags="-Wl,-rpath,/usr/lib `/usr/bin/openrave0.8-config --libs` `/usr/bin/openrave0.8-config --libs-core`" cflags="`/usr/bin/openrave0.8-config --cflags`"/>
-      <python path="/usr/lib/python2.7/dist-packages"/>
+      <cpp lflags="-Wl,-rpath,/home/drl-mocap/openrave/install/lib `/home/drl-mocap/openrave/install/bin/openrave0.9-config --libs` `/home/drl-mocap/openrave/install/bin/openrave0.9-config --libs-core`" cflags="`/home/drl-mocap/openrave/install/bin/openrave0.9-config --cflags`"/>
+      <python path="/home/drl-mocap/openrave/install/lib/python2.7/site-packages"/>
   </export>
 </package>

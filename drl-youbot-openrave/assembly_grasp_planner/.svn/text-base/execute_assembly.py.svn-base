@@ -21,32 +21,44 @@ import tfplugin
 
 #from randomarrayenv import *
 #from randomarrayenv import *
-from simpleenv import *
+#from simpleenv import *
+from simpleenv_velcro import *
+#from simpleenv import *
+#from simpleenv_velcro import *
+#from table import *
 
 #from chairenv3 import *
 
 #from pictureenv import *
-#from wingdemoenv import *
+from wingdemoenv2 import *
 
-BACKUP_AMT = 0.05
-LIFT_AMT = 0.3
+BACKUP_AMT = 0.03
+LIFT_AMT = 0.0003
 MOVE_AMT = 0.1
 
 start_var_name = None
 #start_var_name = 'seat__seat__0'
 
+<<<<<<< .mine
+use_pickled_plan = True
+=======
 use_pickled_plan = False
-#pickled_plan_file_name = '1412133689.8save.p'
-#pickled_plan_file_name = '1412610803.7save.p'
+>>>>>>> .r1790
 #pickled_plan_file_name = 'fullchair_mod.p'
-pickled_plan_file_name = 'test.p'
+<<<<<<< .mine
+#pickled_plan_file_name = 'corrected.p'
+pickled_plan_file_name = 'corrected_velcro.p'
+=======
+#pickled_plan_file_name = 'corrected.p'
+pickled_plan_file_name = 'tableplan.p'
+>>>>>>> .r1790
 #pickled_plan_file_name = 'chair_env3.p'
-sim = True
-use_vicon_for_start_poses = False
+sim = False
+use_vicon_for_start_poses = True
 use_boots = False
 
 youbotenv = youbotpy.YoubotEnv(sim=sim,viewer=True,env_xml=envfile, \
-                               youbot_names=all_robot_names, registered_objects=[o for o in all_object_names if not ('fastener' in o)])
+                               youbot_names=all_robot_names, registered_objects=[o for o in all_object_names if not ('fastener' in o or 'leftside' in o or 'cseat' in o)])
 
 env = youbotenv.env
 youbots = youbotenv.youbots
@@ -62,17 +74,17 @@ grasp_generator = GraspGenerator.GraspGenerator(env)
 pickle_plan = []
 
 if use_vicon_for_start_poses:
-    youbotenv.GetRealStartPoses(youbot_names=[],objects=all_object_names)
+    youbotenv.GetRealStartPoses(youbot_names=[],objects=[o for o in all_object_names if not ('fastener' in o or 'leftside' in o or 'cseat' in o)])
 
 if (use_vicon_for_start_poses or not sim) and use_boots:
     youbotenv.tfplugin.RegisterBody(env.GetKinBody('boot_rightside'),'rightside')
     youbotenv.tfplugin.RegisterBody(env.GetKinBody('boot_back'),'back')
     youbotenv.tfplugin.RegisterBody(env.GetKinBody('bootextension_rightside'),'rightside')
     youbotenv.tfplugin.RegisterBody(env.GetKinBody('bootextension_back'),'back')
-    youbotenv.tfplugin.RegisterBody(env.GetKinBody('boot_leftside'),'leftside')
-    youbotenv.tfplugin.RegisterBody(env.GetKinBody('boot_seat'),'seat')
-    youbotenv.tfplugin.RegisterBody(env.GetKinBody('bootextension_leftside'),'leftside')
-    youbotenv.tfplugin.RegisterBody(env.GetKinBody('bootextension_seat'),'seat')
+    #youbotenv.tfplugin.RegisterBody(env.GetKinBody('boot_leftside'),'leftside')
+    #youbotenv.tfplugin.RegisterBody(env.GetKinBody('boot_seat'),'seat')
+    #youbotenv.tfplugin.RegisterBody(env.GetKinBody('bootextension_leftside'),'leftside')
+    #youbotenv.tfplugin.RegisterBody(env.GetKinBody('bootextension_seat'),'seat')
     #youbotenv.tfplugin.RegisterBody(env.GetKinBody('boot_leftside'),'leftside')
     #youbotenv.tfplugin.RegisterBody(env.GetKinBody('boot_seat'),'seat')
 
@@ -81,18 +93,18 @@ time.sleep(3.0)
 if not sim:
     youbotenv.tfplugin.UnregisterBody(env.GetKinBody('back'))
     youbotenv.tfplugin.UnregisterBody(env.GetKinBody('rightside'))
-    youbotenv.tfplugin.UnregisterBody(env.GetKinBody('seat'))
-    youbotenv.tfplugin.UnregisterBody(env.GetKinBody('leftside'))
+    #youbotenv.tfplugin.UnregisterBody(env.GetKinBody('seat'))
+    #youbotenv.tfplugin.UnregisterBody(env.GetKinBody('leftside'))
 
 if (use_vicon_for_start_poses or not sim) and use_boots:
         youbotenv.tfplugin.UnregisterBody(env.GetKinBody('boot_rightside'))
         youbotenv.tfplugin.UnregisterBody(env.GetKinBody('boot_back'))
         youbotenv.tfplugin.UnregisterBody(env.GetKinBody('bootextension_rightside'))
         youbotenv.tfplugin.UnregisterBody(env.GetKinBody('bootextension_back'))
-        youbotenv.tfplugin.UnregisterBody(env.GetKinBody('boot_leftside'))
-        youbotenv.tfplugin.UnregisterBody(env.GetKinBody('boot_seat'))
-        youbotenv.tfplugin.UnregisterBody(env.GetKinBody('bootextension_leftside'))
-        youbotenv.tfplugin.UnregisterBody(env.GetKinBody('bootextension_seat'))
+        #youbotenv.tfplugin.UnregisterBody(env.GetKinBody('boot_leftside'))
+        #youbotenv.tfplugin.UnregisterBody(env.GetKinBody('boot_seat'))
+        #youbotenv.tfplugin.UnregisterBody(env.GetKinBody('bootextension_leftside'))
+        #youbotenv.tfplugin.UnregisterBody(env.GetKinBody('bootextension_seat'))
         #youbotenv.tfplugin.UnregisterBody(env.GetKinBody('boot_leftside'))
         #youbotenv.tfplugin.UnregisterBody(env.GetKinBody('boot_seat'))
 
@@ -114,8 +126,6 @@ planners = {}
 for r in all_robot_names:
     planners[r] = orpy.interfaces.BaseManipulation(youbots[r],plannername='BiRRT')
 
-
-
 if start_var_name is None:
     for r in all_robot_names:
         # open hands
@@ -124,8 +134,48 @@ if start_var_name is None:
 
 anytime_planner = AnytimePlanner.AnytimePlanner()
 
+IPython.embed()
+
 #raw_input('hit enter to visualize')
 
+def GetDistance(pose1,pose2):
+    # FIXME For now ignoring rotational distance.
+    return np.linalg.norm(pose1[:3,3]-pose2[:3,3])
+
+def FindNearbyIKSolution(robot,ee_pose):
+    sol = yik.FindIKSolutions(robot, ee_pose)
+    if len(sol) > 0:    
+        current_arm = robot.GetDOFValues()[0:5]
+        target_arm = GetClosestArm(current_arm, sol)
+        # Check if the change is too big per joint (and translation) and warn. 
+        for i in range(5):
+            if abs(current_arm[i]-target_arm[i]) > np.pi/36.0:
+                print 'FindNearbyIK: Change in joint ',i,' to big: ',abs(current_arm[i]-target_arm[i])
+                return None
+        print 'FindNearbyIK: Found nearby ik'
+        return target_arm
+    else:
+        print 'FindNearbyIK: Failed to find any ik solution.'
+        return None
+
+def MoveEndEffectorTo(robot,hand,target_pose,planner,threshold=0.003):
+    while True:
+        offset = GetDistance(hand.GetTransform(),target_pose)
+        if offset < threshold:
+            print 'End-effector is at requested pose.'
+            break
+        print 'End-effector off by ',offset
+        robot_ee = robot.GetManipulators()[0].GetEndEffectorTransform()
+        target_robot_ee = robot_ee + (target_pose - hand.GetTransform()[:3,3]) # FIXME for now only translational.
+        soln = FindNearbyIKSolution(robot,target_robot_ee)
+        if soln is None:
+            print 'Failed to move to ee pose. Giving up.'
+            return False
+        else:
+            print 'Moving to ee pose.'
+            MoveArmTo(robot,soln,planner)
+    return True
+         
 def VisualizePlan(env,plan,assembly_operations,asm_op_variables,all_robot_names,all_object_names,op_pose):
     away = np.eye(4)
     away[0,3]=1000.0
@@ -246,25 +296,77 @@ def EnableGrabbedObjects(env,robot_name,enable):
         for o in rob.GetGrabbed():
             o.Enable(enable)
  
-def MoveBaseTo(robot,goal,planner):
+<<<<<<< .mine
+def MoveBaseTo(robot,goal,planner,skip_waypoints=False):
+=======
+def MoveBack(robot,planner):
+>>>>>>> .r1790
     try:
-        robot.GetEnv().GetKinBody('floor').Enable(False)
+<<<<<<< .mine
+        orpy.RaveSetDebugLevel(orpy.DebugLevel.Verbose)
+=======
+        EnableGripperLinks(robot.GetEnv(),robot.GetName(),False)
+        goal = robot.GetTransform()
+        goal[:2,3] -= 0.20*robot.GetManipulators()[0].GetEndEffectorTransform()[:2,2]
         xyyaw = np.array([goal[0,3],goal[1,3],np.arctan2(goal[1,0],goal[0,0])])
-        current = robot.GetTransform()
-        currentxyyaw = np.array([current[0,3],current[1,3],np.arctan2(current[1,0],current[0,0])])
-        if np.linalg.norm(currentxyyaw-xyyaw) < 0.001:
-            print robot.GetName(),' already at goal. Not moving.'
-            return 
         with env:
             robot.SetActiveDOFs([],orpy.DOFAffine.X|orpy.DOFAffine.Y|orpy.DOFAffine.RotationAxis,[0,0,1])
             traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.15,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.01)
             robot.GetController().SetPath(traj)
         while not robot.GetController().IsDone():
             time.sleep(0.01)
+    except Exception, e:
+        print 'Exception when moving back.'
+        print str(e)
+        c = raw_input('IPython shell?(y/n)')
+        if c == 'y':
+            IPython.embed()
+        raise e
     finally:
+        EnableGripperLinks(robot.GetEnv(),robot.GetName(),True)
+
+def MoveBaseTo(robot,goal,planner,skip_waypoints=False):
+    try:
+        EnableGripperLinks(robot.GetEnv(),robot.GetName(),False) # HACK TODO XXX
+
+        orpy.RaveSetDebugLevel(orpy.DebugLevel.Verbose)
+>>>>>>> .r1790
+        robot.GetEnv().GetKinBody('floor').Enable(False)
+        xyyaw = np.array([goal[0,3],goal[1,3],np.arctan2(goal[1,0],goal[0,0])])
+        current = robot.GetTransform()
+        currentxyyaw = np.array([current[0,3],current[1,3],np.arctan2(current[1,0],current[0,0])])
+        if np.linalg.norm(currentxyyaw-xyyaw) < 0.0001:
+            print robot.GetName(),' already at goal. Not moving.'
+            return 
+        with env:
+            robot.SetActiveDOFs([],orpy.DOFAffine.X|orpy.DOFAffine.Y|orpy.DOFAffine.RotationAxis,[0,0,1])
+            traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.15,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.01)
+            if skip_waypoints:
+                traj.Remove(1,traj.GetNumWaypoints()-1)
+            robot.GetController().SetPath(traj)
+        while not robot.GetController().IsDone():
+            time.sleep(0.01)
+<<<<<<< .mine
+    except Exception, e:
+        print str(e)
+        c = raw_input('IPython shell?(y/n)')
+        if c == 'y':
+            IPython.embed()
+        raise e
+=======
+    except Exception, e:
+        MoveBack(robot,planner)
+        #print str(e)
+        #c = raw_input('IPython shell?(y/n)')
+        #if c == 'y':
+        #    IPython.embed()
+        #raise e
+>>>>>>> .r1790
+    finally:
+        EnableGripperLinks(robot.GetEnv(),robot.GetName(),True) # HACK TODO XXX
         robot.GetEnv().GetKinBody('floor').Enable(True)
-    
-        
+        orpy.RaveSetDebugLevel(orpy.DebugLevel.Info)
+
 def getArmNorm(traj, robot):
     traj_start = traj.GetWaypoint(0)
     traj_end = traj.GetWaypoint( traj.GetNumWaypoints() - 1 ) #get last waypoint
@@ -275,12 +377,16 @@ def getArmNorm(traj, robot):
     return np.linalg.norm(first_config - last_config, np.inf) #supnorm
 
 def MoveArmTo(robot,goal,planner):
-    with env:
-        robot.SetActiveDOFs(range(5))
-        traj = planner.MoveActiveJoints(goal=goal,maxiter=5000,steplength=0.15,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.01)
-        robot.GetController().SetPath(traj)
-    while not robot.GetController().IsDone():
-        time.sleep(0.01)
+    try:
+        orpy.RaveSetDebugLevel(orpy.DebugLevel.Verbose)
+        with env:
+            robot.SetActiveDOFs(range(5))
+            traj = planner.MoveActiveJoints(goal=goal,maxiter=5000,steplength=0.15,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.01)
+            robot.GetController().SetPath(traj)
+        while not robot.GetController().IsDone():
+            time.sleep(0.01)
+    finally:
+        orpy.RaveSetDebugLevel(orpy.DebugLevel.Info)
 
 def GrabAssembly(env,robot_name,assembly,grab=True,move_gripper=True):
     for part in assembly.GetPartList():
@@ -333,7 +439,6 @@ def extract_plan(robot_name, op_name, config):
     step_tup[3] = config.base_config
     pickle_plan.append(step_tup)
         
-        
 def Execute(env,youbots,robot_name,op_name,assembly,config,planners,robot_base_homes):
     ##EnableGripperLinks(env,robot_name,False)
     #extract_plan(robot_name, op_name, config)
@@ -349,7 +454,7 @@ def Execute(env,youbots,robot_name,op_name,assembly,config,planners,robot_base_h
     #Go 5 cm away from target
     #IPython.embed()
     if not (op_name.startswith('fastener')):
-        raw_input('Move to backed up pose')
+        #raw_input('Move to backed up pose')
         with env:
             with youbots[robot_name]:
                 #h = []
@@ -358,34 +463,64 @@ def Execute(env,youbots,robot_name,op_name,assembly,config,planners,robot_base_h
                 dofs[0:5] = old_arm
                 youbots[robot_name].SetDOFValues(dofs)
                 youbots[robot_name].SetTransform(config.base_config)
+                EnableGrabbedObjects(env,robot_name,False)
                 EnableGripperLinks(env,robot_name,False)
                 backed_up = BackupHandConfig(env,robot_name,n_steps=20)
                 EnableGripperLinks(env,robot_name,True)
+                EnableGrabbedObjects(env,robot_name,True)
         if not (backed_up is None) and not (len(backed_up) == 0):
+<<<<<<< .mine
             #IPython.embed()
-            floor_pose = env.GetKinBody('floor').GetTransform()
-            floor_pose[2,3] += 0.015
-            env.GetKinBody('floor').SetTransform(floor_pose)
+            #floor_pose = env.GetKinBody('floor').GetTransform()
+            #floor_pose[2,3] += 0.015
+            #env.GetKinBody('floor').SetTransform(floor_pose)
+=======
+>>>>>>> .r1790
             MoveArmTo(youbots[robot_name],backed_up[0],planners[robot_name])
-            floor_pose[2,3] -= 0.015
-            env.GetKinBody('floor').SetTransform(floor_pose)
-            raw_input('Move to actual pose')
-            if 'rightside' == config.part_grasp.part_name:
-                EnableGripperLinks(env,robot_name,False)
+<<<<<<< .mine
+            #floor_pose[2,3] -= 0.015
+            #env.GetKinBody('floor').SetTransform(floor_pose)
+            #raw_input('Move to actual pose')
+            #if 'rightside' == config.part_grasp.part_name:
+            #    EnableGripperLinks(env,robot_name,False)
+=======
+>>>>>>> .r1790
             MoveBaseTo(youbots[robot_name],config.base_config,planners[robot_name])
-            if 'rightside' == config.part_grasp.part_name:
-                EnableGripperLinks(env,robot_name,True)
-            raw_input('jerk forward 5cm')
+<<<<<<< .mine
+            #time.sleep(0.3)
+            #MoveBaseTo(youbots[robot_name],config.base_config,planners[robot_name])
+            #time.sleep(0.3)
+            #MoveBaseTo(youbots[robot_name],config.base_config,planners[robot_name])
+            adjust = False
+            if adjust: # TODO not working yet.
+                raw_input('Adjust end-effector pose.')
+                target_pose = np.dot(env.GetTransform(config.part_grasp.part_name),config.part_grasp.grasp)
+                target_backed_up_pose = target_pose.copy()
+                target_backed_up_pose[:3,3] = target_backed_up_pose[:3,3] - (BACKUP_AMT*target_backed_up_pose[:3,2])
+                MoveEndEffectorTo(youbots[robot_name],youbotenv.youbot_hands[robot_name],target_backed_up_pose,planners[robot_name])
+            #if 'rightside' == config.part_grasp.part_name:
+            #    EnableGripperLinks(env,robot_name,True)
+            #raw_input('jerk forward 5cm')
+=======
+>>>>>>> .r1790
             EnableGripperLinks(env,robot_name,False)
             EnableGrabbedObjects(env,robot_name,False)
             env.GetKinBody(config.part_grasp.part_name).Enable(False)
+            if adjust:
+                forward_configs = MoveForwardHandConfig(env,robot_name,n_steps=20)
+                backed_up = forward_configs
             for b in backed_up[1:]:
                 MoveArmTo(youbots[robot_name],b,planners[robot_name]) 
-            MoveArmTo(youbots[robot_name],config.arm_config,planners[robot_name]) 
+<<<<<<< .mine
+            if not adjust: # FIXME do we need this?
+                MoveArmTo(youbots[robot_name],config.arm_config,planners[robot_name]) 
+=======
+            MoveArmTo(youbots[robot_name],config.arm_config,planners[robot_name])  # FIXME do we need this?
+>>>>>>> .r1790
             env.GetKinBody(config.part_grasp.part_name).Enable(True)
             EnableGrabbedObjects(env,robot_name,True)
             EnableGripperLinks(env,robot_name,True)
-            IPython.embed()
+            #IPython.embed()
         else:
             #raise Exception('Cannot go to backed up pose.')
             raw_input('Move to totally final pose')
@@ -408,6 +543,24 @@ def Execute(env,youbots,robot_name,op_name,assembly,config,planners,robot_base_h
         GrabAssembly(env,robot_name,assembly,True)
         
         if not ('fastener' in config.part_grasp.part_name):
+<<<<<<< .mine
+            xspace = np.linspace(0.,0.05,20)
+            yspace = np.linspace(0.,0.05,20)
+            xyspace = list(np.transpose([np.tile(xspace, len(yspace)), np.repeat(yspace, len(xspace))]))
+            for xy in xyspace:
+                lift_amt = 0.02
+                transform = youbots[robot_name].GetManipulators()[0].GetEndEffectorTransform()
+                transform[2, 3] += lift_amt
+                transform[0, 3] += xy[0]
+                transform[1, 3] += xy[1]
+                sol = yik.FindIKSolutions(youbots[robot_name], transform)
+                if len(sol) > 0:    
+                    target_arm = GetClosestArm(youbots[robot_name].GetDOFValues()[0:5], sol)
+                    MoveArmTo(youbots[robot_name],target_arm,planners[robot_name])
+                    break
+                else:
+                    print 'Lift attempt failed'
+
             if use_boots:
                 boot_name = "boot_" + config.part_grasp.part_name
                 if 'seat' in boot_name or 'back' in boot_name:
@@ -422,26 +575,25 @@ def Execute(env,youbots,robot_name,op_name,assembly,config,planners,robot_base_h
                 env.GetKinBody('floor').Enable(False)
                 #MoveArmTo(youbots[robot_name],arm[idx],planners[robot_name])
 
-                lift_amt = 0.012
+=======
+            xspace = np.linspace(0.,0.05,20)
+            yspace = np.linspace(0.,0.05,20)
+            xyspace = list(np.transpose([np.tile(xspace, len(yspace)), np.repeat(yspace, len(xspace))]))
+            for xy in xyspace:
+                lift_amt = 0.02
                 transform = youbots[robot_name].GetManipulators()[0].GetEndEffectorTransform()
                 transform[2, 3] += lift_amt
+                transform[0, 3] += xy[0]
+                transform[1, 3] += xy[1]
                 sol = yik.FindIKSolutions(youbots[robot_name], transform)
                 if len(sol) > 0:    
                     target_arm = GetClosestArm(youbots[robot_name].GetDOFValues()[0:5], sol)
                     MoveArmTo(youbots[robot_name],target_arm,planners[robot_name])
+                    break
+                else:
+                    print 'Lift attempt failed'
 
-                transform = youbots[robot_name].GetTransform()
-                transform2 = copy.deepcopy(transform)
-                transform2[:3, 3] += neg_y_boot * MOVE_AMT
-                
-                print transform
-                print transform2
-                MoveBaseTo(youbots[robot_name], transform2, planners[robot_name])
-                
-                boot_name = "boot_" + config.part_grasp.part_name
-                env.GetKinBody(boot_name).Enable(True)
-                env.GetKinBody('floor').Enable(True)
-        #MoveBaseTo(youbots[robot_name], base[idx],planners[robot_name])
+>>>>>>> .r1790
                 
 
 def PrioritizeNontrivialVars(op_vars):
@@ -485,6 +637,7 @@ def BackupHandConfig(env,r,n_steps=1):
                 sol = yik.FindIKSolutions(robot, transform2)
                 #IPython.embed() 
         if len(sol) > 0:    
+            print 'Found solution for back up ',vec[2]
             target_arm = GetClosestArm(robot.GetDOFValues()[0:5], sol)
             if n_steps == 1:
                 return target_arm
@@ -496,12 +649,51 @@ def BackupHandConfig(env,r,n_steps=1):
             else:
                 continue
     return solns
-            
+
+def MoveForwardHandConfig(env,r,n_steps=1):
+    robot = youbots[ r ]
+    solns = []
+    rn = range(n_steps)
+    for step in rn:
+        with env:
+            with robot:
+                transform = robot.GetManipulators()[0].GetEndEffectorTransform()
+                vec = np.zeros((3, 1))
+                vec[2] = BACKUP_AMT*(float(step+1)/float(n_steps))
+                diff = np.dot(transform[:-1, :-1], vec)
+                transform2 = copy.deepcopy(transform)
+                transform2[0, 3] += diff[0]
+                transform2[1, 3] += diff[1]
+                transform2[2, 3] += diff[2]
+                #blah = orpy.misc.DrawAxes(env,transform2,0.25,2.0)   
+                sol = yik.FindIKSolutions(robot, transform2)
+                #IPython.embed() 
+        if len(sol) > 0:    
+            print 'Found solution for move forward ',vec[2]
+            target_arm = GetClosestArm(robot.GetDOFValues()[0:5], sol)
+            if n_steps == 1:
+                return target_arm
+            else:
+                solns.append(target_arm)
+        else:
+            if n_steps == 1:
+                return None
+            else:
+                continue
+    return solns
+
+def OrderVars(op_vars,order):
+    ordered_op_vars = []
+    for asm_name in order:
+        for v in op_vars:
+            if v.assembly.name == asm_name:
+                ordered_op_vars.append(v)
+    return ordered_op_vars
 
 def ExecutePlan(env,youbots,plan,robots_for_vars,robot_ops_for_vars,assembly_operations,variables,asm_op_variables,all_robot_names,all_object_names,op_pose,planners,robot_base_homes):
     global start_var_name
     asm_to_robots = {}
-    raw_input('begin!')
+    #raw_input('begin!')
     
     for op in assembly_operations:
         #if start_op_name is not None:
@@ -512,25 +704,31 @@ def ExecutePlan(env,youbots,plan,robots_for_vars,robot_ops_for_vars,assembly_ope
 
         # order variables such that nontrivial ops get priority 
         op_vars = [v for v in chain.from_iterable(asm_op_variables[op.name].values()) ]
-        ordered_op_vars = PrioritizeNontrivialVars(op_vars)
+        #ordered_op_vars = PrioritizeNontrivialVars(op_vars)
+        ordered_op_vars = OrderVars(op_vars,op.order)
         for v in ordered_op_vars: # XXX this assumes one robot per assembly.
             if start_var_name is not None:
                 if str(v) == start_var_name:
                     start_var_name = None
                 else:
                     continue
+            ## XXX Hack: no action during transfer. STARTS HERE
+            #op_name = robot_ops_for_vars[str(v)]
+            #if op_name == 'transfer':
+            #    continue
+            ## XXX Hack: no action during transfer. ENDS HERE
             #print str(v),' config: ',plan[str(v)].base_config
             Execute(env,youbots,robots_for_vars[str(v)],robot_ops_for_vars[str(v)],v.assembly,plan[str(v)],planners,robot_base_homes)
         if start_var_name is not None:
             continue
 
-        if op is assembly_operations[-1]:
-            ordered_op_vars.reverse()
+        #if op is assembly_operations[-1]:
+        #    ordered_op_vars.reverse()
         for v in ordered_op_vars:
             op_name = robot_ops_for_vars[str(v)]
             r = robots_for_vars[str(v)]
             if op_name == 'transfer_release' or op_name == 'regrasp_release':
-                raw_input('about to release')
+                #raw_input('about to release')
                 ## XXX drc4 fastener HACK starts 
                 #drc4_base = np.array([[ 0.999953  ,  0.00969547,  0.        , -0.78416859],
                 #                      [-0.00969547,  0.999953  , -0.        ,  0.01660606],
@@ -566,11 +764,39 @@ def ExecutePlan(env,youbots,plan,robots_for_vars,robot_ops_for_vars,assembly_ope
                 # move hand back 5cm
                 backed_up = BackupHandConfig(env,r,n_steps=2)
                 if not (backed_up is None) and not (len(backed_up) == 0):
-                    raw_input('back up 5cm')
+                    #raw_input('back up 5cm')
                     MoveArmTo(youbots[r],backed_up[0],planners[r]) 
-                    raw_input('blah')
+<<<<<<< .mine
+                    #raw_input('move base back 15 cm')
+                    base_backup = youbots[r].GetTransform()
+                    base_backup[:2,3] = base_backup[:2,3] - (youbots[r].GetManipulators()[0].GetEndEffectorTransform()[:2,2]*0.45)
+                    youbots[r].GetController().SendCommand("SetHighPrecision 0")
+                    MoveBaseTo(youbots[r],base_backup,planners[r],skip_waypoints=True) 
+                    youbots[r].GetController().SendCommand("SetHighPrecision 1")
+=======
+                    #raw_input('move base back 15 cm')
+                    base_backup = youbots[r].GetTransform()
+                    base_backup[:2,3] = base_backup[:2,3] - (youbots[r].GetManipulators()[0].GetEndEffectorTransform()[:2,2]*0.45)
+                    if not sim:
+                       youbots[r].GetController().SendCommand("SetHighPrecision 0")
+                    MoveBaseTo(youbots[r],base_backup,planners[r],skip_waypoints=True) 
+                    if not sim:
+                        youbots[r].GetController().SendCommand("SetHighPrecision 1")
+>>>>>>> .r1790
                 EnableGripperLinks(env,r,True)
+<<<<<<< .mine
+                youbots[r].GetController().SendCommand("SetHighPrecision 0")
+=======
+                if not sim:
+                    youbots[r].GetController().SendCommand("SetHighPrecision 0")
+>>>>>>> .r1790
                 MoveBaseTo(youbots[r],robot_base_homes[r],planners[r]) 
+<<<<<<< .mine
+                youbots[r].GetController().SendCommand("SetHighPrecision 1")
+=======
+                if not sim:
+                    youbots[r].GetController().SendCommand("SetHighPrecision 1")
+>>>>>>> .r1790
                 if 'fastener' in v.assembly.name:
                     env.GetKinBody(v.assembly.name).Enable(True)
                 #raw_input('Hit enter for next execution.')
@@ -580,9 +806,12 @@ def ExecutePlan(env,youbots,plan,robots_for_vars,robot_ops_for_vars,assembly_ope
 
 
 op_pose = np.eye(4)
-#op_pose[2,3] = 0.35
+#op_pose[2,3] = 0.25
+op_pose[0,3] = -1.25
+op_pose[1,3] = 0.35
+op_pose[2,3] = 0.13
 
-IPython.embed()
+#IPython.embed()
 
 #raw_input('hit enter to start planning')
 if use_pickled_plan:
@@ -598,6 +827,8 @@ else:
         raise Exception('Assembly grasp planning failed')
     robots_for_vars,robot_ops_for_vars = AssignRobotsToOperations(variables,min_regrasp_constraints,asm_op_variables,all_robot_names,assembly_operations)
 
+#IPython.embed()
+
 #for c in min_regrasp_constraints:
 #    if type(c) is CollisionConstraints.BusrideConstraint:
 #        print 'Busride between: ',c.var1.assembly.name,' and ',c.var2.assembly.name
@@ -612,14 +843,24 @@ if not use_pickled_plan:
     print 'pickled to: ', pickle_filename
 
 raw_input('hit enter to execute.')
-try:
-    ExecutePlan(env,youbots,min_regrasp_assignment,robots_for_vars,robot_ops_for_vars,assembly_operations,variables,asm_op_variables,all_robot_names,all_object_names,op_pose,planners,robot_base_homes)
-except Exception, e:
-    print str(e)
-    IPython.embed()
+<<<<<<< .mine
+time.sleep(10.0)
+#try:
+ExecutePlan(env,youbots,min_regrasp_assignment,robots_for_vars,robot_ops_for_vars,assembly_operations,variables,asm_op_variables,all_robot_names,all_object_names,op_pose,planners,robot_base_homes)
+#except Exception, e:
+#    print str(e)
+#    IPython.embed()
+=======
+>>>>>>> .r1790
 
+time.sleep(10.0)
+#try:
+#ExecutePlan(env,youbots,min_regrasp_assignment,robots_for_vars,robot_ops_for_vars,assembly_operations,variables,asm_op_variables,all_robot_names,all_object_names,op_pose,planners,robot_base_homes)
+#except Exception, e:
+#    print str(e)
+#    IPython.embed()
 
+if not (min_regrasp_assignment is None):
+    VisualizePlan(env,min_regrasp_assignment,assembly_operations,asm_op_variables,all_robot_names,all_object_names,op_pose)
 
-#if not (min_regrasp_assignment is None):
-#    VisualizePlan(env,min_regrasp_assignment,assembly_operations,asm_op_variables,all_robot_names,all_object_names,op_pose)
 

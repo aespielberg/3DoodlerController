@@ -17,7 +17,7 @@
                 <!--rotationaxis>0 1 0 180</rotationaxis-->
                 <!--Translation>0.003 0.0 0.07792</Translation-->
                 <Translation>-0.003 0.0 -0.045</Translation>
-                <Translation>0 0.0 -0.005</Translation>
+                <Translation>0 0.0 -0.009</Translation>
                 <diffusecolor>0.737 0.1 0.1</diffusecolor>
             </Geom>
             <Geom type="trimesh" modifiable="false">
@@ -26,7 +26,7 @@
                 <!--rotationaxis>0 1 0 180</rotationaxis-->
                 <!--Translation>0 0.0 0.03292</Translation-->
                 <Translation>0 -0.008 0</Translation>
-                <Translation>0 0.0 -0.005</Translation>
+                <Translation>0 0.0 -0.009</Translation>
                 <diffusecolor>0.737 0.1 0.1</diffusecolor>
             </Geom>
             <Geom type="trimesh" modifiable="false">
@@ -35,7 +35,7 @@
                 <Render>../robots/models/youbot/finger.dae 1.0</Render>
                 <!--rotationaxis>0 1 0 180</rotationaxis-->
                 <!--Translation>0 0.0 0.03292</Translation-->
-                <Translation>0 0.0 -0.005</Translation>
+                <Translation>0 0.0 -0.009</Translation>
                 <Translation>0 0.008 0</Translation>
                 <diffusecolor>0.737 0.1 0.1</diffusecolor>
             </Geom>
@@ -43,6 +43,16 @@
         </Body>
 
 </KinBody>
+
+    <Manipulator name="endeffector">
+        <Translation>0 0 0.0</Translation>
+        <joints>jg1 jg2</joints>
+        <closingdirection>-1 -1</closingdirection><!--??-->
+        <direction>1 0 0</direction>
+        <effector>link5</effector>
+        <base>link5</base>
+    </Manipulator>
+
 
 
 </Robot>

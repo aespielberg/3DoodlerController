@@ -80,6 +80,8 @@ if not simulation:
 youbotenv.MoveGripper('drc1', 0.01, 0.01)
 youbotenv.MoveGripper('drc3', 0.01, 0.01)
 
+IPython.embed()
+
 cup = env.GetKinBody('cup')
 pot = env.GetKinBody('pot')
 

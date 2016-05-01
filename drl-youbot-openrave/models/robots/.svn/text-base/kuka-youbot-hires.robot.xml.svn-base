@@ -2,6 +2,7 @@
     <KinBody name="youBot">
         <Body name="base" type="dynamic">
             <Geom type="trimesh" modifiable="true">
+                <Translation>0.075 0.0 0.037</Translation> <!-- To align with the vicon calibration -->
                 <Translation>0.14300 0.0 0.126</Translation>
                 <Translation>0.03 0 -0.127</Translation>
                 <rotationaxis>0 0 1 -90</rotationaxis>
@@ -11,6 +12,7 @@
             </Geom>
         </Body>
         <Body name="link1" type="dynamic">
+            <Translation>0.075 0.0 0.037</Translation> <!-- To align with the vicon calibration -->
             <Translation>0.024 0.0 0.096</Translation>
             <Translation>0.14300 0.0 0.126</Translation>
             <rotationaxis>1 0 0 90</rotationaxis>
@@ -22,6 +24,7 @@
             </Geom>
         </Body>
         <Body name="link2" type="dynamic">
+            <Translation>0.075 0.0 0.037</Translation> <!-- To align with the vicon calibration -->
             <Translation>0.14300 0.0 0.126</Translation>
             <Translation>0.06 -0.033 0.1945</Translation>
             <rotationaxis>1 0 0 90</rotationaxis>
@@ -33,6 +36,7 @@
             </Geom>
         </Body>
         <Body name="link3" type="dynamic">
+            <Translation>0.075 0.0 0.037</Translation> <!-- To align with the vicon calibration -->
             <Translation>0.14300 0.0 0.126</Translation>
             <Translation>0.06 0.0275 0.35</Translation>
             <rotationaxis>1 0 0 90</rotationaxis>
@@ -44,6 +48,7 @@
             </Geom>
         </Body>
         <Body name="link4" type="dynamic">
+            <Translation>0.075 0.0 0.037</Translation> <!-- To align with the vicon calibration -->
             <Translation>0.14300 0.0 0.126</Translation>
             <Translation>0.06 -0.01 0.44</Translation>
             <rotationaxis>1 0 0 90</rotationaxis>       
@@ -55,6 +60,7 @@
             </Geom>
         </Body>
         <Body name="link5" type="dynamic">
+            <Translation>0.075 0.0 0.037</Translation> <!-- To align with the vicon calibration -->
             <Translation>0.14300 0.0 0.126</Translation>
             <Translation>0.06 0 0.505</Translation>
             <rotationaxis>1 0 0 90</rotationaxis>
@@ -67,7 +73,7 @@
             <Geom type="trimesh" modifiable="true">
                 <rotationaxis>1 0 0 -90</rotationaxis>
                 <Translation>-0.003 0.03 0</Translation>
-                <Translation>0 0.0225 0</Translation>
+                <!--Translation>0 0.0225 0</Translation-->
                 <data>models/youbot/palm.dae 1.0</data>
                 <Render>models/youbot/palm.dae 1.0</Render>
             </Geom>
@@ -77,7 +83,7 @@
             <Geom type="trimesh" modifiable="false">
                 <Translation>0 0.075 0.007</Translation>
                 <rotationaxis>1 0 0 -90</rotationaxis>
-                <Translation>0 0.0225 0</Translation>
+                <!--Translation>0 0.0225 0</Translation-->
                 <data>models/youbot/finger.dae 1.0</data>
                 <Render>models/youbot/finger.dae 1.0</Render>
             </Geom>
@@ -88,7 +94,7 @@
                 <Translation>0 0.075 -0.007</Translation>
                 <rotationaxis>1 0 0 -90</rotationaxis>
                 <rotationaxis>0 1 0 180</rotationaxis>
-                <Translation>0 0.0225 0</Translation>
+                <!--Translation>0 0.0225 0</Translation-->
                 <data>models/youbot/finger.dae 1.0</data>
                 <Render>models/youbot/finger.dae 1.0</Render>
             </Geom>
@@ -177,6 +183,8 @@
 
     <Manipulator name="arm">
         <Translation>0 0.08 0</Translation>
+        <rotationaxis>1 0 0 90</rotationaxis>
+        <rotationaxis>0 0 1 180</rotationaxis>
         <joints>jg1 jg2</joints>
         <closingdirection>-1 -1</closingdirection>
         <direction>1 0 0</direction>

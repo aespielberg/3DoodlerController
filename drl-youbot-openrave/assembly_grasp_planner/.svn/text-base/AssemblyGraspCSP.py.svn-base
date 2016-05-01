@@ -15,7 +15,7 @@ from operator import itemgetter
 import openravepy as orpy
 
 def FindMinimumRemainingValuesVariable(variables,values):
-    min_n_vals = sys.maxint 
+    min_n_vals = sys.maxint
     mrv_variable = None
     for var in variables:
         if len(values[str(var)]) < min_n_vals:
@@ -150,7 +150,7 @@ def GetNConflictingConstraints(var,assignment,constraints,threshold):
 def GetConflictMinimizingValue(var,values,assignment,constraints,n_value_sample=30):
     n_conflicts = []
     assignment = copy.copy(assignment)
-    min_conflicting = sys.maxint 
+    min_conflicting = sys.maxint
     if n_value_sample > len(values):
         sampled_values = values
     else:
@@ -170,13 +170,13 @@ def GetConflictMinimizingValue(var,values,assignment,constraints,n_value_sample=
 
 def MinConflict(variables,values,constraints,assignment,max_steps):
     for i in range(max_steps):
-        if IsAssignmentConsistent(assignment,constraints): 
+        if IsAssignmentConsistent(assignment,constraints):
             return True
         conflicting_variables = GetConflictingVariables(assignment,constraints)
         var = random.choice(conflicting_variables)
         t2 = time.time()
         value = GetConflictMinimizingValue(var,values[str(var)],assignment,constraints)
-        print 'GetConflictMinimizingValue took ',time.time()-t2,'sec.'
+        # print 'GetConflictMinimizingValue took ',time.time()-t2,'sec.'
         assignment[str(var)] = value
     return False
 
@@ -210,6 +210,21 @@ class AssemblyCSPVariable2(object):
         return not self.__eq__(other)
     def __key(self):
         return (self.parent_operation.name,self.assembly.name,self.count)
+    def __hash__(self):
+         return hash(self.__key())
+
+class RegraspCSPVariable(object):
+    def __init__(self,assembly,role):
+        self.assembly = assembly
+        self.role = role
+    def __str__(self):
+        return str(self.assembly.name)+'__'+str(self.role)
+    def __eq__(self,other):
+        return (self.assembly.name == other.assembly.name) and (self.role == other.role)
+    def __ne__(self,other):
+        return not self.__eq__(other)
+    def __key(self):
+        return (self.assembly.name,self.role)
     def __hash__(self):
          return hash(self.__key())
 

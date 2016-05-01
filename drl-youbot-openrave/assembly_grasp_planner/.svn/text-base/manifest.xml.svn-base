@@ -8,6 +8,8 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/assembly_execution</url>
+  <depend package="uncertainty_est_3d"/>
+  <depend package="uncertainty_est_3d_msgs"/>
   <depend package="tf"/>
 
 </package>

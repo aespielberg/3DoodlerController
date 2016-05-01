@@ -1,15 +1,15 @@
 10
 
 dir
-1703
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/youbotpy/src/youbotpy
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+1902
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/youbotpy/src/youbotpy
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 
-2015-05-10T15:39:45.364796Z
-1703
-aespielberg
+2015-09-18T20:10:41.174472Z
+1879
+rosman
 
 
 
@@ -100,11 +100,11 @@ file
 
 
 
-2015-04-28T03:46:14.031934Z
-b5f4c8321a1c595640f0ade7613a1459
-2015-05-10T15:39:45.364796Z
-1703
-aespielberg
+2015-10-15T22:26:04.758583Z
+31e7fe68a5120f7681e9503810872528
+2015-09-18T20:10:41.174472Z
+1879
+rosman
 
 
 
@@ -126,5 +126,5 @@ aespielberg
 
 
 
-13015
+13448
 

@@ -16,12 +16,15 @@ class BusrideConstraint(object):
         self.var2 = var2
 
     def IsSameGrasp(self,g1,g2):
-        # FIXME For now just checks if the translational components of grasps are close enough.
         diff = g1[:3,3] - g2[:3,3]
         #if np.linalg.norm(diff) < 0.001:
-        if (diff[0] ** 2 + diff[1] ** 2 + diff[2] ** 2) < 0.00001:
-            return True
-        return False
+        if (diff[0] ** 2 + diff[1] ** 2 + diff[2] ** 2) > 0.00001:
+            return False
+        qd=orpy.quatMult(orpy.quatInverse(orpy.quatFromRotationMatrix(g1[:3,:3])),orpy.quatFromRotationMatrix(g2[:3,:3]))
+        shortest_arc_angle = 2.0*np.arctan2(np.linalg.norm(qd[1:4]),qd[0])
+        if shortest_arc_angle > 0.001:
+            return False
+        return True
 
     def IsFor(self,var):
         return self.var1 == var or self.var2 == var
@@ -97,7 +100,7 @@ class CollisionConstraints2(object):
     #    return self.IsConsistent(assignment)
 
     def CheckCollision(self,config1,config2):
-        # pick any two robots (this works for now b/c all robots are same)
+        # pick any two robots (XXX FIXME this works for now b/c all robots are same)
         robot1_name = self.robot_names[0]
         robot2_name = self.robot_names[1]
         # place the two robots at the config in vals 

@@ -1,15 +1,15 @@
 10
 
 dir
-1639
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models/objects
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+1902
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models/objects
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 
-2014-09-29T02:17:00.609236Z
-1557
-aespielberg
+2015-12-07T19:29:55.573272Z
+1902
+cchoi
 
 
 
@@ -26,13 +26,436 @@ aespielberg
 
 c4b41905-7492-43aa-9acf-8b5ffadedbda
 
+espressocup.kinbody.xml
+file
+
+
+
+
+2015-04-18T16:00:53.525591Z
+5167e232694ea64743664a14aa879ead
+2014-09-22T16:30:17.857988Z
+1532
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+481
+
+kinect.kinbody.xml
+file
+
+
+
+
+2015-07-24T19:04:23.761293Z
+6c2d8a5f00e1b0a9e63c9910863d2c2f
+2015-07-23T19:14:45.955798Z
+1762
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+547
+
+tableleg.kinbody.xml
+file
+
+
+
+
+2015-07-24T19:04:23.761293Z
+b956b1111ab5a7bac7a191228aefe140
+2015-07-23T19:14:45.955798Z
+1762
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+453
+
+rack.kinbody.xml
+file
+
+
+
+
+2015-04-18T16:00:53.489591Z
+667fa035735b2a1528661f6188584701
+2013-11-26T17:45:15.337595Z
+1136
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1905
+
+hallow_stripe_occluded
+dir
+
+workbench.kinbody.xml
+file
+
+
+
+
+2015-12-07T19:32:21.823172Z
+381f7fbe09f786ff9ab1251adcbb2983
+2015-12-07T19:29:55.573272Z
+1902
+cchoi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+422
+
+hallow_stripe_occluded_board.kinbody.xml
+file
+
+
+
+
+2015-10-15T22:26:19.786734Z
+098a71c57d2b915f533700a750178663
+2015-07-30T15:39:28.906354Z
+1772
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+893
+
+hallow_stripe_occluded_cyl.kinbody.xml
+file
+
+
+
+
+2015-10-15T22:26:19.786734Z
+90c2ea3761d48d4842a37bcf2bef939b
+2015-07-30T15:58:54.570798Z
+1773
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+606
+
+wingskin.kinbody.xml
+file
+
+
+
+
+2015-07-24T19:04:23.757293Z
+3a3d6a43eded8e1256ec94b4c44121b9
+2015-07-23T19:14:45.955798Z
+1762
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+616
+
+ladder.kinbody.xml
+file
+
+
+
+
+2015-04-18T16:00:53.525591Z
+1b61e84fece7cd0f5f1cfd67f1fcb815
+2013-11-26T18:15:23.606100Z
+1137
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+398
+
+peg1.kinbody.xml
+file
+
+
+
+
+2015-12-07T19:32:21.823172Z
+6e9908055f8e57fad6da3089d967b9dc
+2015-12-07T19:29:55.573272Z
+1902
+cchoi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+400
+
+peg2.kinbody.xml
+file
+
+
+
+
+2015-12-07T19:32:21.823172Z
+8a298b36dc2fa929aa2aa6140d08960b
+2015-12-07T19:29:55.573272Z
+1902
+cchoi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+400
+
+block22.kinbody.xml
+file
+
+
+
+
+
+d1c2312f66d64b0f06a8bd0506b3cac1
+2015-08-07T21:09:31.712490Z
+1797
+rosman
+
+block24.kinbody.xml
+file
+
+
+
+
+2015-12-07T19:32:21.823172Z
+a842b86ac66229caaada5d4f8d146e11
+2015-10-16T21:35:03.184102Z
+1897
+cchoi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+663
+
 measuringcup.kinbody.xml
 file
 
 
 
 
-2014-09-22T14:27:28.858823Z
+2015-04-18T16:00:53.525591Z
 fec82edc70c407f592fb1388ea2ec630
 2014-09-22T16:30:17.857988Z
 1532
@@ -66,7 +489,7 @@ file
 
 
 
-2014-09-27T22:19:38.906294Z
+2015-04-18T16:00:53.489591Z
 35d60316b7a036329c0a7f572078e41c
 2014-09-27T23:32:21.844086Z
 1546
@@ -100,7 +523,7 @@ file
 
 
 
-2014-09-22T14:13:28.162831Z
+2015-04-18T16:00:53.509591Z
 13e2a5632b41133e874d165afd27e53b
 2014-09-22T16:30:17.857988Z
 1532
@@ -128,13 +551,47 @@ mdogar
 
 456
 
+hallow_stripe_fully_occluded2_peg.kinbody.xml
+file
+
+
+
+
+2015-10-15T22:26:19.798735Z
+f365a1d34567db69f686762bce16fddf
+2015-08-05T14:57:26.155749Z
+1785
+rosman
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+634
+
 chairback.kinbody.xml
 file
 
 
 
 
-2014-09-27T22:17:02.584764Z
+2015-04-18T16:00:53.489591Z
 9385b77ace6c8a172d14436f100905bf
 2014-09-27T23:32:21.844086Z
 1546
@@ -162,16 +619,16 @@ aespielberg
 
 449
 
-fastener.kinbody.xml
+tabletop.kinbody.xml
 file
 
 
 
 
-2014-08-21T13:41:18.000000Z
-fb44d809f4785105cb3422e15eb945a8
-2014-06-09T18:56:58.237548Z
-1453
+2015-07-24T19:04:23.761293Z
+102c1a956ef086272e38fbe63582a6cb
+2015-07-23T19:14:45.955798Z
+1762
 mdogar
 
 
@@ -194,41 +651,7 @@ mdogar
 
 
 
-715
-
-espressocup.kinbody.xml
-file
-
-
-
-
-2014-09-22T14:28:37.475472Z
-5167e232694ea64743664a14aa879ead
-2014-09-22T16:30:17.857988Z
-1532
-mdogar
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-481
+454
 
 youbothand.kinbody.xml
 file
@@ -236,10 +659,10 @@ file
 
 
 
-2014-01-21T00:22:44.000000Z
-a463ca3fee582d77eb39abdbd507f527
-2013-11-26T22:56:28.210176Z
-1141
+2015-04-18T16:00:53.489591Z
+2410a769fe2949673e928030690df9ac
+2015-04-21T18:58:40.326501Z
+1688
 mdogar
 
 
@@ -262,7 +685,10 @@ mdogar
 
 
 
-1905
+2165
+
+peginhole
+dir
 
 wingbox.kinbody.xml
 file
@@ -270,7 +696,7 @@ file
 
 
 
-2014-08-21T13:41:18.000000Z
+2015-04-18T16:00:53.525591Z
 1661f6951996786f0f9e84b356f8fc42
 2014-03-06T23:18:12.725170Z
 1383
@@ -298,16 +724,62 @@ mdogar
 
 2203
 
-rack.kinbody.xml
+hallow_stripe_fully_occluded2
+dir
+
+blocks
+dir
+
+kinect
+dir
+
+array
+dir
+
+hallow_stripe_fully_occluded2_board.kinbody.xml
 file
 
 
 
 
-2014-01-21T00:22:44.000000Z
-667fa035735b2a1528661f6188584701
-2013-11-26T17:45:15.337595Z
-1136
+2015-10-15T22:26:19.786734Z
+70c6b141235dd442ca5612cc41e4b0f1
+2015-08-05T14:57:26.155749Z
+1785
+rosman
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+943
+
+chair.kinbody.xml
+file
+
+
+
+
+2015-07-24T19:04:23.757293Z
+cdcf448d2379d539c10504d8fa5283ff
+2015-07-23T19:14:45.955798Z
+1762
 mdogar
 
 
@@ -330,10 +802,7 @@ mdogar
 
 
 
-1905
-
-array
-dir
+5537
 
 sundvik
 dir
@@ -341,47 +810,13 @@ dir
 picture_frame
 dir
 
-wingskin.kinbody.xml
-file
-
-
-
-
-2014-08-21T13:41:18.000000Z
-3d3b1bb2a156484a28be72225ecceaad
-2014-03-06T23:17:13.159049Z
-1382
-mdogar
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-563
-
 chairside.kinbody.xml
 file
 
 
 
 
-2014-09-29T01:23:32.297609Z
+2015-04-18T16:00:53.489591Z
 94848aa9dced10c65516ee1096abc65e
 2014-09-29T02:17:00.609236Z
 1557
@@ -409,16 +844,19 @@ aespielberg
 
 1134
 
-ladder.kinbody.xml
+wing
+dir
+
+fastener.kinbody.xml
 file
 
 
 
 
-2014-01-21T00:22:44.000000Z
-1b61e84fece7cd0f5f1cfd67f1fcb815
-2013-11-26T18:15:23.606100Z
-1137
+2015-04-18T16:00:53.509591Z
+fb44d809f4785105cb3422e15eb945a8
+2014-06-09T18:56:58.237548Z
+1453
 mdogar
 
 
@@ -441,5 +879,5 @@ mdogar
 
 
 
-398
+715
 

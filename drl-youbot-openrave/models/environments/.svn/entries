@@ -1,15 +1,15 @@
 10
 
 dir
-1639
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models/environments
-svn+ssh://aespielberg@login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
+1902
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot/openrave/models/environments
+svn+ssh://cchoi@ubuntu-login.csail.mit.edu/afs/csail.mit.edu/group/drl/REPOS/drl-youbot
 
 
 
-2015-03-24T03:24:03.691400Z
-1639
-spbaker
+2015-12-07T19:29:55.573272Z
+1902
+cchoi
 
 
 
@@ -32,7 +32,7 @@ file
 
 
 
-2015-03-24T03:31:53.107918Z
+2015-04-18T16:00:53.125587Z
 0106b4ba247e014d2527a82f132471b1
 2015-03-24T03:24:03.691400Z
 1639
@@ -60,13 +60,47 @@ has-props
 
 1319
 
+simple_sensor.env.xml
+file
+
+
+
+
+2015-08-13T20:08:32.257182Z
+5b28878dc2e5c4b06e468657d4230247
+2015-07-23T19:16:48.747783Z
+1763
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2669
+
 sundvik.env.xml
 file
 
 
 
 
-2014-01-21T00:22:28.000000Z
+2015-04-18T16:00:53.125587Z
 7ca46328556f7b92c007899ff40e00a4
 2013-11-19T20:58:18.909498Z
 1122
@@ -94,17 +128,17 @@ mdogar
 
 1494
 
-espresso.env.xml
+wingdemo2_sensor.env.xml
 file
 
 
 
 
-2014-09-24T22:39:17.939701Z
-9cf052fb7568b5f18c3f3f2fe425d1ce
-2014-09-27T23:32:21.844086Z
-1546
-aespielberg
+2015-08-13T20:08:32.257182Z
+81d300d7c4c9ae1912f9b4b92f33532c
+2015-07-23T19:16:48.747783Z
+1763
+mdogar
 
 
 
@@ -126,7 +160,7 @@ aespielberg
 
 
 
-1506
+1503
 
 chair.env.xml
 file
@@ -134,11 +168,11 @@ file
 
 
 
-2014-09-27T23:29:26.821953Z
-4293f90dd54216a52d57436092a0abe8
-2014-09-27T23:32:21.844086Z
-1546
-aespielberg
+2015-08-13T20:08:32.261182Z
+c3a686676ff854db2020086fbd9842fc
+2015-07-23T19:16:48.747783Z
+1763
+mdogar
 
 
 
@@ -160,7 +194,7 @@ aespielberg
 
 
 
-3201
+4425
 
 pictureframe.env.xml
 file
@@ -168,7 +202,7 @@ file
 
 
 
-2014-09-27T23:32:05.287388Z
+2015-04-18T16:00:53.437590Z
 22a5b701923239bed28e1e3ed036ce4c
 2014-09-27T03:16:02.878359Z
 1536
@@ -202,12 +236,317 @@ file
 
 
 
-
-97ba11fb5cfc9c3eea50b07eaf6518c6
-2014-10-01T21:20:26.809537Z
-1562
-aespielberg
+2015-04-18T16:00:53.125587Z
+ff2aabb4abbd1e74e5de40c8f7a77a41
+2015-04-21T18:54:30.950571Z
+1685
+mdogar
 has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2989
+
+table.env.xml
+file
+
+
+
+
+2015-08-13T20:08:32.261182Z
+7851586e88d5eb8ee13d128089653ea1
+2015-07-23T19:16:48.747783Z
+1763
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1712
+
+legoenv_sensor.env.xml
+file
+
+
+
+
+2015-10-15T22:26:04.838584Z
+eece18eda6462e4df6ac20550390b5c4
+2015-08-28T15:43:12.441340Z
+1834
+rosman
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1246
+
+pvi_peginhole.env.xml
+file
+
+
+
+
+2015-12-07T19:32:21.755171Z
+b649f2f9c0a6ac8ffa72eddcb57fb91c
+2015-12-07T19:29:55.573272Z
+1902
+cchoi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+921
+
+simple.env.xml
+file
+
+
+
+
+
+f2a5774af25d591af706be0c5bd04be5
+2015-10-16T21:23:36.152376Z
+1896
+cchoi
+
+pvi.env.xml
+file
+
+
+
+
+2015-12-07T19:32:21.755171Z
+47f327842e8ca5fa36e5ecaeeb5a5246
+2015-10-16T21:23:36.152376Z
+1896
+cchoi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+741
+
+holodeck.kinbody.xml
+file
+
+
+
+
+2015-12-07T19:32:21.755171Z
+5103f036fad773ed5ecca4b81a7075ca
+2015-12-07T19:29:55.573272Z
+1902
+cchoi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1465
+
+fouryoubots.env.xml
+file
+
+
+
+
+2015-04-18T16:00:53.125587Z
+b893ccca7d1e3c96dfa3db5c89aec2d8
+2013-11-20T20:17:43.651932Z
+1127
+mdogar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1518
+
+90deg_peg.env.xml
+file
+
+
+
+
+2015-10-15T22:26:04.854584Z
+8b959161cfdd5c74c5bb5fb8a936f19b
+2015-09-06T22:36:43.095571Z
+1855
+rosman
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1234
+
+espresso.env.xml
+file
+
+
+
+
+2015-04-18T16:00:53.125587Z
+9cf052fb7568b5f18c3f3f2fe425d1ce
+2014-09-27T23:32:21.844086Z
+1546
+aespielberg
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1506
 
 wingdemo.env.xml
 file
@@ -215,7 +554,7 @@ file
 
 
 
-2014-08-18T20:38:50.000000Z
+2015-04-18T16:00:53.125587Z
 99c4e6209ed38268861b29f60a008506
 2014-03-06T23:18:12.725170Z
 1383
@@ -243,17 +582,17 @@ mdogar
 
 1440
 
-simple.env.xml
+hallow_stripe_fully_occluded2.env.xml
 file
 
 
 
 
-2014-09-29T00:07:56.378459Z
-b1da123fb51c186e2a0ac56bbfd679ca
-2014-09-29T00:12:32.432320Z
-1551
-aespielberg
+2015-08-13T20:08:32.257182Z
+b9e28aabd09e5fde60a66faaf1a6f0f8
+2015-08-07T18:49:28.418560Z
+1794
+rosman
 
 
 
@@ -275,7 +614,87 @@ aespielberg
 
 
 
-1791
+1154
+
+lego_align3_sensor.env.xml
+file
+
+
+
+
+2015-10-15T22:26:04.838584Z
+9870e7ec2538b9779c359a034df7260a
+2015-09-18T20:10:41.174472Z
+1879
+rosman
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1680
+
+blocks.env.xml
+file
+
+
+
+
+
+3b8169828f956f41f72a6ee5aef6abb6
+2015-10-16T21:23:36.152376Z
+1896
+cchoi
+
+hallow_stripe_occluded.env.xml
+file
+
+
+
+
+2015-08-13T20:08:32.257182Z
+b9e28aabd09e5fde60a66faaf1a6f0f8
+2015-08-07T18:49:28.418560Z
+1794
+rosman
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1154
 
 random_array.env.xml
 file
@@ -283,23 +702,11 @@ file
 
 
 
-
+2015-04-18T16:00:53.125587Z
 af70c7dcd23cf7a5d6c765c28a292f47
 2014-10-01T21:20:26.809537Z
 1562
 aespielberg
-
-holodeck.kinbody.xml
-file
-
-
-
-
-2014-09-10T18:01:19.294973Z
-d3a5c96fdd985a56cbbc5c2764e04100
-2014-09-20T18:30:10.163147Z
-1531
-aespielberg
 
 
 
@@ -321,39 +728,5 @@ aespielberg
 
 
 
-1220
-
-fouryoubots.env.xml
-file
-
-
-
-
-2014-01-21T00:22:28.000000Z
-b893ccca7d1e3c96dfa3db5c89aec2d8
-2013-11-20T20:17:43.651932Z
-1127
-mdogar
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-1518
+7103
 

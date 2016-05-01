@@ -5,7 +5,7 @@ import os
 import numpy as np
 import time
 import random
-
+import IPython
 import openravepy as orpy
 from tfplugin import TfPlugin
 
@@ -26,7 +26,14 @@ class YoubotEnv:
         youbots = {}
         youbot_hands = {}
         for youbot_name in youbot_names:
-            youbot = env.ReadRobotURI(self.youbotpydir[:-1] + '/../models/robots/' + youbot_model)
+            specific_filename=self.youbotpydir[:-1] + '/../models/robots/' + youbot_model[0:-10]+'-'+youbot_name+youbot_model[-10:];
+            
+            if os.path.isfile(specific_filename):
+              print('loading robot-specific filename: %d',specific_filename)
+              youbot = env.ReadRobotURI(specific_filename)
+            else:
+              youbot = env.ReadRobotURI(self.youbotpydir[:-1] + '/../models/robots/' + youbot_model)
+
             #youbot = env.ReadRobotURI(self.youbotpydir[:-1] + '/../models/robots/kuka-youbot-hires.robot.xml')
             youbot.SetName(youbot_name)
             env.Add(youbot,True)
@@ -123,8 +130,8 @@ class YoubotEnv:
         if self.tfplugin is None:
             self.tfplugin = TfPlugin(self.env,'map')
         for youbot_name in youbot_names:
-            idealcontrollers[youbot_name] = self.youbots[youbot_name].GetController()
-            probotcontroller = orpy.RaveCreateController(self.env,'youbotcontroller')
+            idealcontrollers[youbot_name] = self.youbots[youbot_name].GetController() # plug in the simulation controller
+            probotcontroller = orpy.RaveCreateController(self.env,'youbotcontroller') # plug in the real controller
             self.youbots[youbot_name].SetController(probotcontroller)
             self.tfplugin.RegisterRobotHand(or_body=self.youbots[youbot_name],tf_id=youbot_name+'_arm')
         for oname in objects: 

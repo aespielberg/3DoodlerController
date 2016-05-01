@@ -44,8 +44,9 @@ class BaseAssemblyGraspPlanner(object):
         for v in variables:
             this_op_pose = op_pose
             if type(v.parent_operation) is Part:
+                #print 'debug: ',v.parent_operation.name
                 this_op_pose = env.GetKinBody(v.parent_operation.name).GetTransform() # Use current transform of part in openrave world.
-            values[str(v)] = self.ComputeValuesForVariable(v,env,yik,'drc1',this_op_pose) # TODO fix name drc1
+            values[str(v)] = self.ComputeValuesForVariable(v,env,yik,'drc4',this_op_pose) # TODO fix name drc1
             #print str(v),' has ',len(values[str(v)]),' values'
         return values
 

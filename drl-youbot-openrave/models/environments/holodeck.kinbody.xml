@@ -31,8 +31,14 @@
         <diffuseColor>.8 1 .8</diffuseColor>
         <ambientColor>0.6 0.6 0.6</ambientColor>
       </Geom>
-    </Body>
-    <Translation>0.0 0.0 -0.01</Translation>
+<!--       <Geom type="box">
+        <extents>2.6 3.6 0.001</extents>
+        <translation>0.0 0.0 -0.001</translation>
+        <diffuseColor>.8 1 .8</diffuseColor>
+        <ambientColor>0.8 0.8 0.8</ambientColor>
+      </Geom>
+ -->    </Body>
+    <!-- <Translation>0.0 0.0 -0.01</Translation> -->
   </KinBody>
 
 

@@ -10,9 +10,6 @@
 #include "brics_actuator/JointValue.h"
 #include "brics_actuator/JointPositions.h"
 
-#include "assembly_common/BasePose.h"
-#include "assembly_common/BaseCommand.h"
-
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/systems/si/plane_angle.hpp>
 #include <boost/units/systems/si/velocity.hpp>
@@ -25,6 +22,8 @@
 #include <cstddef>
 #include <math.h>
 #include <cmath>
+#include <ctime>
+#include <time.h>
 #include <algorithm>
 #include <exception>
 
@@ -44,9 +43,9 @@ class YoubotController : public ControllerBase
 
         RegisterCommand("MoveArm", boost::bind(&YoubotController::MoveArm, this, _1, _2), "moves the arm ");
         RegisterCommand("MoveGripper", boost::bind(&YoubotController::MoveGripper, this, _1, _2), "moves the gripper ");
-        RegisterCommand("MoveBaseMBHP", boost::bind(&YoubotController::MoveBaseMBHP, this, _1, _2), "moves the base ");
         RegisterCommand("Pause", boost::bind(&YoubotController::Pause, this, _1, _2), "Pauses the controller.");
         RegisterCommand("Resume", boost::bind(&YoubotController::Resume, this, _1, _2), "Resumes the controller.");
+        RegisterCommand("SetHighPrecision", boost::bind(&YoubotController::SetHighPrecision, this, _1, _2), "Change goal precision.");
 
         //RegisterCommand("SetThrowExceptions",boost::bind(&YoubotController::_SetThrowExceptions,this,_1,_2),
         //                "If set, will throw exceptions instead of print warnings. Format is:\n\n  [0/1]");
@@ -55,7 +54,30 @@ class YoubotController : public ControllerBase
         _penv = penv;
         _paused = false;
         _initialized = false;
+        _high_precision_goal = true;
     }
+
+        bool SetHighPrecision(ostream& sout, istream& sinput)
+        {
+
+            string cmd;
+            sinput >> cmd;
+            if (sinput.fail()) {
+                RAVELOG_ERROR("SetHighPrecision is missing 1/0.\n");
+                return false;
+            }
+            if (cmd == "1") {
+                RAVELOG_INFO("SetHighPrecision is called to 1.\n");
+                _high_precision_goal = true;
+            } else if(cmd == "0") {
+                RAVELOG_INFO("SetHighPrecision is called to 0.\n");
+                _high_precision_goal = false;
+            } else {
+                RAVELOG_ERROR("SetHighPrecision unknown argument %s.\n",cmd.c_str());
+                return false;
+            }
+            return true;
+        }
 
         bool Pause(ostream& sout, istream& sinput)
         {
@@ -185,35 +207,7 @@ class YoubotController : public ControllerBase
         }
 
 
-        bool MoveBaseMBHP(ostream& sout, istream& sinput)
-        {
-            // TODO this uses mbhp?
-            if (ros::ok() && !_paused)
-            {
-                assembly_common::BasePose srv;
-
-                std::string valuesString;
-                sinput >> valuesString;
-
-                ROS_INFO("input %s", valuesString.c_str());
-
-                vector<std::string> valuestokens;
-                boost::split(valuestokens, valuesString, boost::is_any_of("\t,"));
-
-                srv.request.x = boost::lexical_cast<double>(valuestokens[0]);
-                srv.request.y = boost::lexical_cast<double>(valuestokens[1]);
-                srv.request.theta = boost::lexical_cast<double>(valuestokens[2]);
-                srv.request.threshold = boost::lexical_cast<double>(valuestokens[3]);
-                srv.request.angle_threshold = boost::lexical_cast<double>(valuestokens[4]);
-                srv.request.arm_offset = std::strcmp(valuestokens[5].c_str(), "True");
-                srv.request.frame = valuestokens[6];
-                return client.call(srv);
-            }
-            sout << "True";
-            return false;
-        }
-
-        bool MoveBaseTowards(Transform &goal)
+        bool MoveBaseTowards(Transform &goal, bool high_precision)
         {
             TransformMatrix target_in_frame = _probot->GetTransform().inverse() * goal;
             double x_diff = target_in_frame.trans[0];
@@ -221,19 +215,32 @@ class YoubotController : public ControllerBase
             double yaw_diff = atan2(target_in_frame.rot(1,0), target_in_frame.rot(0,0)); 
             // atan2 already returns in the range -pi.+pi. So no need to wrap. Otherwise we would need to.
 
-            double speed_x = 0.02; //std::fabs(waypoint[vel_start + 3]);
-            double speed_y = 0.02; // std::fabs(waypoint[vel_start + 4]);
-            double speed_yaw = 0.01; //std::fabs(waypoint[vel_start + 5]);
+            double speed_x = 0.03; //std::fabs(waypoint[vel_start + 3]);
+            double speed_y = 0.03; // std::fabs(waypoint[vel_start + 4]);
+            double speed_yaw = 0.02; //std::fabs(waypoint[vel_start + 5]);
+            if (high_precision) {
+                speed_x = 0.010; //std::fabs(waypoint[vel_start + 3]);
+                speed_y = 0.010; // std::fabs(waypoint[vel_start + 4]);
+                //speed_x = 0.015; //std::fabs(waypoint[vel_start + 3]);
+                //speed_y = 0.015; // std::fabs(waypoint[vel_start + 4]);
+                speed_yaw = 0.010; //std::fabs(waypoint[vel_start + 5]);
+                //speed_yaw = 0.010; //std::fabs(waypoint[vel_start + 5]);
+            } 
+
             double dist_thresh = std::sqrt(speed_x * speed_x + speed_y * speed_y) / 5.0;
             double yaw_thresh = speed_yaw / 5.0;              
+            if (!high_precision) {
+                dist_thresh *= 20.0;
+                yaw_thresh *= 100.0;
+            }
             double dist2 = std::sqrt(x_diff * x_diff + y_diff * y_diff);
 
-            double x_vel;
-            double y_vel;
-            double z_vel = 0;
-            double roll_vel = 0;
-            double pitch_vel = 0;
-            double yaw_vel;
+            double x_vel = 0.0;
+            double y_vel = 0.0;
+            double z_vel = 0.0;
+            double roll_vel = 0.0;
+            double pitch_vel = 0.0;
+            double yaw_vel = 0.0;
 
             //std::cout << "x_diff is " << x_diff << std::endl;
             //std::cout << "y_diff is " << y_diff << std::endl;
@@ -242,6 +249,7 @@ class YoubotController : public ControllerBase
             //std::cout << "yaw_diff is " << yaw_diff << std::endl;
             //std::cout << "yaw thresh is " << yaw_thresh << std::endl;
 
+            float wait_to_stop_window = 2.0;
             if (dist2 < dist_thresh && std::fabs(yaw_diff) < yaw_thresh){
                 //stop the base
                 geometry_msgs::Twist command;
@@ -252,37 +260,57 @@ class YoubotController : public ControllerBase
                 command.angular.y = 0.0;
                 command.angular.z = 0.0;
                 _move_base_pub.publish(command);
-                return true; // We are at the goal
+                if (!high_precision) {
+                    return true; // We are at the goal
+                }
+                if (!_stop_commanded) {
+                    _time_stop_commanded = clock();
+                    _stop_commanded = true;
+                }
+                if ((float(clock() - _time_stop_commanded)/CLOCKS_PER_SEC) > wait_to_stop_window) {
+                    return true; // We are at the goal
+                }
             }else{
-                if (dist2 < dist_thresh){
-                    x_vel = 0;
-                    y_vel = 0;
-                }else{
-                    x_vel = x_diff / dist2 * speed_x;
-                    y_vel = y_diff / dist2 * speed_y;
-                    if (std::fabs(x_diff) > 0.03) // Add a step function here to make it fast when far enough.
-                    {
-                        x_vel *= 5.0;
+                _stop_commanded = false;
+                if (std::fabs(yaw_diff) < yaw_thresh){ // XXX Hack to first zero yaw, and then x-y.
+                    if (dist2 < dist_thresh){
+                        x_vel = 0;
+                        y_vel = 0;
+                    }else{
+                        x_vel = x_diff / dist2 * speed_x;
+                        y_vel = y_diff / dist2 * speed_y;
+                        if (std::fabs(x_diff) > 0.08) // Add a step function here to make it fast when far enough.
+                        {
+                            x_vel *= 10.0;
+                        }
+                        //else
+                        //{
+                        //    x_vel *= 0.8;
+                        //}
+                        if (std::fabs(y_diff) > 0.08) // Add a step function here to make it fast when far enough.
+                        {
+                            y_vel *= 10.0;
+                        }
+                        //else
+                        //{
+                        //    y_vel *= 0.8;
+                        //}
+                        double x_sign = copysign(1.0, x_vel);
+                        double y_sign = copysign(1.0, y_vel);
+                        double max_speed = 0.2;
+                        x_vel = std::fabs(x_vel) < max_speed ? x_vel : max_speed * x_sign;
+                        y_vel = std::fabs(y_vel) < max_speed ? y_vel : max_speed * y_sign;
+                        std::cout << "x_vel is " << x_vel << std::endl;
+                        std::cout << "y_vel is " << y_vel << std::endl;
                     }
-                    if (std::fabs(y_diff) > 0.03) // Add a step function here to make it fast when far enough.
-                    {
-                        y_vel *= 5.0;
-                    }
-                    double x_sign = copysign(1.0, x_vel);
-                    double y_sign = copysign(1.0, y_vel);
-                    double max_speed = 0.2;
-                    x_vel = std::fabs(x_vel) < max_speed ? x_vel : max_speed * x_sign;
-                    y_vel = std::fabs(y_vel) < max_speed ? y_vel : max_speed * y_sign;
-                    std::cout << "x_vel is " << x_vel << std::endl;
-                    std::cout << "y_vel is " << y_vel << std::endl;
                 }
                 if (std::fabs(yaw_diff) < yaw_thresh){
                     yaw_vel = 0;
                 }else{
                     yaw_vel = speed_yaw * copysign(1.0, yaw_diff);
-                    if (std::fabs(yaw_diff) > 0.05) // Add a step function here to make it fast when far enough.
+                    if (std::fabs(yaw_diff) > 0.2) // Add a step function here to make it fast when far enough.
                     {
-                        yaw_vel *= 10.0;
+                        yaw_vel *= 15.0;
                     }
                 }
                 geometry_msgs::Twist command;
@@ -292,6 +320,79 @@ class YoubotController : public ControllerBase
                 command.angular.x = roll_vel;
                 command.angular.y = pitch_vel;
                 command.angular.z = yaw_vel;
+                _move_base_pub.publish(command);
+            }
+            return false;
+        }
+
+        bool MoveBaseTowardsWithArmFeedbackGains(Transform &goal, bool high_precision)
+        {
+            double translation_x_gain = 0.5;
+            double translation_y_gain = 0.5;
+            double rotational_gain = 0.5;
+            double max_translational_speed = 0.25;
+            double max_rotational_speed = 0.6;
+            double translational_threshold = 0.0025;
+            double translational_threshold_sqr = translational_threshold*translational_threshold;
+            double rotational_threshold = 0.04;
+
+            double low_precision_multiplier = 10.0;
+            if (!high_precision) {
+                translational_threshold = translational_threshold * low_precision_multiplier;
+                translational_threshold_sqr = translational_threshold*translational_threshold;
+                rotational_threshold = rotational_threshold * low_precision_multiplier;
+            }
+
+            TransformMatrix target_in_frame = _probot->GetTransform().inverse() * goal;
+            double x_diff = target_in_frame.trans[0];
+            double y_diff = target_in_frame.trans[1];
+            double yaw_diff = atan2(target_in_frame.rot(1,0), target_in_frame.rot(0,0)); 
+            // atan2 already returns in the range -pi.+pi. So no need to wrap. Otherwise we would need to.
+
+            double vel_x = x_diff * translation_x_gain;
+            double vel_y = y_diff * translation_y_gain;
+            double vel_yaw = yaw_diff * rotational_gain;
+
+            if (std::fabs(vel_x) > max_translational_speed) {
+               vel_x = copysign(1.0,vel_x) * max_translational_speed;
+            }
+            if (std::fabs(vel_y) > max_translational_speed) {
+               vel_y = copysign(1.0,vel_y) * max_translational_speed;
+            }
+            if (std::fabs(vel_yaw) > max_rotational_speed) {
+               vel_yaw = copysign(1.0,vel_yaw) * max_rotational_speed;
+            }
+
+            if (x_diff*x_diff + y_diff*y_diff < translational_threshold_sqr && yaw_diff < rotational_threshold) {
+                // STOP
+                geometry_msgs::Twist command;
+                command.linear.x = 0.0;
+                command.linear.y = 0.0;
+                command.linear.z = 0.0;
+                command.angular.x = 0.0;
+                command.angular.y = 0.0;
+                command.angular.z = 0.0;
+                _move_base_pub.publish(command);
+                if (!high_precision) {
+                    return true; // We are at the goal
+                }
+                if (!_stop_commanded) {
+                    _time_stop_commanded = clock();
+                    _stop_commanded = true;
+                }
+                float wait_to_stop_window = 0.5;
+                if ((float(clock() - _time_stop_commanded)/CLOCKS_PER_SEC) > wait_to_stop_window) {
+                    return true; // We are at the goal
+                }
+            } else {
+                _stop_commanded = false;
+                geometry_msgs::Twist command;
+                command.linear.x = vel_x;
+                command.linear.y = vel_y;
+                command.linear.z = 0.0;
+                command.angular.x = 0.0;
+                command.angular.y = 0.0;
+                command.angular.z = vel_yaw;
                 _move_base_pub.publish(command);
             }
             return false;
@@ -380,9 +481,6 @@ class YoubotController : public ControllerBase
             // create ros subscriber for joint messages.
             _joint_angles_sub = _pn->subscribe(("/" + string(_probot->GetName()) + "/joint_states").c_str(), 1, &YoubotController::JointStateCallback, this);
 
-            // start the move base client
-            client = _pn->serviceClient<assembly_common::BasePose>("move_base");
-
             _move_arm_pub = _pn->advertise<brics_actuator::JointPositions>(("/" + string(_probot->GetName()) + "/arm_1/arm_controller/position_command").c_str(), 1);
             _move_gripper_pub = _pn->advertise<brics_actuator::JointPositions>(("/" + string(_probot->GetName()) + "/arm_1/gripper_controller/position_command").c_str(), 1);
             _move_base_pub = _pn->advertise<geometry_msgs::Twist>(("/" + string(_probot->GetName()) + "/cmd_vel").c_str(), 1);
@@ -449,7 +547,11 @@ class YoubotController : public ControllerBase
                 bool base_at_waypoint = true;
                 if (_traj->GetConfigurationSpecification().ExtractTransform(base_goal_transform, waypoint.begin(), _probot) )
                 {
-                    base_at_waypoint = MoveBaseTowards(base_goal_transform);
+                    bool high_precision = false;
+                    if (_traj->GetNumWaypoints() == 1 && _high_precision_goal ) {
+                        high_precision = true;
+                    }
+                    base_at_waypoint = MoveBaseTowardsWithArmFeedbackGains(base_goal_transform, high_precision);
                 }
 
                 // Handle arm
@@ -502,6 +604,9 @@ class YoubotController : public ControllerBase
         EnvironmentBasePtr _penv;
         std::vector<double> _offset;
         bool _paused;
+        bool _stop_commanded;
+        clock_t _time_stop_commanded;
+        bool _high_precision_goal;
 
         std::vector<double> _last_arm_command;
         std::vector<double> _last_gripper_command;

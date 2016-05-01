@@ -58,7 +58,7 @@ ki = 0.5
 
 
 sim = False
-sim = True
+#sim = True
 if sim:
     THRESH = 0.0001
 
@@ -156,7 +156,7 @@ def MoveBaseTo(robot,xyyaw,planner,skip_waypoints=False):
             return 
         with env:
             robot.SetActiveDOFs([],orpy.DOFAffine.X|orpy.DOFAffine.Y|orpy.DOFAffine.RotationAxis,[0,0,1])
-            traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.001,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.00025)
+            traj = planner.MoveActiveJoints(goal=xyyaw,maxiter=5000,steplength=0.00001,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.00025)
             if skip_waypoints:
                 traj.Remove(1,traj.GetNumWaypoints()-1)
             robot.GetController().SetPath(traj)
@@ -177,7 +177,7 @@ def MoveArmTo(robot,goal,planner):
         orpy.RaveSetDebugLevel(orpy.DebugLevel.Verbose)
         with env:
             robot.SetActiveDOFs(range(5))
-            traj = planner.MoveActiveJoints(goal=goal,maxiter=5000,steplength=0.001,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.00025)
+            traj = planner.MoveActiveJoints(goal=goal,maxiter=5000,steplength=0.00001,maxtries=2,execute=False,outputtrajobj=True, jitter=-0.00025)
             robot.GetController().SetPath(traj)
         while not robot.GetController().IsDone():
             time.sleep(0.01)

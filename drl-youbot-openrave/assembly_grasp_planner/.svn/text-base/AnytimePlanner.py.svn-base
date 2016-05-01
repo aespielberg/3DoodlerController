@@ -23,7 +23,7 @@ class AnytimePlanner(BaseAssemblyGraspPlanner.BaseAssemblyGraspPlanner):
             if set(failed) < set(current):
                 return True
         return False
-    
+
     def Plan(self,env,yik,op_pose,assembly_operations,all_robot_names,time_budget_minutes=30.0):
         variables,asm_op_variables = self.ComputeVariables(assembly_operations)
         values = self.ComputeAllValues(env,yik,variables,op_pose)
@@ -85,7 +85,7 @@ class AnytimePlanner(BaseAssemblyGraspPlanner.BaseAssemblyGraspPlanner):
                         new_constraints.extend(c_list)
                         new_assignment = copy.copy(min_regrasp_assignment)
                         print 'one minconflict attempt. n: ',n_transfers
-                        success = AssemblyGraspCSP.MinConflict(variables,values,new_constraints,new_assignment,max_steps=20*n_transfers)
+                        success = AssemblyGraspCSP.MinConflict(variables,values,new_constraints,new_assignment,max_steps=60*n_transfers)
                         print 'minconflict attempt done!'
                         if success:
                             self.last_run_n_transfers.append(n_transfers) 

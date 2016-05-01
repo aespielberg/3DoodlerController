@@ -165,5 +165,6 @@ class GraspGenerator(object):
                     self.hand.SetTransform(np.dot(np.dot(part_pose,g),hand_in_ee))
                     self.env.UpdatePublishedBodies()
                     time.sleep(0.3)
+                    # raw_input('grasp example')
         self.hand.SetVisible(False)
 
