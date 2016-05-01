@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  13 MAY 2015 08:57
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2014.12.15)  14 MAY 2015 15:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -434,23 +434,23 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 48.
 LaTeX Info: Redefining \pageref on input line 48.
 LaTeX Info: Redefining \nameref on input line 48.
-LaTeX Font Info:    Try loading font information for OT1+phv on input line 58.
+LaTeX Font Info:    Try loading font information for OT1+phv on input line 70.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1phv.fd
 File: ot1phv.fd 2001/06/04 scalable font definitions for OT1/phv.
 )
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 13.24796pt on input line 58.
+(Font)              scaled to size 13.24796pt on input line 70.
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 58.
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 70.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 13.24796pt on input line 58.
-LaTeX Font Info:    Try loading font information for U+msa on input line 58.
+(Font)              scaled to size 13.24796pt on input line 70.
+LaTeX Font Info:    Try loading font information for U+msa on input line 70.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2009/06/22 v3.00 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 58.
+LaTeX Font Info:    Try loading font information for U+msb on input line 70.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
@@ -459,107 +459,174 @@ File: umsb.fd 2009/06/22 v3.00 AMS symbols B
 File: images/fullrobot.jpg Graphic file (type jpg)
 
 <use images/fullrobot.jpg>
-Package pdftex.def Info: images/fullrobot.jpg used on input line 58.
+Package pdftex.def Info: images/fullrobot.jpg used on input line 70.
 (pdftex.def)             Requested size: 192.70776pt x 108.405pt.
+
+<images/simulation.png, id=5, 812.28468pt x 655.69969pt>
+File: images/simulation.png Graphic file (type png)
+
+<use images/simulation.png>
+Package pdftex.def Info: images/simulation.png used on input line 70.
+(pdftex.def)             Requested size: 134.28146pt x 108.405pt.
 
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 58.
+(caption)                particular \caption on input line 70.
 See the caption package documentation for explanation.
 
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 58.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 70.
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 11.03998pt on input line 62.
+(Font)              scaled to size 11.03998pt on input line 72.
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <12> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 62.
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 72.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 11.03998pt on input line 62.
-
-LaTeX Warning: Citation ' RampFoam' on page 1 undefined on input line 101.
-
+(Font)              scaled to size 11.03998pt on input line 72.
 [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 
- <./images/fullrobot.jpg>] <images/system_arch.png, id=35, 931.48pt x 395.4775p
-t>
+ <./images/fullrobot.jpg> <./images/simulation.png>]
+<images/system_arch.png, id=40, 931.48pt x 395.4775pt>
 File: images/system_arch.png Graphic file (type png)
 
 <use images/system_arch.png>
-Package pdftex.def Info: images/system_arch.png used on input line 112.
+Package pdftex.def Info: images/system_arch.png used on input line 120.
 (pdftex.def)             Requested size: 216.81pt x 92.05016pt.
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 119.
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 127.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
-Underfull \hbox (badness 10000) in paragraph at lines 119--120
+Underfull \hbox (badness 10000) in paragraph at lines 127--128
 []\OT1/ptm/m/n/9 Our code can be found at [][]$\OT1/pcr/m/n/9 https : / / githu
 b . com /
  []
 
-<images/clamp.png, id=45, 564.60938pt x 535.2497pt>
+<images/clamp.png, id=50, 564.60938pt x 535.2497pt>
 File: images/clamp.png Graphic file (type png)
  <use images/clamp.png>
-Package pdftex.def Info: images/clamp.png used on input line 132.
+Package pdftex.def Info: images/clamp.png used on input line 140.
 (pdftex.def)             Requested size: 108.405pt x 102.7684pt.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 133.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 141.
 
-Underfull \hbox (badness 3525) in paragraph at lines 133--133
+Underfull \hbox (badness 3525) in paragraph at lines 141--141
 []\OT1/ptm/b/n/7 (a) |\OT1/ptm/m/it/7 The Open-SCAD model of the
  []
 
-<images/clamp_printed.jpg, id=46, 1532.72626pt x 862.22125pt>
+<images/clamp_printed.jpg, id=51, 1532.72626pt x 862.22125pt>
 File: images/clamp_printed.jpg Graphic file (type jpg)
 
 <use images/clamp_printed.jpg>
-Package pdftex.def Info: images/clamp_printed.jpg used on input line 139.
+Package pdftex.def Info: images/clamp_printed.jpg used on input line 147.
 (pdftex.def)             Requested size: 108.405pt x 60.98pt.
+
+<images/3doodlerCircuitry.jpg, id=52, 602.25pt x 451.6875pt>
+File: images/3doodlerCircuitry.jpg Graphic file (type jpg)
+
+<use images/3doodlerCircuitry.jpg>
+Package pdftex.def Info: images/3doodlerCircuitry.jpg used on input line 162.
+(pdftex.def)             Requested size: 216.81pt x 162.60736pt.
 
 Underfull \vbox (badness 1817) has occurred while \output is active []
 
-Missing character: There is no Ã in font ptmr7t!
-Missing character: There is no ¯ in font ptmr7t!
+Missing character: There is no â in font ptmr7t!
+Missing character: There is no € in font ptmr7t!
+Missing character: There is no ™ in font ptmr7t!
 
-<images/Splines.png, id=49, 412.54124pt x 397.485pt>
-File: images/Splines.png Graphic file (type png)
- <use images/Splines.png>
-Package pdftex.def Info: images/Splines.png used on input line 163.
-(pdftex.def)             Requested size: 216.81pt x 208.9011pt.
-LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 9.19998pt on input line 170.
-LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <10> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 170.
-LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 9.19998pt on input line 170.
+<images/GUI.png, id=55, 362.10281pt x 267.24844pt>
+File: images/GUI.png Graphic file (type png)
+ <use images/GUI.png>
+Package pdftex.def Info: images/GUI.png used on input line 178.
+(pdftex.def)             Requested size: 216.81pt x 160.01591pt.
 
 [2 <./images/system_arch.png> <./images/clamp.png> <./images/clamp_printed.jpg>
- <./images/Splines.png>]
+ <./images/3doodlerCircuitry.jpg>]
+<images/Splines.png, id=80, 412.54124pt x 397.485pt>
+File: images/Splines.png Graphic file (type png)
+ <use images/Splines.png>
+Package pdftex.def Info: images/Splines.png used on input line 189.
+(pdftex.def)             Requested size: 216.81pt x 208.9011pt.
+LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
+(Font)              scaled to size 9.19998pt on input line 196.
+LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <10> not available
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 196.
+LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
+(Font)              scaled to size 9.19998pt on input line 196.
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 181.
- [3] [4] (./template.bbl
+put line 209.
+
+Underfull \hbox (badness 10000) in paragraph at lines 248--250
+
+ []
+
+[3 <./images/GUI.png> <./images/Splines.png>] [4]
+<images/vertical.jpg, id=115, 3276.24pt x 2457.18pt>
+File: images/vertical.jpg Graphic file (type jpg)
+ <use images/vertical.jpg>
+Package pdftex.def Info: images/vertical.jpg used on input line 372.
+(pdftex.def)             Requested size: 144.54pt x 108.3937pt.
+
+<images/line.jpg, id=116, 3276.24pt x 2457.18pt>
+File: images/line.jpg Graphic file (type jpg)
+ <use images/line.jpg>
+Package pdftex.def Info: images/line.jpg used on input line 379.
+(pdftex.def)             Requested size: 144.54pt x 108.3937pt.
+
+<images/toast.jpg, id=117, 960.58875pt x 739.76375pt>
+File: images/toast.jpg Graphic file (type jpg)
+ <use images/toast.jpg>
+Package pdftex.def Info: images/toast.jpg used on input line 386.
+(pdftex.def)             Requested size: 144.54pt x 111.3097pt.
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 400.
+
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsptm.fd
+File: omsptm.fd 
+)
+LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <9> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 400.
+ [5] (./template.bbl
 Missing character: There is no â in font ptmri7t!
 Missing character: There is no € in font ptmri7t!
 Missing character: There is no ™ in font ptmri7t!
-)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 359.
- [5]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 359.
- (./template.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 359.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 359.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 359.
+
+Underfull \hbox (badness 3965) in paragraph at lines 51--55
+[]\OT1/ptm/m/sc/9 Kuka\OT1/ptm/m/n/9 .  Youbot de-tailed spec-i-fi-ca-tions.  [
+][]$\OT1/pcr/m/n/9 http : / / www .
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 51--55
+\OT1/pcr/m/n/9 youbot-[]store . com / wiki / index . php ? title =
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 102--106
+\OT1/pcr/m/n/9 com / wp-[]content / uploads / 2011 / 08 / polyjet _
+ []
+
+[6 <./images/vertical.jpg> <./images/line.jpg> <./images/toast.jpg>])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 425.
+ [7
+
+]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 425.
+
+(./template.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 425.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 425.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 425.
  ) 
 Here is how much of TeX's memory you used:
- 8105 strings out of 493481
- 120022 string characters out of 3143392
- 221892 words of memory out of 3000000
- 11234 multiletter control sequences out of 15000+200000
+ 8169 strings out of 493481
+ 121180 string characters out of 3143392
+ 221748 words of memory out of 3000000
+ 11283 multiletter control sequences out of 15000+200000
  33946 words of font info for 74 fonts, out of 3000000 for 9000
  965 hyphenation exceptions out of 8191
- 43i,15n,40p,1420b,498s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,15n,40p,1420b,499s stack positions out of 5000i,500n,10000p,200000b,50000s
 pdfTeX warning (dest): name{algorithm.2} has been referenced but does not exi
 st, replaced by a fixed one
 
@@ -582,10 +649,10 @@ ve/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dis
 t/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/u
 rw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8
 a.pfb>
-Output written on template.pdf (5 pages, 2597970 bytes).
+Output written on template.pdf (7 pages, 5880926 bytes).
 PDF statistics:
- 179 PDF objects out of 1000 (max. 8388607)
- 147 compressed objects within 2 object streams
- 45 named destinations out of 1000 (max. 500000)
- 26 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 222 PDF objects out of 1000 (max. 8388607)
+ 182 compressed objects within 2 object streams
+ 52 named destinations out of 1000 (max. 500000)
+ 56 words of extra memory for PDF output out of 10000 (max. 10000000)
 

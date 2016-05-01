@@ -14,15 +14,17 @@
 \global\let\hyper@last\relax 
 \gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand\HyField@AuxAddToFields[1]{}
-\citation{AirFoam, RampFoam}
+\citation{AirFoam}
+\citation{RampFoam}
 \citation{WirePrint}
 \citation{ArmFab}
 \citation{ArchFab}
 \citation{WirePrint}
 \citation{Mataerial}
+\citation{3doodler}
 \citation{YouBot}
+\newlabel{fig:teaser}{{}{1}{\relax }{Doc-Start}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Our 3Doodler robot in the real-world and in simulation. \relax }}{1}{figure.1}}
-\newlabel{fig:teaser}{{1}{1}{Our 3Doodler robot in the real-world and in simulation. \relax \relax }{figure.1}{}}
 \@LN@col{1}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}}
 \@LN@col{2}
@@ -43,30 +45,40 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The 3Doodler Clamp.\relax }}{2}{figure.caption.3}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Clamp Design}{2}{section.3}}
 \@LN@col{2}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces A cartoon of a working drawing.\relax }}{2}{figure.caption.4}}
-\newlabel{fig:splines}{{4}{2}{A cartoon of a working drawing.\relax \relax }{figure.caption.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Hardware modifications to the 3Doodler.\relax }}{2}{figure.caption.4}}
+\newlabel{fig:circuitry}{{4}{2}{Hardware modifications to the 3Doodler.\relax \relax }{figure.caption.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Arduino Interface}{2}{section.4}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}UI Design}{2}{section.5}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Path Generation Algorithm}{2}{section.6}}
 \@LN@col{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces The graphical user interface with two splines drawn.\relax }}{3}{figure.caption.5}}
+\newlabel{fig:GUI}{{5}{3}{The graphical user interface with two splines drawn.\relax \relax }{figure.caption.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces A cartoon of a working drawing.\relax }}{3}{figure.caption.6}}
+\newlabel{fig:splines}{{6}{3}{A cartoon of a working drawing.\relax \relax }{figure.caption.6}{}}
+\@LN@col{2}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Constraint Generation}{3}{subsection.6.1}}
 \@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Graph To Forest\relax }}{3}{algorithm.1}}
 \newlabel{alg:graphtoforest}{{1}{3}{Graph To Forest\relax \relax }{algorithm.1}{}}
+\@LN@col{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Heuristic Ordering}{4}{subsection.6.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Polyline Conversion}{4}{subsection.6.3}}
 \@LN@col{2}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Heuristic Ordering}{3}{subsection.6.2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Polyline Conversion}{3}{subsection.6.3}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}YouBot Control}{3}{section.7}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}YouBot Control}{4}{section.7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Arm Control}{4}{subsection.7.1}}
 \citation{RRT}
 \citation{biRRT}
 \@LN@col{1}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Arm Control}{4}{subsection.7.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Base Control}{5}{subsection.7.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}YouBot Planning and Collision Avoidance}{5}{section.8}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces SamplesToFab\relax }}{5}{algorithm.2}}
+\newlabel{alg:samplestofab}{{2}{5}{SamplesToFab\relax \relax }{algorithm.2}{}}
 \@LN@col{2}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Base Control}{4}{subsection.7.2}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}YouBot Planning and Collision Avoidance}{4}{section.8}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces SamplesToFab\relax }}{4}{algorithm.2}}
-\newlabel{alg:samplestofab}{{2}{4}{SamplesToFab\relax \relax }{algorithm.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Results}{5}{section.9}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusion and Future Work}{5}{section.10}}
+\citation{Caligraphy}
 \bibstyle{acmsiggraph}
 \bibdata{template}
+\bibcite{3doodler}{\citename {3Doodler }}
 \bibcite{OpenRAVE}{\citename {Diankov and Kuffner }2008}
 \bibcite{ArchFab}{\citename {Hack et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2013}
 \bibcite{AirFoam}{\citename {Hunt et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2014}
@@ -76,12 +88,19 @@
 \bibcite{YouBot}{\citename {Kuka }}
 \bibcite{RRT}{\citename {Lavalle }1998}
 \bibcite{Mataerial}{\citename {Mataerial }}
+\bibcite{Caligraphy}{\citename {Mueller et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2013}
 \bibcite{WirePrint}{\citename {Mueller et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2014}
+\bibcite{RampFoam}{\citename {Napp and Nagpal }2014}
 \bibcite{PythonOCC}{\citename {Pyt }}
 \bibcite{ROS}{\citename {Quigley et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2009}
 \bibcite{TangoBlack}{\citename {Stratasys }}
+\newlabel{fig:vertical}{{7a}{6}{A vertical line.\relax \relax }{figure.caption.7}{}}
+\newlabel{sub@fig:vertical}{{a}{6}{A vertical line.\relax \relax }{figure.caption.7}{}}
+\newlabel{fig:horizontal}{{7b}{6}{A horizontal line. The thinning sections are due to imperfections of extrusion with the thick 3Doodler nozzle with which we were experimenting.\relax \relax }{figure.caption.7}{}}
+\newlabel{sub@fig:horizontal}{{b}{6}{A horizontal line. The thinning sections are due to imperfections of extrusion with the thick 3Doodler nozzle with which we were experimenting.\relax \relax }{figure.caption.7}{}}
+\newlabel{fig:toast}{{7c}{6}{A square. Curvature is caused due to the slightly circular motion of rotating joint 1 on the YouBot.\relax \relax }{figure.caption.7}{}}
+\newlabel{sub@fig:toast}{{c}{6}{A square. Curvature is caused due to the slightly circular motion of rotating joint 1 on the YouBot.\relax \relax }{figure.caption.7}{}}
 \@LN@col{1}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Results}{5}{section.9}}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusion}{5}{section.10}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Future Work}{5}{subsection.10.1}}
+\@LN@col{2}
+\@LN@col{1}
 \@LN@col{2}
